@@ -57,8 +57,10 @@ list(APPEND ${name}.dx.sources "dx/asset/image.c" "dx/asset/palette.c")
 list(APPEND ${name}.dx.headers "dx/asset/image.h" "dx/asset/palette.h")
 
 # DX ADL sources.
-list(APPEND ${name}.dx.sources "dx/adl/reader.c")
-list(APPEND ${name}.dx.headers "dx/adl/reader.h")
+list(APPEND ${name}.dx.sources "dx/adl/syntactical.c")
+list(APPEND ${name}.dx.headers "dx/adl/syntactical.h")
+list(APPEND ${name}.dx.sources "dx/adl/semantical.c")
+list(APPEND ${name}.dx.headers "dx/adl/semantical.h")
 
 
 # DX visuals abstraction layer (VAL).

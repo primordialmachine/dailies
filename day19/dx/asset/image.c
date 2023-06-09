@@ -118,10 +118,10 @@ void dx_asset_image_destruct(dx_asset_image* self) {
   self->pixels = NULL;
 }
 
-dx_asset_image* dx_asset_image_create_rgb_u8(DX_PIXEL_FORMAT pixel_format,
-                                             size_t width,
-                                             size_t height,
-                                             DX_RGB_U8 const* color) {
+dx_asset_image* dx_asset_image_create(DX_PIXEL_FORMAT pixel_format,
+                                      size_t width,
+                                      size_t height,
+                                      DX_RGB_U8 const* color) {
   dx_asset_image* self = DX_ASSET_IMAGE(dx_object_alloc(sizeof(dx_asset_image)));
   if (!self) {
     return NULL;

@@ -21,18 +21,18 @@ static inline dx_asset_image* DX_ASSET_IMAGE(void* p) {
 /// This function has set the error variable.
 /// @remarks All pixels are assigned the default pixel value of the specified pixel format.
 /// For DX_PIXEL_FORMAT_RGB this default value is the color "Black" (0, 0, 0).
-int dx_asset_image_construct_rgb_u8(dx_asset_image* self,
-                                    DX_PIXEL_FORMAT pixel_format,
-                                    size_t width,
-                                    size_t height,
-                                    DX_RGB_U8 const* color);
+int dx_asset_image_construct(dx_asset_image* self,
+                             DX_PIXEL_FORMAT pixel_format,
+                             size_t width,
+                             size_t height,
+                             DX_RGB_U8 const* color);
 
 void dx_asset_image_destruct(dx_asset_image* self);
 
-dx_asset_image* dx_asset_image_create_rgb_u8(DX_PIXEL_FORMAT pixel_format,
-                                             size_t width,
-                                             size_t height,
-                                             DX_RGB_U8 const* color);
+dx_asset_image* dx_asset_image_create(DX_PIXEL_FORMAT pixel_format,
+                                      size_t width,
+                                      size_t height,
+                                      DX_RGB_U8 const* color);
 
 // A brush that fills its area with a single color.
 #define DX_ASSET_BRUSH_FLAGS_SOLID (0)

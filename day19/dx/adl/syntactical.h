@@ -1,9 +1,9 @@
-/// @file dx/asset/reader.h
-/// @brief Functionality to read asset description language files.
+/// @file dx/adl/syntactical.h
+/// @brief Syntactical functionality (aka "parsing") of Asset Description Language (ADL) files.
 /// @author Michael Heilmann (michaelheilmann@primordialmachine.com)
 
-#if !defined(DX_ASSET_READER_H_INCLUDED)
-#define DX_ASSET_READER_H_INCLUDED
+#if !defined(DX_ADL_SYNTACTICAL_H_INCLUDED)
+#define DX_ADL_SYNTACTICAL_H_INCLUDED
 
 #include "dx/core.h"
 
@@ -500,4 +500,4 @@ int dx_adl_parser_tests();
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-#endif // DX_ASSET_READER_H_INCLUDED
+#endif // DX_ADL_SYNTACTICAL_H_INCLUDED

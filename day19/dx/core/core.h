@@ -346,12 +346,16 @@ typedef int dx_error;
 #define DX_SYNTACTICAL_ERROR (8)
 
 /// @ingroup core
+/// @brief Symbolic constant for a dx_error value indicating a failure because of a semantical error.
+#define DX_SEMANTICAL_ERROR (9)
+
+/// @ingroup core
 /// @brief Symbolic constant for a dx_error value indicating a failure because something was not found.
-#define DX_NOT_FOUND (9)
+#define DX_NOT_FOUND (10)
 
 /// @ingroup core
 /// @brief Symbolic constant for a dx_error value indicating a failure because of an overflow.
-#define DX_OVERFLOW (10)
+#define DX_OVERFLOW (11)
 
 /// @ingroup core
 /// @brief Get the value of the error variable.

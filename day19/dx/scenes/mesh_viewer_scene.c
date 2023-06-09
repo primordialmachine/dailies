@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include "dx/cbinding.h"
 #include "dx/scenes/create_assets.h"
-#include "dx/adl/reader.h"
+#include "dx/adl/syntactical.h"
 
 static int mesh_instance_on_startup(dx_mesh_viewer_scene* self) {
   DX_MAT4 m;

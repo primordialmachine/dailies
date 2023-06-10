@@ -50,8 +50,6 @@ list(APPEND ${name}.dx.headers "dx/core/convert.h")
 # DX asset sources.
 list(APPEND ${name}.dx.sources "dx/asset/texture.c" "dx/asset/material.c" "dx/asset/mesh.c" "dx/asset/mesh/generators.c")
 list(APPEND ${name}.dx.headers "dx/asset/texture.h" "dx/asset/material.h" "dx/asset/mesh.h" "dx/asset/mesh/generators.h")
-list(APPEND ${name}.dx.sources "dx/asset/parser/read_rgb_u8.c")
-list(APPEND ${name}.dx.headers "dx/asset/parser/read_rgb_u8.h")
 
 list(APPEND ${name}.dx.sources "dx/asset/image.c" "dx/asset/palette.c")
 list(APPEND ${name}.dx.headers "dx/asset/image.h" "dx/asset/palette.h")

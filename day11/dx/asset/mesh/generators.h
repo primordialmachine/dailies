@@ -3,6 +3,11 @@
 
 #include "dx/asset/mesh.h"
 
+/// @brief Create a triangle mesh.
+/// @return
+/// The zero value on success. A non-zero value on failure.
+int dx_asset_mesh_on_triangle(dx_asset_mesh* mesh);
+
 /// @brief Create an empty mesh.
 /// @return The zero value on success. A non-zero value on failure.
 int dx_asset_mesh_on_empty(dx_asset_mesh* mesh);

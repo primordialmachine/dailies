@@ -57,7 +57,7 @@ struct dx_asset_mesh {
 /// - "cube" a cube mesh
 /// - "empty" an empty mesh
 /// @return A pointer to the dx_asset_mesh object on success. A null pointer on failure.
-dx_asset_mesh* dx_asset_mesh_create(char const* specifier, dx_asset_material* material);
+dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier, dx_asset_material* material);
 
 /// @brief Pack the mesh data into a single stream of the specified format.
 /// @param self A pointer to this mesh.

@@ -76,33 +76,11 @@ static void dx_asset_mesh_destruct(dx_asset_mesh* self) {
   }
 }
 
-// create a triangle mesh
-static int _triangle(dx_asset_mesh* self) {
-  static size_t const number_of_vertices = 3;
-  static DX_VEC3 const xyz[] = {
-    { -0.5f, -0.5f, 0.f, },
-    { +0.5f, -0.5f, 0.f, },
-    { +0.0f, +0.5f, 0.f, },
-  };
-  static DX_VEC2 const ambient_uv[] =  {
-    { 0.f, 0.f, },
-    { 1.f, 0.f, },
-    { 0.f, 1.f, },
-  };
-  if (resize_vertex_arrays(self, true, number_of_vertices)) {
+static int dx_asset_mesh_construct(dx_asset_mesh* self, dx_string* specifier) {
+  if (!self || !specifier) {
+    dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  memcpy(self->vertices.xyz, xyz, number_of_vertices * sizeof(DX_VEC3));
-  for (size_t i = 0, n = self->number_of_vertices; i < n; ++i) {
-    static const DX_VEC4 color = { 1.f, 1.f, 1.f, 1.f };
-    self->vertices.ambient_rgba[i] = color;
-  }
-  memcpy(self->vertices.ambient_uv, ambient_uv, number_of_vertices * sizeof(DX_VEC2));
-  self->mesh.ambient_rgba = (DX_VEC4){ 0.f, 0.f, 0.f, 0.f };
-  return 0;
-}
-
-static int dx_asset_mesh_construct(dx_asset_mesh* self, char const* specifier) {
   // "default" mesh
   self->vertices.xyz = malloc(1);
   if (!self->vertices.xyz) {
@@ -131,13 +109,22 @@ static int dx_asset_mesh_construct(dx_asset_mesh* self, char const* specifier) {
   self->number_of_vertices = 0;
   
   int (*generator)(dx_asset_mesh*)  = NULL;
-  if (!strcmp(specifier, "empty"))
-    generator = &dx_asset_mesh_on_empty;
-  else if (!strcmp(specifier, "quadriliteral"))
-    generator = &dx_asset_mesh_on_quadriliteral;
-  else if (!strcmp(specifier, "triangle"))
-    generator = &_triangle;
-  else {
+
+#define SELECT_GENERATOR(name) \
+  { \
+    dx_string* temporary = dx_string_create(#name, strlen(#name)); \
+    if (dx_string_is_equal_to(specifier, temporary)) { \
+      generator = &dx_asset_mesh_on_##name; \
+    } \
+  }
+
+SELECT_GENERATOR(empty)
+SELECT_GENERATOR(quadriliteral)
+SELECT_GENERATOR(triangle)
+
+#undef SELECT_GENERATOR
+  
+  if (!generator) {
     dx_set_error(DX_INVALID_ARGUMENT);
     free(self->vertices.ambient_uv);
     self->vertices.ambient_uv = NULL;
@@ -161,17 +148,17 @@ static int dx_asset_mesh_construct(dx_asset_mesh* self, char const* specifier) {
   return 0;
 }
 
-dx_asset_mesh* dx_asset_mesh_create(char const* specifier) {
-  dx_asset_mesh* mesh = DX_ASSET_MESH(dx_object_alloc(sizeof(dx_asset_mesh)));
-  if (!mesh) {
+dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier) {
+  dx_asset_mesh* self = DX_ASSET_MESH(dx_object_alloc(sizeof(dx_asset_mesh)));
+  if (!self) {
     return NULL;
   }
-  if (dx_asset_mesh_construct(mesh, specifier)) {
-    DX_UNREFERENCE(mesh);
-    mesh = NULL;
+  if (dx_asset_mesh_construct(self, specifier)) {
+    DX_UNREFERENCE(self);
+    self = NULL;
     return NULL;
   }
-  return mesh;
+  return self;
 }
 
 int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, void** bytes, size_t* number_of_bytes) {
@@ -244,21 +231,6 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
     return 1;
   } break;
   };
-  return 0;
-}
-
-int dx_asset_mesh_transform_range(dx_asset_mesh* self, DX_MAT4 const* a, size_t i, size_t n) {
-  if (!self || !a) {
-    dx_set_error(DX_INVALID_ARGUMENT);
-    return 1;
-  }
-  if (i + n > self->number_of_vertices) {
-    dx_set_error(DX_INVALID_ARGUMENT);
-    return 1;
-  }
-  for (size_t j = i, m = i + n; j < m; ++j) {
-    dx_transform_point(&self->vertices.xyz[j], &self->vertices.xyz[j], a);
-  }
   return 0;
 }
 
@@ -352,25 +324,4 @@ int dx_asset_mesh_clear(dx_asset_mesh* self) {
 
 void dx_asset_mesh_set_mesh_ambient_rgba(dx_asset_mesh* self, DX_VEC4 const* value) {
   self->mesh.ambient_rgba = *value;
-}
-
-int dx_asset_mesh_append_range(dx_asset_mesh* self, size_t i, size_t n) {
-  if (!self) {
-    dx_set_error(DX_INVALID_ARGUMENT);
-    return 1;
-  }
-  if (i + n > self->number_of_vertices) {
-    dx_set_error(DX_INVALID_ARGUMENT);
-    return 1;
-  }
-  size_t j = self->number_of_vertices;
-  if (resize_vertex_arrays(self, false, j + n)) {
-    return 1;
-  }
-  for (size_t k = 0; k < n; ++k) {
-    self->vertices.xyz[j + k] = self->vertices.xyz[i + k];
-    self->vertices.ambient_rgba[j + k] = self->vertices.ambient_rgba[i + k];
-    self->vertices.ambient_uv[j + k] = self->vertices.ambient_uv[i + k];
-  }
-  return 0;
 }

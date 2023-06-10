@@ -419,3 +419,224 @@ END:
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static dx_asset_texture* _parse_texture(dx_adl_node* node, dx_asset_palette* palette) {
+  dx_asset_texture* texture = NULL;
+  dx_asset_image* image = NULL;
+  // image
+  {
+    dx_string* name = dx_string_create("image", sizeof("image") - 1);
+    if (!name) {
+      goto END;
+    }
+    dx_adl_node* child_node = dx_adl_node_map_get(node, name);
+    DX_UNREFERENCE(name);
+    name = NULL;
+    if (!child_node) {
+      goto END;
+    }
+    image = dx_adl_parse_image(child_node, palette);// palette_get(palette, child_node->string);
+    if (!image) {
+      goto END;
+    }
+  }
+  texture = dx_asset_texture_create(image);
+  DX_UNREFERENCE(image);
+  image = NULL;
+  if (!texture) {
+    goto END;
+  }
+END:
+  if (image) {
+    DX_UNREFERENCE(image);
+    image = NULL;
+  }
+  return texture;
+}
+
+dx_asset_texture* dx_adl_parse_texture(dx_adl_node* node, dx_asset_palette* palette) {
+  dx_asset_texture* texture = NULL;
+  dx_string* texture_type = NULL;
+  dx_string* type = NULL;
+
+  type = _parse_type(node);
+  if (!type) {
+    return NULL;
+  }
+  texture_type = dx_string_create("Texture", sizeof("Texture") - 1);
+  if (!texture_type) {
+    goto END;
+  }
+  if (dx_string_is_equal_to(type, texture_type)) {
+    texture = _parse_texture(node, palette);
+    if (!texture) {
+      goto END;
+    }
+  } else {
+    dx_set_error(DX_SEMANTICAL_ERROR);
+    goto END;
+  }
+END:
+  if (texture_type) {
+    DX_UNREFERENCE(texture_type);
+    texture_type = NULL;
+  }
+  return texture;
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static dx_asset_material* _parse_material(dx_adl_node* node, dx_asset_palette* palette) {
+  dx_asset_material* material = NULL;
+  dx_asset_texture* ambient_texture = NULL;
+  // ambientTexture?
+  {
+    dx_string* name = dx_string_create("ambientTexture", sizeof("ambientTexture") - 1);
+    if (!name) {
+      goto END;
+    }
+    dx_error old_error = dx_get_error();
+    dx_adl_node* child_node = dx_adl_node_map_get(node, name);
+    DX_UNREFERENCE(name);
+    name = NULL;
+    if (child_node) {
+      ambient_texture = dx_adl_parse_texture(child_node, palette);
+      if (!ambient_texture) {
+        goto END;
+      }
+    } else {
+      dx_set_error(old_error);
+    }
+  }
+  material = dx_asset_material_create();
+  if (!material) {
+    goto END;
+  }
+  if (dx_asset_material_set_ambient_texture(material, ambient_texture)) {
+    goto END;
+  }
+END:
+  if (ambient_texture) {
+    DX_UNREFERENCE(ambient_texture);
+    ambient_texture = NULL;
+  }
+  return material;
+}
+
+dx_asset_material* dx_adl_parse_material(dx_adl_node* node, dx_asset_palette* palette) {
+  dx_asset_material* material = NULL;
+  dx_string* material_type = NULL;
+  dx_string* type = NULL;
+
+  type = _parse_type(node);
+  if (!type) {
+    return NULL;
+  }
+  material_type = dx_string_create("Material", sizeof("Material") - 1);
+  if (!material_type) {
+    goto END;
+  }
+  if (dx_string_is_equal_to(type, material_type)) {
+    material = _parse_material(node, palette);
+    if (!material) {
+      goto END;
+    }
+  } else {
+    dx_set_error(DX_SEMANTICAL_ERROR);
+    goto END;
+  }
+END:
+  if (material_type) {
+    DX_UNREFERENCE(material_type);
+    material_type = NULL;
+  }
+  return material;
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static dx_asset_mesh* _parse_mesh(dx_adl_node* node, dx_asset_palette* palette) {
+  dx_asset_mesh* mesh = NULL;
+  dx_string* generator = NULL;
+  dx_asset_material* material = NULL;
+  // generator
+  {
+    dx_string* name = dx_string_create("generator", sizeof("generator") - 1);
+    if (!name) {
+      goto END;
+    }
+    dx_adl_node* child_node = dx_adl_node_map_get(node, name);
+    DX_UNREFERENCE(name);
+    name = NULL;
+    if (!child_node) {
+      goto END;
+    }
+    generator = dx_adl_node_get_string(child_node);
+    if (!generator) {
+      goto END;
+    }
+  }
+  // material
+  {
+    dx_string* name = dx_string_create("material", sizeof("material") - 1);
+    if (!name) {
+      goto END;
+    }
+    dx_adl_node* child_node = dx_adl_node_map_get(node, name);
+    DX_UNREFERENCE(name);
+    name = NULL;
+    if (!child_node) {
+      goto END;
+    }
+    material = dx_adl_parse_material(child_node, palette);
+    if (!material) {
+      goto END;
+    }
+  }
+  mesh = dx_asset_mesh_create(generator, material);
+  if (!mesh) {
+    goto END;
+  }
+END:
+  if (material) {
+    DX_UNREFERENCE(material);
+    material = NULL;
+  }
+  if (generator) {
+    DX_UNREFERENCE(generator);
+    generator = NULL;
+  }
+  return mesh;
+}
+
+dx_asset_mesh* dx_adl_parse_mesh(dx_adl_node* node, dx_asset_palette* palette) {
+  dx_asset_mesh* mesh = NULL;
+  dx_string* mesh_type = NULL;
+  dx_string* type = NULL;
+
+  type = _parse_type(node);
+  if (!type) {
+    return NULL;
+  }
+  mesh_type = dx_string_create("Mesh", sizeof("Mesh") - 1);
+  if (!mesh_type) {
+    goto END;
+  }
+  if (dx_string_is_equal_to(type, mesh_type)) {
+    mesh = _parse_mesh(node, palette);
+    if (!mesh) {
+      goto END;
+    }
+  } else {
+    dx_set_error(DX_SEMANTICAL_ERROR);
+    goto END;
+  }
+END:
+  if (mesh_type) {
+    DX_UNREFERENCE(mesh_type);
+    mesh_type = NULL;
+  }
+  return mesh;
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

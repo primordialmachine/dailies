@@ -135,6 +135,74 @@ static int make_commands_1(dx_command_list* commands) {
   return 0;
 }
 
+static char const* CHECKERBOARD_CUBE_MESH_DESCRIPTOR =
+"{\n"
+"  type : 'Mesh',\n"
+"  generator : 'cube',\n"
+"  material : {\n"
+"    type : 'Material',\n"
+"    ambientTexture : {\n"
+"      type : 'Texture',\n"
+"      image : {\n"
+"        type : 'Image',\n"
+"        width : 2048,\n"
+"        height : 2048,\n"
+"        color : 'malachite',\n"
+"        brush :{\n"
+"          type : 'CheckerboardBrush',\n"
+"          numberOfCheckers : {\n"
+"            horizontal: 16,\n"
+"            vertical: 16,\n"
+"          },\n"
+"          checkerSize: {\n"
+"            horizontal: 128,\n"
+"            vertical: 128,\n"
+"          },\n"
+"          checkerColors: {\n"
+"            first: 'malachite',\n"
+"            second: 'amber',\n"
+"          },\n"
+"        },\n" // brush
+"      },\n" // image
+"    },\n" // ambientTexture
+"  },\n" // material
+"}\n" //
+;
+
+static char const* CHECKERBOARD_OCTAHEDRON_MESH_DESCRIPTOR =
+"{\n"
+"  type : 'Mesh',\n"
+"  generator : 'octahedron',\n"
+"  material : {\n"
+"    type : 'Material',\n"
+"    ambientTexture : {\n"
+"      type : 'Texture',\n"
+"      image : {\n"
+"        type : 'Image',\n"
+"        width : 2048,\n"
+"        height : 2048,\n"
+"        color : 'malachite',\n"
+"        brush :{\n"
+"          type : 'CheckerboardBrush',\n"
+"          numberOfCheckers : {\n"
+"            horizontal: 16,\n"
+"            vertical: 16,\n"
+"          },\n"
+"          checkerSize: {\n"
+"            horizontal: 128,\n"
+"            vertical: 128,\n"
+"          },\n"
+"          checkerColors: {\n"
+"            first: 'malachite',\n"
+"            second: 'amber',\n"
+"          },\n"
+"        },\n" // brush
+"      },\n" // image
+"    },\n" // ambientTexture
+"  },\n" // material
+"}\n" //
+;
+
 static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context* context) {
 #if defined(DX_MATH_WITH_TESTS) && 1 == DX_MATH_WITH_TESTS
   if (dx_math_tests()) {
@@ -162,13 +230,12 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
   }
 #endif
   {
-    dx_asset_material* asset_material = _create_checkerboard_material();
-    if (!asset_material) {
-      return 1;
+    dx_asset_mesh* asset_mesh = NULL;
+    if (!strcmp(scene->name, "cube")) {
+      asset_mesh = _create_mesh_from_text(CHECKERBOARD_CUBE_MESH_DESCRIPTOR, strlen(CHECKERBOARD_CUBE_MESH_DESCRIPTOR));
+    } else if (!strcmp(scene->name, "octahedron")) {
+      asset_mesh = _create_mesh_from_text(CHECKERBOARD_OCTAHEDRON_MESH_DESCRIPTOR, strlen(CHECKERBOARD_OCTAHEDRON_MESH_DESCRIPTOR));
     }
-    dx_asset_mesh* asset_mesh = _create_mesh(scene->name, asset_material);
-    DX_UNREFERENCE(asset_material);
-    asset_material = NULL;
     if (!asset_mesh) {
       return 1;
     }

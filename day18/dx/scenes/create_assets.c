@@ -1,5 +1,8 @@
 #include "dx/scenes/create_assets.h"
 
+// strlen
+#include <string.h>
+
 dx_asset_texture* _create_checkerbord_texture() {
   // Create a checkerboard texture.
   DX_ASSET_CHECKERBOARD_BRUSH brush;
@@ -56,7 +59,13 @@ dx_asset_material* _create_checkerboard_material() {
 }
 
 dx_asset_mesh* _create_mesh(char const* specifier, dx_asset_material* material) {
-  dx_asset_mesh* mesh = dx_asset_mesh_create(specifier, material);
+  dx_string* specifier1 = dx_string_create(specifier, strlen(specifier));
+  if (!specifier1) {
+    return NULL;
+  }
+  dx_asset_mesh* mesh = dx_asset_mesh_create(specifier1, material);
+  DX_UNREFERENCE(specifier1);
+  specifier1 = NULL;
   if (!mesh) {
     return NULL;
   }

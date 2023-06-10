@@ -3,13 +3,10 @@
 
 #include "dx/asset/mesh.h"
 
-/// @brief Create a cube mesh.
+/// @brief Create a triangle mesh.
 /// @return
 /// The zero value on success. A non-zero value on failure.
-/// @remarks
-/// Eeach side has width and height of @a 1.
-/// The cube is centered around the origin.
-int dx_asset_mesh_on_cube(dx_asset_mesh* mesh);
+int dx_asset_mesh_on_triangle(dx_asset_mesh* mesh);
 
 /// @brief Create an empty mesh.
 /// @return The zero value on success. A non-zero value on failure.

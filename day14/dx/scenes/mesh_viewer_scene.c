@@ -153,7 +153,13 @@ static int add_mesh_draw_command(dx_command_list* commands,
                                  int (*on_mesh_loaded)(dx_asset_mesh*),
                                  char const* name,
                                  dx_context* context) {
-  dx_asset_mesh* mesh = dx_asset_mesh_create(name);
+  dx_string* name1 = dx_string_create(name, strlen(name));
+  if (!name1) {
+    return 1;
+  }
+  dx_asset_mesh* mesh = dx_asset_mesh_create(name1);
+  DX_UNREFERENCE(name1);
+  name1 = NULL;
   if (!mesh) {
     return 1;
   }

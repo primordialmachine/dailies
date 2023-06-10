@@ -231,7 +231,13 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
   dx_mat4_set_identity(&scene->world_matrix);
   //
   {
-    mesh = dx_asset_mesh_create(scene->name);
+    dx_string* name1 = dx_string_create(scene->name, strlen(scene->name));
+    if (!name1) {
+      return 1;
+    }
+    mesh = dx_asset_mesh_create(name1);
+    DX_UNREFERENCE(name1);
+    name1 = NULL;
     if (!mesh) {
       return 1;
     }

@@ -37,7 +37,7 @@ int dx_asset_material_set_ambient_color(dx_asset_material* self, DX_VEC4 const* 
 }
 
 int dx_asset_material_set_ambient_texture(dx_asset_material* self, dx_asset_texture* value) {
-  if (!self || !value) {
+  if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }

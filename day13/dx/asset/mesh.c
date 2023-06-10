@@ -13,12 +13,12 @@ static inline size_t dx_min_sz(size_t x, size_t y) {
   return x < y ? x : y;
 }
 
-static int resize_vertex_arrays(dx_asset_mesh* mesh, bool shrink, size_t number_of_vertices) {
-  if (mesh->number_of_vertices == number_of_vertices) {
+static int resize_vertex_arrays(dx_asset_mesh* self, bool shrink, size_t number_of_vertices) {
+  if (self->number_of_vertices == number_of_vertices) {
     // if the number of vertices in the mesh is equal to the required number of vertices, return success.
     return 0;
   }
-  if (mesh->number_of_vertices > number_of_vertices && !shrink) {
+  if (self->number_of_vertices > number_of_vertices && !shrink) {
     // if the number of vertices in the mesh is greater than the required and shrinking is not desired, return success.
     return 0;
   }
@@ -31,7 +31,7 @@ static int resize_vertex_arrays(dx_asset_mesh* mesh, bool shrink, size_t number_
     dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
-  memcpy(xyz, mesh->vertices.xyz, dx_min_sz(mesh->number_of_vertices, number_of_vertices) * sizeof(DX_VEC3));
+  memcpy(xyz, self->vertices.xyz, dx_min_sz(self->number_of_vertices, number_of_vertices) * sizeof(DX_VEC3));
 
   DX_VEC4* ambient_rgba = malloc(number_of_vertices * sizeof(DX_VEC4) != 0 ? number_of_vertices * sizeof(DX_VEC4) : 1);
   if (!ambient_rgba) {
@@ -40,105 +40,155 @@ static int resize_vertex_arrays(dx_asset_mesh* mesh, bool shrink, size_t number_
     dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
-  memcpy(ambient_rgba, mesh->vertices.ambient_rgba, dx_min_sz(mesh->number_of_vertices, number_of_vertices) * sizeof(DX_VEC4));
+  memcpy(ambient_rgba, self->vertices.ambient_rgba, dx_min_sz(self->number_of_vertices, number_of_vertices) * sizeof(DX_VEC4));
 
-  mesh->vertices.xyz = xyz;
-  mesh->vertices.ambient_rgba = ambient_rgba;
-  mesh->number_of_vertices = number_of_vertices;
+  self->vertices.xyz = xyz;
+  self->vertices.ambient_rgba = ambient_rgba;
+  self->number_of_vertices = number_of_vertices;
 
   return 0;
 }
 
-static void dx_asset_mesh_destruct(dx_asset_mesh* mesh) {
-  if (mesh->vertices.ambient_rgba) {
-    free(mesh->vertices.ambient_rgba);
-    mesh->vertices.ambient_rgba = NULL;
+static void dx_asset_mesh_destruct(dx_asset_mesh* self) {
+  if (self->vertices.ambient_rgba) {
+    free(self->vertices.ambient_rgba);
+    self->vertices.ambient_rgba = NULL;
   }
-  if (mesh->vertices.xyz) {
-    free(mesh->vertices.xyz);
-    mesh->vertices.xyz = NULL;
+  if (self->vertices.xyz) {
+    free(self->vertices.xyz);
+    self->vertices.xyz = NULL;
   }
 }
 
-// create a triangle mesh
-static int _triangle(dx_asset_mesh* mesh) {
-  static size_t const number_of_vertices = 3;
-  static DX_VEC3 const xyz[] = {
-    { -0.5f, -0.5f, 0.f, },
-    { +0.5f, -0.5f, 0.f, },
-    { +0.0f, +0.5f, 0.f, },
-  };
-  if (resize_vertex_arrays(mesh, true, number_of_vertices)) {
+static int dx_asset_mesh_construct(dx_asset_mesh* self, dx_string* specifier) {
+  if (!self || !specifier) {
+    dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  memcpy(mesh->vertices.xyz, xyz, number_of_vertices * sizeof(DX_VEC3));
-  for (size_t i = 0, n = mesh->number_of_vertices; i < n; ++i) {
-    static const DX_VEC4 color = { 1.f, 1.f, 1.f, 1.f };
-    mesh->vertices.ambient_rgba[i] = color;
-  }
-  mesh->mesh.ambient_rgba = (DX_VEC4){ 0.f, 0.f, 0.f, 0.f };
-  return 0;
-}
-
-static int dx_asset_mesh_construct(dx_asset_mesh* mesh, char const* specifier) {
   // "default" mesh
-  mesh->vertices.xyz = malloc(1);
-  if (!mesh->vertices.xyz) {
+  self->vertices.xyz = malloc(1);
+  if (!self->vertices.xyz) {
     dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
 
-  mesh->vertices.ambient_rgba = malloc(1);
-  if (!mesh->vertices.ambient_rgba) {
+  self->vertices.ambient_rgba = malloc(1);
+  if (!self->vertices.ambient_rgba) {
     dx_set_error(DX_ALLOCATION_FAILED);
-    free(mesh->vertices.xyz);
-    mesh->vertices.xyz = NULL;
+    free(self->vertices.xyz);
+    self->vertices.xyz = NULL;
     return 1;
   }
 
-  mesh->mesh.ambient_rgba = (DX_VEC4){ 0.f, 0.f, 0.f, 0.f };
-  mesh->number_of_vertices = 0;
+  self->mesh.ambient_rgba = (DX_VEC4){ 0.f, 0.f, 0.f, 0.f };
+  self->number_of_vertices = 0;
   
   int (*generator)(dx_asset_mesh*)  = NULL;
-  if (!strcmp(specifier, "empty"))
-    generator = &dx_asset_mesh_on_empty;
-  else if (!strcmp(specifier, "quadriliteral"))
-    generator = &dx_asset_mesh_on_quadriliteral;
-  else if (!strcmp(specifier, "triangle"))
-    generator = &_triangle;
-  else {
+
+#define SELECT_GENERATOR(name) \
+  { \
+    dx_string* temporary = dx_string_create(#name, strlen(#name)); \
+    if (dx_string_is_equal_to(specifier, temporary)) { \
+      generator = &dx_asset_mesh_on_##name; \
+    } \
+  }
+
+SELECT_GENERATOR(empty)
+SELECT_GENERATOR(quadriliteral)
+SELECT_GENERATOR(triangle)
+
+#undef SELECT_GENERATOR
+  
+  if (!generator) {
     dx_set_error(DX_INVALID_ARGUMENT);
-    free(mesh->vertices.ambient_rgba);
-    mesh->vertices.ambient_rgba = NULL;
-    free(mesh->vertices.xyz);
-    mesh->vertices.xyz = NULL;
+    free(self->vertices.ambient_rgba);
+    self->vertices.ambient_rgba = NULL;
+    free(self->vertices.xyz);
+    self->vertices.xyz = NULL;
     return 1;
   }
 
-  if ((*generator)(mesh)) {
-    free(mesh->vertices.ambient_rgba);
-    mesh->vertices.ambient_rgba = NULL;
-    free(mesh->vertices.xyz);
-    mesh->vertices.xyz = NULL;
+  if ((*generator)(self)) {
+    free(self->vertices.ambient_rgba);
+    self->vertices.ambient_rgba = NULL;
+    free(self->vertices.xyz);
+    self->vertices.xyz = NULL;
     return 1;
   }
-  DX_OBJECT(mesh)->destruct = (void(*)(dx_object*)) & dx_asset_mesh_destruct;
+  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_asset_mesh_destruct;
   return 0;
 }
 
-dx_asset_mesh* dx_asset_mesh_create(char const* specifier) {
-  dx_asset_mesh* mesh = DX_ASSET_MESH(dx_object_alloc(sizeof(dx_asset_mesh)));
-  if (!mesh) {
+dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier) {
+  dx_asset_mesh* self = DX_ASSET_MESH(dx_object_alloc(sizeof(dx_asset_mesh)));
+  if (!self) {
     return NULL;
   }
-  if (dx_asset_mesh_construct(mesh, specifier)) {
-    DX_UNREFERENCE(mesh);
-    mesh = NULL;
+  if (dx_asset_mesh_construct(self, specifier)) {
+    DX_UNREFERENCE(self);
+    self = NULL;
     return NULL;
   }
-  return mesh;
+  return self;
 }
-int dx_asset_mesh_append_quadriliteral(dx_asset_mesh* mesh) {
+
+int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, void** bytes, size_t* number_of_bytes) {
+  switch (vertex_format) {
+  case DX_VERTEX_FORMAT_POSITION: {
+    void* p = malloc(self->number_of_vertices * sizeof(DX_VEC3));
+    if (!p) {
+      dx_set_error(DX_ALLOCATION_FAILED);
+      return 1;
+    }
+    char* q = (char*)p;
+    for (size_t i = 0, n = self->number_of_vertices; i < n; ++i) {
+      *((DX_VEC3*)q) = self->vertices.xyz[i];
+      q += sizeof(DX_VEC3);
+    }
+    *bytes = p;
+    *number_of_bytes = self->number_of_vertices * (sizeof(DX_VEC3));
+    return 0;
+  } break;
+  case DX_VERTEX_FORMAT_COLOR: {
+    void* p = malloc(self->number_of_vertices * sizeof(DX_VEC4));
+    if (!p) {
+      dx_set_error(DX_ALLOCATION_FAILED);
+      return 1;
+    }
+    char* q = (char*)p;
+    for (size_t i = 0, n = self->number_of_vertices; i < n; ++i) {
+      *((DX_VEC4*)q) = self->vertices.ambient_rgba[i];
+      q += sizeof(DX_VEC4);
+    }
+    *bytes = p;
+    *number_of_bytes = self->number_of_vertices * (sizeof(DX_VEC4));
+    return 0;
+  } break;
+  case DX_VERTEX_FORMAT_POSITION_COLOR: {
+    void* p = malloc(self->number_of_vertices * (sizeof(DX_VEC3) + sizeof(DX_VEC4)));
+    if (!p) {
+      dx_set_error(DX_ALLOCATION_FAILED);
+      return 1;
+    }
+    char* q = (char*)p;
+    for (size_t i = 0, n = self->number_of_vertices; i < n; ++i) {
+      *((DX_VEC3*)q) = self->vertices.xyz[i];
+      q += sizeof(DX_VEC3);
+      *((DX_VEC4*)q) = self->vertices.ambient_rgba[i];
+      q += sizeof(DX_VEC4);
+    }
+    *bytes = p;
+    *number_of_bytes = self->number_of_vertices * (sizeof(DX_VEC3) + sizeof(DX_VEC4));
+    return 0;
+  } break;
+  default: {
+    return 1;
+  } break;
+  };
+  return 0;
+}
+
+int dx_asset_mesh_append_quadriliteral(dx_asset_mesh* self) {
   static const float a = -0.5f;
   static const float b = +0.5f;
 
@@ -154,52 +204,65 @@ int dx_asset_mesh_append_quadriliteral(dx_asset_mesh* mesh) {
   p[3] = (DX_VEC3){ a, b, 0.f }; // left, top
   c[3] = (DX_VEC4){ 1.f, 1.f, 1.f, 1.f };
 
-  size_t i = mesh->number_of_vertices;
-  if (resize_vertex_arrays(mesh, false, i + 6)) {
+  size_t i = self->number_of_vertices;
+  if (resize_vertex_arrays(self, false, i + 6)) {
     return 1;
   }
   
   // triangle #1
 
   // left top
-  mesh->vertices.xyz[i] = p[3];
-  mesh->vertices.ambient_rgba[i] = c[3];
+  self->vertices.xyz[i] = p[3];
+  self->vertices.ambient_rgba[i] = c[3];
   i++;
 
   // left bottom
-  mesh->vertices.xyz[i] = p[0];
-  mesh->vertices.ambient_rgba[i] = c[0];
+  self->vertices.xyz[i] = p[0];
+  self->vertices.ambient_rgba[i] = c[0];
   i++;
 
   // right top
-  mesh->vertices.xyz[i] = p[2];
-  mesh->vertices.ambient_rgba[i] = c[2];
+  self->vertices.xyz[i] = p[2];
+  self->vertices.ambient_rgba[i] = c[2];
   i++;
 
   // triangle #2
 
   // right top
-  mesh->vertices.xyz[i] = p[2];
-  mesh->vertices.ambient_rgba[i] = c[2];
+  self->vertices.xyz[i] = p[2];
+  self->vertices.ambient_rgba[i] = c[2];
   i++;
 
   // left bottom
-  mesh->vertices.xyz[i] = p[0];
-  mesh->vertices.ambient_rgba[i] = c[0];
+  self->vertices.xyz[i] = p[0];
+  self->vertices.ambient_rgba[i] = c[0];
   i++;
 
   // right bottom
-  mesh->vertices.xyz[i] = p[1];
-  mesh->vertices.ambient_rgba[i] = c[1];
+  self->vertices.xyz[i] = p[1];
+  self->vertices.ambient_rgba[i] = c[1];
   i++;
 
   return 0;
 }
 
-int dx_asset_mesh_clear(dx_asset_mesh* mesh) {
-  return resize_vertex_arrays(mesh, true, 0);
+int dx_asset_mesh_append_vertex(dx_asset_mesh* self,
+                                DX_VEC3 const* xyz,
+                                DX_VEC4 const* ambient_rgba)
+{
+  size_t i = self->number_of_vertices;
+  if (resize_vertex_arrays(self, false, i + 1)) {
+    return 1;
+  }
+  self->vertices.xyz[i] = *xyz;
+  self->vertices.ambient_rgba[i] = *ambient_rgba;
+  return 0;
 }
 
-void dx_asset_mesh_set_mesh_ambient_rgba(dx_asset_mesh* mesh, DX_VEC4 const* value) {
-  mesh->mesh.ambient_rgba = *value;
+int dx_asset_mesh_clear(dx_asset_mesh* self) {
+  return resize_vertex_arrays(self, true, 0);
+}
+
+void dx_asset_mesh_set_mesh_ambient_rgba(dx_asset_mesh* self, DX_VEC4 const* value) {
+  self->mesh.ambient_rgba = *value;
 }

@@ -45,18 +45,23 @@ static size_t on_hash_key(dx_object** a);
 static bool on_compare_keys(dx_object** a, dx_object** b);
 
 static void on_added(dx_object** a) {
+  DX_DEBUG_CHECK_MAGIC_BYTES(*a);
   DX_REFERENCE(*a);
 }
 
 static void on_removed(dx_object** a) {
+  DX_DEBUG_CHECK_MAGIC_BYTES(*a);
   DX_UNREFERENCE(*a);
 }
 
 static size_t on_hash_key(dx_object** a) {
+  DX_DEBUG_CHECK_MAGIC_BYTES(*a);
   return dx_string_get_hash_value(DX_STRING(*a));
 }
 
 static bool on_compare_keys(dx_object** a, dx_object** b) {
+  DX_DEBUG_CHECK_MAGIC_BYTES(*a);
+  DX_DEBUG_CHECK_MAGIC_BYTES(*b);
   return dx_string_is_equal_to(DX_STRING(*a), DX_STRING(*b));
 }
 

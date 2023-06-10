@@ -5,6 +5,7 @@
 #include "dx/asset/image.h"
 #include "dx/asset/material.h"
 #include "dx/asset/mesh.h"
+#include "dx/asset/mesh_instance.h"
 #include "dx/asset/palette.h"
 #include "dx/asset/texture.h"
 
@@ -25,6 +26,10 @@ dx_asset_material* dx_adl_parse_material(dx_adl_node* node, dx_asset_palette* pa
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 dx_asset_mesh* dx_adl_parse_mesh(dx_adl_node* node, dx_asset_palette* palette);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+dx_asset_mesh_instance* dx_adl_parse_mesh_instance(dx_adl_node* node, dx_asset_palette* palette);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

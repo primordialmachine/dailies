@@ -164,26 +164,37 @@ struct _dx_impl {
 
 #define _DX_IMPL_GREATEST_CAPACITY (DX_SIZE_GREATEST / sizeof(_dx_impl_node*))
 
+#define _DX_IMPL_BUCKET_SIZE sizeof(_dx_impl_node*)
+
+static _dx_impl_node** _dx_impl_allocate_bucket_array(size_t n) {
+  size_t overflow;
+  dx_size n_bytes = dx_mul_sz(n, _DX_IMPL_BUCKET_SIZE, &overflow);
+  if (overflow) {
+    dx_set_error(DX_ALLOCATION_FAILED);
+    return NULL;
+  }
+  _dx_impl_node** buckets = malloc(n_bytes > 0 ? n_bytes : _DX_IMPL_BUCKET_SIZE);
+  if (!buckets) {
+    dx_set_error(DX_ALLOCATION_FAILED);
+    return NULL;
+  }
+  for (dx_size i = 0; i < n; ++i) {
+    buckets[i] = NULL;
+  }
+  return buckets;
+}
+
 static int _dx_impl_set_capacity(_dx_impl* self, dx_size new_capacity) {
   if (!self || !new_capacity) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
   dx_size old_capacity = self->capacity;
-  dx_size overflow;
-  dx_size new_capacity_bytes = dx_mul_sz(new_capacity, sizeof(_dx_impl_node*), &overflow);
-  if (overflow) {
-    dx_set_error(DX_INVALID_ARGUMENT);
-    return 1;
-  }
   _dx_impl_node** old_buckets = self->buckets;
-  _dx_impl_node** new_buckets = malloc(new_capacity_bytes > 0 ? new_capacity_bytes : 1);
+  _dx_impl_node** new_buckets = _dx_impl_allocate_bucket_array(new_capacity);
   if (!new_buckets) {
     dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
-  }
-  for (dx_size i = 0; i < new_capacity; ++i) {
-    new_buckets[i] = NULL;
   }
   for (dx_size i = 0; i < old_capacity; ++i) {
     _dx_impl_node** old_bucket = &self->buckets[i];
@@ -217,16 +228,13 @@ static inline int _dx_impl_initialize(_dx_impl* self, DX_POINTER_HASHMAP_CONFIGU
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  self->buckets = malloc(sizeof(_dx_impl_node) * 8);
+  static size_t const INITIAL_CAPACITY = 8;
+  self->buckets = _dx_impl_allocate_bucket_array(INITIAL_CAPACITY);
   if (!self->buckets) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
-  for (size_t i = 0; i < 8; ++i) {
-    self->buckets[i] = NULL;
-  }
   self->size = 0;
-  self->capacity = 8;
+  self->capacity = INITIAL_CAPACITY;
   self->key_added_callback = configuration->key_added_callback;
   self->key_removed_callback = configuration->key_removed_callback;
   self->hash_key_callback = configuration->hash_key_callback;
@@ -238,7 +246,9 @@ static inline int _dx_impl_initialize(_dx_impl* self, DX_POINTER_HASHMAP_CONFIGU
 }
 
 static inline void _dx_impl_uninitialize(_dx_impl* self) {
+  DX_DEBUG_ASSERT(NULL != self);
   _dx_impl_clear(self);
+  DX_DEBUG_ASSERT(NULL != self->buckets);
   free(self->buckets);
   self->buckets = NULL;
 }
@@ -420,6 +430,8 @@ int dx_pointer_hashmap_initialize(dx_pointer_hashmap* self, DX_POINTER_HASHMAP_C
 }
 
 void dx_pointer_hashmap_uninitialize(dx_pointer_hashmap* self) {
+  DX_DEBUG_ASSERT(NULL != self);
+  DX_DEBUG_ASSERT(NULL != self->pimpl);
   _dx_impl_uninitialize(_DX_IMPL(self->pimpl));
   free(self->pimpl);
   self->pimpl = NULL;

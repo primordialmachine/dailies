@@ -40,8 +40,28 @@ static dx_asset_palette* _create_defaul_palette() {
   return palette;
 }
 
+
+static dx_adl_parser* _create_parser() {
+  dx_adl_diagnostics* diagnostics = dx_adl_diagnostics_create();
+  if (!diagnostics) {
+    return NULL;
+  }
+  dx_adl_scanner* scanner = dx_adl_scanner_create();
+  if (!scanner) {
+    DX_UNREFERENCE(diagnostics);
+    diagnostics = NULL;
+    return NULL;
+  }
+  dx_adl_parser* parser = dx_adl_parser_create(scanner, diagnostics);
+  DX_UNREFERENCE(scanner);
+  scanner = NULL;
+  DX_UNREFERENCE(diagnostics);
+  diagnostics = NULL;
+  return parser;
+}
+
 dx_adl_node* _parse(char const* p, size_t n) {
-  dx_adl_parser* parser = dx_adl_parser_create();
+  dx_adl_parser* parser = _create_parser();
   if (!parser) {
     return NULL;
   }
@@ -56,7 +76,7 @@ dx_adl_node* _parse(char const* p, size_t n) {
   return node;
 }
 
-dx_asset_material* _create_material_from_text(char const* adl_text, size_t adl_text_length) {
+dx_asset_mesh_instance* _create_mesh_instance_from_text(char const* adl_text, size_t adl_text_length) {
   dx_asset_palette* palette = _create_defaul_palette();
   if (!palette) {
     return NULL;
@@ -67,29 +87,10 @@ dx_asset_material* _create_material_from_text(char const* adl_text, size_t adl_t
     palette = NULL;
     return NULL;
   }
-  dx_asset_material* asset_material = dx_adl_parse_material(adl_node, palette);
+  dx_asset_mesh_instance* asset_mesh_instance = dx_adl_parse_mesh_instance(adl_node, palette);
   DX_UNREFERENCE(adl_node);
   adl_node = NULL;
   DX_UNREFERENCE(palette);
   palette = NULL;
-  return asset_material;
-}
-
-dx_asset_mesh* _create_mesh_from_text(char const* adl_text, size_t adl_text_length) {
-  dx_asset_palette* palette = _create_defaul_palette();
-  if (!palette) {
-    return NULL;
-  }
-  dx_adl_node* adl_node = _parse(adl_text, adl_text_length);
-  if (!adl_node) {
-    DX_UNREFERENCE(palette);
-    palette = NULL;
-    return NULL;
-  }
-  dx_asset_mesh* asset_mesh = dx_adl_parse_mesh(adl_node, palette);
-  DX_UNREFERENCE(adl_node);
-  adl_node = NULL;
-  DX_UNREFERENCE(palette);
-  palette = NULL;
-  return asset_mesh;
+  return asset_mesh_instance;
 }

@@ -6,11 +6,16 @@
 
 /// @defgroup core General-purpose, re-usable, stable functionality with a mature implementation
 
+
 /// @defgroup core-visuals Core functionality related to visuals
 /// @ingroup core
 
 /// @defgroup core-audials Core functionality related to audials
 /// @ingroup core
+
+/// @defgroup core-hapticals Core functionality related to haptics
+/// @ingroup core
+
 
 /// @defgroup core-file-system Core functionality related to the file system
 /// @ingroup core
@@ -20,6 +25,7 @@
 #include "dx/core/core.h"
 #include "dx/core/count_leading_zeroes.h"
 #include "dx/core/file_system.h"
+#include "dx/core/hapticals.h"
 #include "dx/core/math.h"
 #include "dx/core/next_power_of_two.h"
 #include "dx/core/os.h"

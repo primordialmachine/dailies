@@ -1,0 +1,38 @@
+{
+  type : 'MeshInstance',
+  transformation : {
+    type : 'Translation',
+    x : 0, y : 0, z : 0,
+  },
+  mesh : {
+    type : 'Mesh',
+    generator : 'octahedron',
+    material : {
+      type : 'Material',
+      ambientTexture : {
+        type : 'Texture',
+        image : {
+          type : 'Image',
+          width : 2048,
+          height : 2048,
+          color : 'malachite',
+          brush : {
+            type : 'CheckerboardBrush',
+            numberOfCheckers : {
+              horizontal : 16,
+              vertical : 16,
+            },
+            checkerSize : {
+              horizontal : 128,
+              vertical : 128,
+            },
+            checkerColors : {
+              first : 'malachite',
+              second : 'amber',
+            },
+          },// Image.brush
+        },// Texture.image
+      },// Material.ambientTexture
+    },// Mesh.material
+  },// MeshInstance.mesh
+}

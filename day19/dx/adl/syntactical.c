@@ -47,6 +47,12 @@ static int dx_adl_scanner_on_name(dx_adl_scanner* self);
 
 static int dx_adl_scanner_on_number(dx_adl_scanner* self);
 
+static int dx_adl_scanner_skip_single_line_comment(dx_adl_scanner* self);
+
+static int dx_adl_scanner_skip_multi_line_comment(dx_adl_scanner* self);
+
+static int dx_adl_scanner_skip_nls_and_ws(dx_adl_scanner* self);
+
 static int dx_adl_scanner_save_and_next(dx_adl_scanner* self) {
   if (self->current == self->end) {
     return 1;
@@ -279,6 +285,62 @@ int dx_adl_scanner_construct(dx_adl_scanner* self) {
   return 0;
 }
 
+static int dx_adl_scanner_skip_single_line_comment(dx_adl_scanner* self) {
+  while (!(self->current == self->end)
+    && !(self->current != self->end && *self->current == '\n')
+    && !(self->current != self->end && *self->current == '\r')) {
+    self->current++;
+  }
+  return 0;
+}
+
+static int dx_adl_scanner_skip_multi_line_comment(dx_adl_scanner* self) {
+  bool last_was_star = false;
+  while (true) {
+    if (self->current == self->end) {
+      dx_set_error(DX_LEXICAL_ERROR);
+      return 1;
+    } else if (*self->current == '*') {
+      self->current++;
+      if (self->current == self->end) {
+        dx_set_error(DX_LEXICAL_ERROR);
+        return 1;
+      }
+      if (*self->current == '/') {
+        self->current++;
+        return 0;
+      } else {
+        continue;
+      }
+    }
+  }
+  return 0;
+}
+
+static int dx_adl_scanner_skip_nls_and_ws(dx_adl_scanner* self) {
+  bool stop;
+  do {
+    stop = true;
+    // Skip whitespace.
+    if ((*self->current == ' ' || *self->current == '\t') && self->current != self->end) {
+      stop = false;
+      do {
+        self->current++;
+      } while ((*self->current == ' ' || *self->current == '\t') && self->current != self->end);
+    }
+    // Skip newlines.
+    while ((*self->current == '\n' || *self->current == '\r') && self->current != self->end) {
+      stop = false;
+      char old = *self->current;
+      self->current++;
+      if ((*self->current == '\n' || *self->current == '\r') && *self->current != old && self->current != self->end) {
+        self->current++;
+      }
+    }
+  } while (!stop);
+  return 0;
+}
+
 void dx_adl_scanner_destruct(dx_adl_scanner* self) {
   dx_byte_array_destruct(&self->text);
 }
@@ -305,31 +367,8 @@ int dx_adl_scanner_set(dx_adl_scanner* self, char const* p, size_t l) {
   return 0;
 }
 
-int dx_adl_scanner_skip_nls_and_ws(dx_adl_scanner* self) {
-  bool stop;
-  do {
-    stop = true;
-    // Skip whitespace.
-    if ((*self->current == ' ' || *self->current == '\t') && self->current != self->end) {
-      stop = false;
-      do {
-        self->current++;
-      } while ((*self->current == ' ' || *self->current == '\t') && self->current != self->end);
-    }
-    // Skip newlines.
-    while ((*self->current == '\n' || *self->current == '\r') && self->current != self->end) {
-      stop = false;
-      char old = *self->current;
-      self->current++;
-      if ((*self->current == '\n' || *self->current == '\r') && *self->current != old && self->current != self->end) {
-        self->current++;
-      }
-    }
-  } while (!stop);
-  return 0;
-}
-
 int dx_adl_scanner_step(dx_adl_scanner* self) {
+START:
   // If we reached the end of the input, we return immediatly.
   if (self->type == dx_adl_word_type_end_of_input) {
     return 0;
@@ -344,6 +383,33 @@ int dx_adl_scanner_step(dx_adl_scanner* self) {
     return 0;
   }
   switch (*self->current) {
+    case '/': {
+      self->current++;
+      if (self->current == self->end) {
+        if (dx_get_error() == DX_NO_ERROR) {
+          dx_set_error(DX_LEXICAL_ERROR);
+        }
+        return 1;
+      }
+      if (*self->current == '/') {
+        self->current++;
+        if (dx_adl_scanner_skip_single_line_comment(self)) {
+          return 1;
+        }
+        goto START;
+      } else if (*self->current == '*') {
+        self->current++;
+        if (dx_adl_scanner_skip_multi_line_comment(self)) {
+          return 1;
+        }
+        goto START;
+      } else {
+        if (dx_get_error() == DX_NO_ERROR) {
+          dx_set_error(DX_LEXICAL_ERROR);
+        }
+        return 1;
+      }
+    } break;
     case ',': {
       dx_byte_array_clear(&self->text);
       if (dx_byte_array_append(&self->text, ",", sizeof(",") - 1)) {
@@ -468,10 +534,12 @@ static size_t on_hash_key(dx_object** a);
 static bool on_compare_keys(dx_object** a, dx_object** b);
 
 static void on_added(dx_object** a) {
+  DX_DEBUG_ASSERT(NULL != *a);
   DX_REFERENCE(*a);
 }
 
 static void on_removed(dx_object** a) {
+  DX_DEBUG_ASSERT(NULL != *a);
   DX_UNREFERENCE(*a);
 }
 
@@ -484,6 +552,10 @@ static bool on_compare_keys(dx_object** a, dx_object** b) {
 }
 
 int dx_adl_node_construct(dx_adl_node* self, dx_adl_node_type type) {
+  if (!self) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
   self->type = type;
   switch (self->type) {
     case dx_adl_node_type_error: {
@@ -519,12 +591,17 @@ int dx_adl_node_construct(dx_adl_node* self, dx_adl_node_type type) {
         return 1;
       }
     } break;
+    default: {
+      dx_set_error(DX_INVALID_ARGUMENT);
+      return 1;
+    } break;
   };
   DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_adl_node_destruct;
   return 0;
 }
 
 void dx_adl_node_destruct(dx_adl_node* self) {
+  DX_DEBUG_ASSERT(NULL != self);
   switch (self->type) {
     case dx_adl_node_type_error: {
     } break;
@@ -535,10 +612,13 @@ void dx_adl_node_destruct(dx_adl_node* self) {
       dx_pointer_hashmap_uninitialize(&self->map);
     } break;
     case dx_adl_node_type_number: {
+      DX_DEBUG_ASSERT(NULL != self->number);
+      DX_DEBUG_ASSERT(NULL != self->string);
       DX_UNREFERENCE(self->number);
       self->number = NULL;
     } break;
     case dx_adl_node_type_string: {
+      DX_DEBUG_ASSERT(NULL != self->string);
       DX_UNREFERENCE(self->string);
       self->string = NULL;
     } break;
@@ -943,30 +1023,32 @@ static int dx_adl_parser_next(dx_adl_parser* self) {
   return dx_adl_scanner_step(self->scanner);
 }
 
-int dx_adl_parser_construct(dx_adl_parser* self) {
-  if (!self) {
+int dx_adl_parser_construct(dx_adl_parser* self, dx_adl_scanner* scanner, dx_adl_diagnostics* diagnostics) {
+  if (!self || !scanner || !diagnostics) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  self->scanner = dx_adl_scanner_create();
-  if (!self->scanner) {
-    return 1;
-  }
+  self->scanner = scanner;
+  DX_REFERENCE(self->scanner);
+  self->diagnostics = diagnostics;
+  DX_REFERENCE(self->diagnostics);
   DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_adl_parser_destruct;
   return 0;
 }
 
 void dx_adl_parser_destruct(dx_adl_parser* self) {
+  DX_UNREFERENCE(self->diagnostics);
+  self->diagnostics = NULL;
   DX_UNREFERENCE(self->scanner);
   self->scanner = NULL;
 }
 
-dx_adl_parser* dx_adl_parser_create() {
+dx_adl_parser* dx_adl_parser_create(dx_adl_scanner* scanner, dx_adl_diagnostics* diagnostics) {
   dx_adl_parser* self = DX_ADL_PARSER(dx_object_alloc(sizeof(dx_adl_parser)));
   if (!self) {
     return NULL;
   }
-  if (dx_adl_parser_construct(self)) {
+  if (dx_adl_parser_construct(self, scanner, diagnostics)) {
     DX_UNREFERENCE(self);
     self = NULL;
     return NULL;
@@ -1018,13 +1100,27 @@ dx_adl_node* dx_adl_parser_run(dx_adl_parser* self) {
 
 #if defined(DX_ADL_PARSER_WITH_TESTS) && DX_ADL_PARSER_WITH_TESTS
 
-static int dx_adl_parser_test1() {
-  dx_adl_parser* parser = NULL;
-  parser = dx_adl_parser_create();
-  if (!parser) {
-    goto END;
+static dx_adl_parser* dx_adl_parser_test_create_parser() {
+  dx_adl_diagnostics* diagnostics = dx_adl_diagnostics_create();
+  if (!diagnostics) {
+    return NULL;
   }
-END:
+  dx_adl_scanner* scanner = dx_adl_scanner_create();
+  if (!scanner) {
+    DX_UNREFERENCE(diagnostics);
+    diagnostics = NULL;
+    return NULL;
+  }
+  dx_adl_parser* parser = dx_adl_parser_create(scanner, diagnostics);
+  DX_UNREFERENCE(scanner);
+  scanner = NULL;
+  DX_UNREFERENCE(diagnostics);
+  diagnostics = NULL;
+  return parser;
+}
+
+static int dx_adl_parser_test1() {
+  dx_adl_parser* parser = dx_adl_parser_test_create_parser();
   if (parser) {
     DX_UNREFERENCE(parser);
     parser = NULL;
@@ -1043,7 +1139,8 @@ static int dx_adl_parser_test2() {
     ;
   dx_adl_parser* parser = NULL;
   dx_adl_node* root_node = NULL;
-  parser = dx_adl_parser_create();
+  
+  parser = dx_adl_parser_test_create_parser();
   if (!parser) {
     goto END;
   }
@@ -1086,7 +1183,8 @@ static int dx_adl_parser_test3() {
     ;
   dx_adl_parser* parser = NULL;
   dx_adl_node* root_node = NULL;
-  parser = dx_adl_parser_create();
+
+  parser = dx_adl_parser_test_create_parser();
   if (!parser) {
     goto END;
   }

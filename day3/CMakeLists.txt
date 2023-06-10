@@ -29,13 +29,18 @@ if(MSVC)
   # Treat certain warnings as errors.
 
   # 'function' : different 'const' qualifiers
-  target_compile_options(${name} PRIVATE "/we4090")
+  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4090")
+  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4090")
   # 'function' incompatible types - from 'xxx' to 'yyy'
-  target_compile_options(${name} PRIVATE "/we4133")
+  #target_compile_options(${name} PRIVATE "/we4133")
+  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4133")
+  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4133")
   # 'xxx': too many actual parameters
-  target_compile_options(${name} PRIVATE "/we4020")
+  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4020")
+  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4020")
   # 'xxx' undefined; assuming extern returning int
-  target_compile_options(${name} PRIVATE "/we4013")
+  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4013")
+  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4013")
 
 endif()
 

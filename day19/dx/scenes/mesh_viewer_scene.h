@@ -18,9 +18,9 @@ struct dx_mesh_viewer_scene {
   char* name;
   int (*on_mesh_loaded)(dx_asset_mesh*);
 
-  // @brief The single mesh to render.
+  // @brief The single dx_mesh to render.
   dx_mesh* mesh;
-  /// @brief List of mesh instances to render.
+  /// @brief List of dx_mesh_instance objects to render.
   dx_object_array mesh_instances;
 
   /// @brief The commands to be executed when entering a frame.

@@ -5,7 +5,7 @@
 #if !defined(DX_ADL_SYNTACTICAL_H_INCLUDED)
 #define DX_ADL_SYNTACTICAL_H_INCLUDED
 
-#include "dx/core.h"
+#include "dx/adl/diagnostics.h"
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -48,6 +48,15 @@
 /// newline := '\\n' | '\\r' | '\\n\\r' | '\\r\\n'
 /// @endcode
 ///
+/// ## comments
+/// The language supports both single-line comments and multi-line comments.
+/// Single-line comments start with two consecutive slashes @code{//} and extend to the end of the line.
+/// Multi-line comments start with a slash and star @code{/*} and end with a star and a slash @code{*/}.
+/// @code{//} has no special meaning either comment.
+/// @code{/*} and @code{*/} have no special meaning single-line comments.
+/// Currently, the language does not provide means to enter @code{*/} multi-line comments.
+/// Multi-line comments do not ntest.
+/// 
 /// ## digit
 /// The word <code>digit</code> are
 /// @code
@@ -451,21 +460,27 @@ struct dx_adl_parser {
   dx_object _parent;
   /// @brief A pointer to the underlaying scanner.
   dx_adl_scanner* scanner;
+  /// @brief A pointer to the underlaying diagnostics.
+  dx_adl_diagnostics* diagnostics;
 };
 
 /// @brief Construct this parser with an empty input.
 /// @param self A pointer to this parser.
+/// @param scanner A pointer to the underlaying scanner.
+/// @param diagnostics A pointer to the underlaying diagnostics.
 /// @success The parser was assigned the empty input and is in the start state w.r.t. the specified input.
-int dx_adl_parser_construct(dx_adl_parser* self);
+int dx_adl_parser_construct(dx_adl_parser* self, dx_adl_scanner* scanner, dx_adl_diagnostics* diagnostics);
 
 /// @brief Destruct this scanner.
 /// @param self A pointer to this parser.
 void dx_adl_parser_destruct(dx_adl_parser* self);
 
 /// @brief Create this parser with an empty input.
+/// @param scanner A pointer to the underlaying scanner.
+/// @param diagnostics A pointer to the underlaying diagnostics.
 /// @return A pointer to the parser on success. The null pointer on failure.
 /// @success The parser was assigned the empty input and is in the start state w.r.t. the specified input.
-dx_adl_parser* dx_adl_parser_create();
+dx_adl_parser* dx_adl_parser_create(dx_adl_scanner* scanner, dx_adl_diagnostics* diagnostics);
 
 /// @brief Set the input to this parser.
 /// @param self A pointer to this parser.

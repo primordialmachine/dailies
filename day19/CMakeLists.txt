@@ -13,8 +13,8 @@ set(${name}.dx.inlays "")
 set(${name}.dx.sources "")
 set(${name}.dx.headers "")
 
-list(APPEND ${name}.dx.sources "dx/application.c" "dx/configuration.c" "dx/input_msgs.c" "dx/scene.c")
-list(APPEND ${name}.dx.headers "dx/application.h" "dx/configuration.h" "dx/input_msgs.h" "dx/scene.h")
+list(APPEND ${name}.dx.sources "dx/application.c" "dx/configuration.c" "dx/scene.c")
+list(APPEND ${name}.dx.headers "dx/application.h" "dx/configuration.h" "dx/scene.h")
 
 # DX scene / create assets.
 list(APPEND ${name}.dx.sources "dx/scenes/create_assets.c")
@@ -47,9 +47,17 @@ list(APPEND ${name}.dx.headers "dx/core/next_power_of_two.h")
 list(APPEND ${name}.dx.sources "dx/core/convert.c")
 list(APPEND ${name}.dx.headers "dx/core/convert.h")
 
+list(APPEND ${name}.dx.sources "dx/core/hapticals.c")
+list(APPEND ${name}.dx.headers "dx/core/hapticals.h")
+list(APPEND ${name}.dx.inlays "dx/core/keyboard_keys.i")
+list(APPEND ${name}.dx.inlays "dx/core/mouse_buttons.i")
+
 # DX asset sources.
-list(APPEND ${name}.dx.sources "dx/asset/texture.c" "dx/asset/material.c" "dx/asset/mesh.c" "dx/asset/mesh/generators.c")
-list(APPEND ${name}.dx.headers "dx/asset/texture.h" "dx/asset/material.h" "dx/asset/mesh.h" "dx/asset/mesh/generators.h")
+list(APPEND ${name}.dx.sources "dx/asset/mesh.c" "dx/asset/mesh_instance.c" "dx/asset/mesh/generators.c")
+list(APPEND ${name}.dx.headers "dx/asset/mesh.h" "dx/asset/mesh_instance.h" "dx/asset/mesh/generators.h")
+
+list(APPEND ${name}.dx.sources "dx/asset/texture.c" "dx/asset/material.c")
+list(APPEND ${name}.dx.headers "dx/asset/texture.h" "dx/asset/material.h")
 
 list(APPEND ${name}.dx.sources "dx/asset/image.c" "dx/asset/palette.c")
 list(APPEND ${name}.dx.headers "dx/asset/image.h" "dx/asset/palette.h")
@@ -59,7 +67,8 @@ list(APPEND ${name}.dx.sources "dx/adl/syntactical.c")
 list(APPEND ${name}.dx.headers "dx/adl/syntactical.h")
 list(APPEND ${name}.dx.sources "dx/adl/semantical.c")
 list(APPEND ${name}.dx.headers "dx/adl/semantical.h")
-
+list(APPEND ${name}.dx.sources "dx/adl/diagnostics.c")
+list(APPEND ${name}.dx.headers "dx/adl/diagnostics.h")
 
 # DX visuals abstraction layer (VAL).
 list(APPEND ${name}.dx.sources "dx/texture.c" "dx/material.c" "dx/mesh.c" "dx/mesh_instance.c")
@@ -143,13 +152,18 @@ if(MSVC)
   # Treat certain warnings as errors.
 
   # 'function' : different 'const' qualifiers
-  target_compile_options(${name} PRIVATE "/we4090")
+  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4090")
+  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4090")
   # 'function' incompatible types - from 'xxx' to 'yyy'
-  target_compile_options(${name} PRIVATE "/we4133")
+  #target_compile_options(${name} PRIVATE "/we4133")
+  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4133")
+  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4133")
   # 'xxx': too many actual parameters
-  target_compile_options(${name} PRIVATE "/we4020")
+  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4020")
+  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4020")
   # 'xxx' undefined; assuming extern returning int
-  target_compile_options(${name} PRIVATE "/we4013")
+  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4013")
+  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4013")
 
 endif()
 
@@ -179,16 +193,14 @@ if (DOXYGEN_FOUND)
 					  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp)
 endif (DOXYGEN_FOUND)
 
-# vertex shader & fragment shader version 3
-add_custom_command(
-  TARGET ${name} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/assets/gl/3.fs"
-                                                "${CMAKE_CURRENT_BINARY_DIR}/assets/gl/3.fs"
-  COMMAND_EXPAND_LISTS
-)
-add_custom_command(
-  TARGET ${name} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/assets/gl/3.vs"
-                                                "${CMAKE_CURRENT_BINARY_DIR}/assets/gl/3.vs"
-  COMMAND_EXPAND_LISTS
-)
+# Copy the assets to the current binary directory.
+file(GLOB_RECURSE files_to_copy RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/assets" "${CMAKE_CURRENT_SOURCE_DIR}/assets/*.*" )
+
+foreach (file_to_copy ${files_to_copy})
+  add_custom_command(
+    TARGET ${name} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/assets/${file_to_copy}"
+                                                  "${CMAKE_CURRENT_BINARY_DIR}/assets/${file_to_copy}"
+    COMMAND_EXPAND_LISTS
+  )
+endforeach()

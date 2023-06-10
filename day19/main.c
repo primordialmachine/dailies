@@ -15,7 +15,6 @@
 
 #include "dx/application.h"
 #include "dx/gl/wgl/wm.h"
-#include "dx/input_msgs.h"
 #include "dx/scenes/mesh_viewer_scene.h"
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -56,7 +55,7 @@ static int on_msg(dx_msg* msg) {
     dx_input_msg* input_msg = DX_INPUT_MSG(msg);
     if (DX_INPUT_MSG_TYPE_KEYBOARD_KEY == dx_input_msg_get_type(input_msg)) {
       dx_keyboard_key_msg* keyboard_key_msg = DX_KEYBOARD_KEY_MSG(input_msg);
-      if (DX_KEYBOARD_KEY_ACTION_RELEASED == dx_keyboard_key_msg_get_action(keyboard_key_msg) && DX_KEYBOARD_KEY_ENTER == dx_keyboard_key_msg_get_key(keyboard_key_msg)) {
+      if (DX_KEYBOARD_KEY_ACTION_RELEASED == dx_keyboard_key_msg_get_action(keyboard_key_msg) && dx_keyboard_key_return == dx_keyboard_key_msg_get_key(keyboard_key_msg)) {
         g_scene_index = (g_scene_index + 1) % 2;
       }
     };
@@ -162,23 +161,27 @@ static int run() {
       on_shutdown_scene(ctx);
       return 1;
     }
-    dx_msg* msg;
-    if (dx_msg_queue_pop(g_msg_queue, &msg)) {
-      dx_log("leave: run\n", sizeof("leave: run\n"));
-      on_shutdown_scene(ctx);
-      return 1;
-    }
-    if (msg) {
-      if (on_msg(msg)) {
-        DX_UNREFERENCE(msg);
-        msg = NULL;
-        on_shutdown_scene(ctx);
+    do {
+      dx_msg* msg;
+      if (dx_msg_queue_pop(g_msg_queue, &msg)) {
         dx_log("leave: run\n", sizeof("leave: run\n"));
+        on_shutdown_scene(ctx);
         return 1;
       }
-      DX_UNREFERENCE(msg);
-      msg = NULL;
-    }
+      if (msg) {
+        if (on_msg(msg)) {
+          DX_UNREFERENCE(msg);
+          msg = NULL;
+          on_shutdown_scene(ctx);
+          dx_log("leave: run\n", sizeof("leave: run\n"));
+          return 1;
+        }
+        DX_UNREFERENCE(msg);
+        msg = NULL;
+      } else {
+        break;
+      }
+    } while (true);
     dx_gl_wgl_enter_frame();
     int canvas_width, canvas_height;
     dx_gl_wgl_get_canvas_size(&canvas_width, &canvas_height);

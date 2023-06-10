@@ -2,6 +2,9 @@
 #define DX_CORE_1_H_INCLUDED
 
 #include "dx/configuration.h"
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 // size_t, SIZE_MAX
 #include <stddef.h>
 // bool, true, false
@@ -11,32 +14,114 @@
 #include <inttypes.h>
 // FLT_RADIX
 #include <float.h>
+// assert
+#include <assert.h>
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/// @brief Macro causing a debug break if the expression evaluates to logically false.
+/// @param expression The expression.
+#define DX_DEBUG_ASSERT(expression) assert(expression)
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /// @ingroup core
-/// @brief Symbolic constant for the "MSVC" compiler.
-#define DX_COMPILER_MSVC (1)
+/// @brief Symbolic constant for the Microsoft Windows operating system.
+#define DX_OPERATING_SYSTEM_WINDOWS (1)
 
 /// @ingroup core
-/// @brief Symbolic constant for the "GCC" compiler.
-#define DX_COMPILER_GCC (2)
+/// @brief Symbolic constant for an Unix operating system.
+#define DX_OPERATING_SYSTEM_UNIX (2)
 
 /// @ingroup core
-/// @brief Symbolic constant for the "CLANG" compiler.
-#define DX_COMPILER_CLANG (3)
+/// @brief Symbolic constant for Linux operating system.
+#define DX_OPERATING_SYSTEM_LINUX (3)
 
 /// @ingroup core
-/// @brief Symbolic constant indicating the compiler.
-/// It is defined to one of #DX_COMPILER_MSVC, #DX_COMPILER_GCC, or #DX_COMPILER_CLANG.
-#if defined(_MSC_VER)
-  #define DX_COMPILER DX_COMPILER_MSVC
-#elif defined(__GNUC__)
-  #define DX_COMPILER DX_COMPILER_GNUC
-#elif defined(__clang__)
-  #define DX_COMPILER DX_COMPILER_CLANG
+/// @brief Symbolic constant for a MacOS operating system.
+#define DX_OPERATING_SYSTEM_MACOS (4)
+
+/// @ingroup core
+/// @brief Symbolic constant for a iOS operating system.
+#define DX_OPERATING_SYSTEM_IOS (5)
+
+/// @ingroup core
+/// @brief Symbolic constant for a iOS simulator operating system.
+#define DX_OPERATING_SYSTEM_IOSSIMULATOR (6)
+
+/// @ingroup core
+/// @brief Symbolic constant for the Cygwin/Microsoft Windows operating system.
+#define DX_OPERATING_SYSTEM_CYGWIN (7)
+
+/// @ingroup core
+/// @brief Symbolic constant for the MSYS/Microsoft Windows operating system.
+#define DX_OPERATING_SYSTEM_MSYS (8)
+
+/// @ingroup core
+/// @brief Symbolic constant for the MinGW/Microsoft Windows operating system.
+#define DX_OPERATING_SYSTEM_MINGW (9)
+
+/// @ingroup core
+/// @brief Symbolic constant indicating the operating system.
+/// It is defined to a value of one of the DX_OPERATING_SYSTEM_* symbolic constants.
+#if defined(_WIN32)
+  #define DX_OPERATING_SYSTEM DX_OPERATING_SYSTEM_WINDOWS
 #else
-  #error("compiler not supported")
+  #error("operating system not supported")
+#endif
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/// @ingroup core
+/// @brief Symbolic constant for the "MSVC" C compiler.
+#define DX_COMPILER_C_MSVC (1)
+
+/// @ingroup core
+/// @brief Symbolic constant for the "GCC" C compiler.
+#define DX_COMPILER_C_GCC (2)
+
+/// @ingroup core
+/// @brief Symbolic constant for the "CLANG" C compiler.
+#define DX_COMPILER_C_CLANG (3)
+
+/// @ingroup core
+/// @brief Symbolic constant for the "MSVC" CPP compiler.
+#define DX_COMPILER_CPP_MSVC (4)
+
+/// @ingroup core
+/// @brief Symbolic constant for the "GCC" CPP compiler.
+#define DX_COMPILER_CPP_GCC (5)
+
+/// @ingroup core
+/// @brief Symbolic constant for the "CLANG" CPP compiler.
+#define DX_COMPILER_CPP_CLANG (6)
+
+
+/// @ingroup core
+/// @brief Symbolic constant indicating the C compiler.
+/// It is defined to a value of one of the DX_COMPILER_C_* symbolic constants.
+#if defined(_MSC_VER)
+  #define DX_COMPILER_C DX_COMPILER_C_MSVC
+#elif defined(__GNUC__)
+  #define DX_COMPILER_C DX_COMPILER_C_GNUC
+#elif defined(__clang__)
+  #define DX_COMPILER_C DX_COMPILER_C_CLANG
+#else
+  #error("C compiler not supported")
+#endif
+
+
+/// @ingroup core
+/// @brief Symbolic constant indicating the CPP compiler.
+/// It is defined to a value of one of the DX_COMPILER_CPP_* symbolic constants.
+#if defined(_MSC_VER)
+  #define DX_COMPILER_CPP DX_COMPILER_CPP_MSVC
+#elif defined(__GNUC__)
+  #define DX_COMPILER_CPP DX_COMPILER_CPP_GNUC
+#elif defined(__clang__)
+  #define DX_COMPILER_CPP DX_COMPILER_CPP_CLANG
+#else
+  #error("CPP compiler not supported")
 #endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -46,9 +131,9 @@
 /// @details
 /// This function annotation indicates that a function never returns.
 /// If it returns, it only returns by raising an exception or by calling `longjmp`.
-#if (DX_COMPILER == DX_COMPILER_GCC || DX_COMPILER == DX_COMPILER_CLANG) && defined(DOXYGEN)
+#if (DX_COMPILER_C == DX_COMPILER_C_GCC || DX_COMPILER_C == DX_COMPILER_C_CLANG) && defined(DOXYGEN)
   #define DX_NO_RETURN() __attribute__ ((noreturn)) /**< @hideinitializer */
-#elif (DX_COMPILER == DX_COMPILER_MSVC) && !defined(DOXYGEN)
+#elif (DX_COMPILER_C == DX_COMPILER_C_MSVC) && !defined(DOXYGEN)
   #define DX_NO_RETURN() __declspec(noreturn) /**< @hideinitializer */
 #else
   #define DX_NO_RETURN()
@@ -71,7 +156,7 @@
 ///   /* (X) In the heart with pain, abort execution. */
 /// }
 /// ```
-#if (DX_COMPILER == DX_COMPILER_GCC || DX_COMPILER == DX_COMPILER_CLANG) && defined(DOXYGEN)
+#if (DX_COMPILER_C == DX_COMPILER_C_GCC || DX_COMPILER_C == DX_COMPILER_C_CLANG) && defined(DOXYGEN)
   #define DX_LIKELY(expression) (__builtin_expect((expression) ? 1 : 0, 1)) /**< @hideinitializer */
 #else
   #define DX_LIKELY(expression) (expression) /**< @hideinitializer */
@@ -94,7 +179,7 @@
 ///   /* (A) Foaming with joy, continue execution. */
 /// }
 /// ```
-#if (DX_COMPILER == DX_COMPILER_GCC || DX_COMPILER == DX_COMPILER_CLANG) && defined(DOXYGEN)
+#if (DX_COMPILER_C == DX_COMPILER_C_GCC || DX_COMPILER_C == DX_COMPILER_C_CLANG) && defined(DOXYGEN)
   #define DX_UNLIKELY(expression) (__builtin_expect((expression) ? 1 : 0, 0)) /**< @hideinitializer */
 #else
   #define DX_UNLIKELY(expression) (expression) /**< @hideinitializer */
@@ -369,7 +454,12 @@ void dx_set_error(dx_error error);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-typedef int64_t dx_reference_counter;
+/// @brief This must be aligned to 64-bit boundaries on 64-bit systems and to 32-bit boundaries on 32-bit systems.
+#if defined(_WIN64)
+  typedef int64_t dx_reference_counter;
+#else
+  typedef int32_t dx_reference_counter;
+#endif
 
 // @return The resulting incremented value.
 dx_reference_counter dx_reference_counter_increment(dx_reference_counter* reference_counter);
@@ -396,7 +486,12 @@ struct dx_object {
   dx_reference_counter reference_count;
   /// @brief A pointer to the destructor of the object or a null pointer.
   void (*destruct)(dx_object* object);
+#if _DEBUG && 1 == DX_OBJECT_WITH_MAGIC_BYTES
+  char magic_bytes[4];
+#endif
 };
+
+void DX_DEBUG_CHECK_MAGIC_BYTES(void* p);
 
 /// @brief
 /// Allocate a dx_object.

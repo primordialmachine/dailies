@@ -15,6 +15,30 @@
 
 #include "dx/gl/wgl/context.h"
 
+/// @brief
+/// Must be defined to either @a 1 or @a 0.
+/// - @a 1: quit message emission is traced.
+/// - @a 0: quit message emission is not traced.
+#define DX_QUIT_MSG_TRACE (1)
+
+/// @brief
+/// Must be defined to either @a 1 or @a 0.
+/// - @a 1: keyboard key message emission is traced.
+/// - @a 0: keyboard key message emission is not traced.
+#define DX_KEYBOARD_KEY_MSG_TRACE (1)
+
+/// @brief
+/// Must be defined to either @a 1 or @a 0.
+/// - @a 1: mouse button message emission is traced.
+/// - @a 0: mouse button message emission is not traced.
+#define DX_MOUSE_BUTTON_MSG_TRACE (1)
+
+/// @brief
+/// Must be defined to either @a 1 or @a 0.
+/// - @a 1: mouse pointer message emission is traced.
+/// - @a 0: mouse pointer message emission is not traced.
+#define DX_MOUSE_POINTER_MSG_TRACE (1)
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 typedef struct dx_gl_wgl_window dx_gl_wgl_window;
@@ -47,36 +71,287 @@ static dx_gl_wgl_application* g_application = NULL;
 
 static int emit_quit_msg();
 
+static int emit_keyboard_key_pressed_msg(dx_keyboard_key key);
+
+static int emit_keyboard_key_released_msg(dx_keyboard_key key);
+
+static int emit_mouse_button_pressed_msg(dx_mouse_button button);
+
+static int emit_mouse_button_released_msg(dx_mouse_button button);
+
 static LRESULT CALLBACK window_procedure(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
+#if !defined(DX_QUIT_MSG_TRACE) || ((DX_QUIT_MSG_TRACE != 1) && (DX_QUIT_MSG_TRACE != 0))
+  #error("DX_QUIT_MSG_TRACE must be defined to 1 or 0")
+#endif
+#if 1 == DX_QUIT_MSG_TRACE
+  #define TRACE(MESSAGE) dx_log(MESSAGE, sizeof(MESSAGE) - 1)
+#else
+  #define TRACE
+#endif
+
 static int emit_quit_msg() {
-  dx_log("enter: emit_quit_msg\n", sizeof("enter: emit_quit_msg\n"));
+  TRACE("enter: emit_quit_msg\n");
   // create the "quit" message.
   dx_msg* msg = DX_MSG(dx_quit_msg_create());
   if (!msg) {
-    dx_log("leave: emit_quit_msg\n", sizeof("leave: emit_quit_msg\n"));
+    TRACE("leave: emit_quit_msg\n");
     return 1;
   }
   if (dx_msg_queue_push(g_application->msg_queue, msg)) {
     DX_UNREFERENCE(msg);
     msg = NULL;
-    dx_log("leave: emit_quit_msg\n", sizeof("leave: emit_quit_msg\n"));
+    TRACE("leave: emit_quit_msg\n");
     return 1;
   }
   DX_UNREFERENCE(msg);
   msg = NULL;
-  dx_log("leave: emit_quit_msg\n", sizeof("leave: emit_quit_msg\n"));
+  TRACE("leave: emit_quit_msg\n");
   return 0;
 }
 
+#undef TRACE
+
+#if !defined(DX_KEYBOARD_KEY_MSG_TRACE) || ((DX_KEYBOARD_KEY_MSG_TRACE != 1) && (DX_KEYBOARD_KEY_MSG_TRACE != 0))
+  #error("DX_KEYBOARD_KEY_MSG_TRACE must be defined to 1 or 0")
+#endif
+#if 1 == DX_KEYBOARD_KEY_MSG_TRACE
+  #define TRACE(MESSAGE) dx_log(MESSAGE, sizeof(MESSAGE) - 1)
+#else
+  #define TRACE
+#endif
+
+static int emit_keyboard_key_pressed_msg(dx_keyboard_key key) {
+  TRACE("enter: emit_keyboard_key_pressed_msg\n");
+  // create the "keyboard key" message.
+  uint8_t modifiers = 0;
+  //
+  if (GetKeyState(VK_LCONTROL)) {
+    modifiers |= dx_modifier_lctrl;
+  }
+  if (GetKeyState(VK_RCONTROL)) {
+    modifiers |= dx_modifier_rctrl;
+  }
+  //
+  if (GetKeyState(VK_LSHIFT)) {
+    modifiers |= dx_modifier_lshift;
+  }
+  if (GetKeyState(VK_RSHIFT)) {
+    modifiers |= dx_modifier_rshift;
+  }
+  //
+  if (GetKeyState(VK_LMENU)) {
+    modifiers |= dx_modifier_lmenu;
+  }
+  if (GetKeyState(VK_RMENU)) {
+    modifiers |= dx_modifier_rmenu;
+  }
+  dx_msg* msg = DX_MSG(dx_keyboard_key_msg_create(DX_KEYBOARD_KEY_ACTION_PRESSED, key, modifiers));
+  if (!msg) {
+    TRACE("leave: emit_keyboard_key_pressed_msg\n");
+    return 1;
+  }
+  if (dx_msg_queue_push(g_application->msg_queue, msg)) {
+    DX_UNREFERENCE(msg);
+    msg = NULL;
+    TRACE("leave: emit_keyboard_key_pressed_msg\n");
+    return 1;
+  }
+  DX_UNREFERENCE(msg);
+  msg = NULL;
+  TRACE("leave: emit_keyboard_key_pressed_msg\n");
+  return 0;
+}
+
+static int emit_keyboard_key_released_msg(dx_keyboard_key key) {
+  TRACE("enter: emit_keyboard_key_released_msg\n");
+  // create the "keyboard key" message.
+  uint8_t modifiers = 0;
+  //
+  if (GetKeyState(VK_LCONTROL)) {
+    modifiers |= dx_modifier_lctrl;
+  }
+  if (GetKeyState(VK_RCONTROL)) {
+    modifiers |= dx_modifier_rctrl;
+  }
+  //
+  if (GetKeyState(VK_LSHIFT)) {
+    modifiers |= dx_modifier_lshift;
+  }
+  if (GetKeyState(VK_RSHIFT)) {
+    modifiers |= dx_modifier_rshift;
+  }
+  //
+  if (GetKeyState(VK_LMENU)) {
+    modifiers |= dx_modifier_lmenu;
+  }
+  if (GetKeyState(VK_RMENU)) {
+    modifiers |= dx_modifier_rmenu;
+  }
+  dx_msg* msg = DX_MSG(dx_keyboard_key_msg_create(DX_KEYBOARD_KEY_ACTION_RELEASED, key, modifiers));
+  if (!msg) {
+    TRACE("leave: emit_keyboard_key_released_msg\n");
+    return 1;
+  }
+  if (dx_msg_queue_push(g_application->msg_queue, msg)) {
+    DX_UNREFERENCE(msg);
+    msg = NULL;
+    TRACE("leave: emit_keyboard_key_released_msg\n");
+    return 1;
+  }
+  DX_UNREFERENCE(msg);
+  msg = NULL;
+  TRACE("leave: emit_keyboard_key_released_msg\n");
+  return 0;
+}
+
+#undef TRACE
+
+#if !defined(DX_MOUSE_BUTTON_MSG_TRACE) || ((DX_MOUSE_BUTTON_MSG_TRACE != 1) && (DX_MOUSE_BUTTON_MSG_TRACE != 0))
+  #error("DX_MOUSE_BUTTON_MSG_TRACE must be defined to 1 or 0")
+#endif
+#if 1 == DX_MOUSE_BUTTON_MSG_TRACE
+  #define TRACE(MESSAGE) dx_log(MESSAGE, sizeof(MESSAGE) - 1)
+#else
+  #define TRACE
+#endif
+
+static int emit_mouse_button_pressed_msg(dx_mouse_button button) {
+  TRACE("enter: emit_mouse_button_pressed_msg\n");
+  // create the "mouse button" message.
+  uint8_t modifiers = 0;
+  //
+  if (GetKeyState(VK_LCONTROL)) {
+    modifiers |= dx_modifier_lctrl;
+  }
+  if (GetKeyState(VK_RCONTROL)) {
+    modifiers |= dx_modifier_rctrl;
+  }
+  //
+  if (GetKeyState(VK_LSHIFT)) {
+    modifiers |= dx_modifier_lshift;
+  }
+  if (GetKeyState(VK_RSHIFT)) {
+    modifiers |= dx_modifier_rshift;
+  }
+  //
+  if (GetKeyState(VK_LMENU)) {
+    modifiers |= dx_modifier_lmenu;
+  }
+  if (GetKeyState(VK_RMENU)) {
+    modifiers |= dx_modifier_rmenu;
+  }
+  dx_msg* msg = DX_MSG(dx_mouse_button_msg_create(DX_MOUSE_BUTTON_ACTION_PRESSED, button, modifiers));
+  if (!msg) {
+    TRACE("leave: emit_mouse_button_pressed_msg\n");
+    return 1;
+  }
+  if (dx_msg_queue_push(g_application->msg_queue, msg)) {
+    DX_UNREFERENCE(msg);
+    msg = NULL;
+    TRACE("leave: emit_mouse_button_pressed_msg\n");
+    return 1;
+  }
+  DX_UNREFERENCE(msg);
+  msg = NULL;
+  TRACE("leave: emit_mouse_button_pressed_msg\n");
+  return 0;
+}
+
+static int emit_mouse_button_released_msg(dx_mouse_button button) {
+  TRACE("enter: emit_mouse_button_released_msg\n");
+  // create the "mouse button" message.
+  uint8_t modifiers = 0;
+  //
+  if (GetKeyState(VK_LCONTROL)) {
+    modifiers |= dx_modifier_lctrl;
+  }
+  if (GetKeyState(VK_RCONTROL)) {
+    modifiers |= dx_modifier_rctrl;
+  }
+  //
+  if (GetKeyState(VK_LSHIFT)) {
+    modifiers |= dx_modifier_lshift;
+  }
+  if (GetKeyState(VK_RSHIFT)) {
+    modifiers |= dx_modifier_rshift;
+  }
+  //
+  if (GetKeyState(VK_LMENU)) {
+    modifiers |= dx_modifier_lmenu;
+  }
+  if (GetKeyState(VK_RMENU)) {
+    modifiers |= dx_modifier_rmenu;
+  }
+  dx_msg* msg = DX_MSG(dx_mouse_button_msg_create(DX_MOUSE_BUTTON_ACTION_RELEASED, button, modifiers));
+  if (!msg) {
+    TRACE("leave: emit_mouse_button_released_msg\n");
+    return 1;
+  }
+  if (dx_msg_queue_push(g_application->msg_queue, msg)) {
+    DX_UNREFERENCE(msg);
+    msg = NULL;
+    TRACE("leave: emit_mouse_button_released_msg\n");
+    return 1;
+  }
+  DX_UNREFERENCE(msg);
+  msg = NULL;
+  TRACE("leave: emit_mouse_button_released_msg\n");
+  return 0;
+}
+
+#undef TRACE
+
 static LRESULT CALLBACK window_procedure(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam) {
   switch (msg) {
+    // keyboard keys
     case WM_KEYUP: {
       if (wparam == VK_ESCAPE) {
         emit_quit_msg();
+      } else if (wparam == VK_RETURN) {
+        emit_keyboard_key_released_msg(dx_keyboard_key_return);
       }
       return 0;
     } break;
+    case WM_KEYDOWN: {
+      return 0;
+    } break;
+    // left mouse button
+    case WM_LBUTTONDOWN: {
+      emit_mouse_button_pressed_msg(dx_mouse_button_button_0);
+      return 0;
+    } break;
+    case WM_LBUTTONUP: {
+      // When the window looses focus, windows might not send the button up message.
+      // Most likely, a mouse leave message is sent instead by windows.
+      emit_mouse_button_released_msg(dx_mouse_button_button_0);
+      return 0;
+    } break;
+    // middle mouse button
+    case WM_MBUTTONDOWN: {
+      emit_mouse_button_pressed_msg(dx_mouse_button_button_1);
+      return 0;
+    } break;
+    case WM_MBUTTONUP: {
+      // When the window looses focus, windows might not send the button up message.
+      // Most likely, a mouse leave message is sent instead by windows.
+      emit_mouse_button_released_msg(dx_mouse_button_button_1);
+      return 0;
+    } break;
+    // right mouse button
+    case WM_RBUTTONDOWN: {
+      // When the window looses focus, windows might not send the button up message.
+      // Most likely, a mouse leave message is sent instead by windows.
+      emit_mouse_button_pressed_msg(dx_mouse_button_button_2);
+      return 0;
+    } break;
+    case WM_RBUTTONUP: {
+      // When the window looses focus, windows might not send the button up message.
+      // Most likely, a mouse leave message is sent instead by windows.
+      emit_mouse_button_released_msg(dx_mouse_button_button_2);
+      return 0;
+    } break;
+    // application/window
     case WM_CLOSE: {
       emit_quit_msg();
       return 0;

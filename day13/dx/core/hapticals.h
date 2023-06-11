@@ -142,8 +142,10 @@ static inline dx_mouse_button_msg* DX_MOUSE_BUTTON_MSG(void* p) {
 /// @param action The action of the button. Must be #DX_MOUSE_BUTTON_ACTION_PRESSED or #DX_MOUSE_BUTTON_ACTION_RELEASED.
 /// @param button The button.
 /// @param modifiers The modifiers.
+/// @param x,y The position of the mouse pointer.
+/// The origin is at the left/top of the canvas. The positive x-axis is pointing right, the positive y-axis is pointing down.
 /// @return The zero value on success. A non-zero value on failure.
-int dx_mouse_button_msg_construct(dx_mouse_button_msg* self, uint8_t action, dx_mouse_button button, uint8_t modifiers);
+int dx_mouse_button_msg_construct(dx_mouse_button_msg* self, uint8_t action, dx_mouse_button button, uint8_t modifiers, dx_f32 x, dx_f32 y);
 
 void dx_mouse_button_msg_destruct(dx_mouse_button_msg* self);
 
@@ -155,10 +157,44 @@ dx_mouse_button dx_mouse_button_msg_get_button(dx_mouse_button_msg* self);
 /// @param action The action of the button. Must be #DX_MOUSE_BUTTON_ACTION_PRESSED or #DX_MOUSE_BUTTON_ACTION_RELEASED.
 /// @param button The button.
 /// @param modifiers The modifiers.
+/// @param x,y The position of the mouse pointer.
+/// The origin is at the left/top of the canvas. The positive x-axis is pointing right, the positive y-axis is pointing down.
 /// @return A pointer to the message on success. The null pointer on failure.
-dx_mouse_button_msg* dx_mouse_button_msg_create(uint8_t action, dx_mouse_button button, uint8_t modifiers);
+dx_mouse_button_msg* dx_mouse_button_msg_create(uint8_t action, dx_mouse_button button, uint8_t modifiers, dx_f32 x, dx_f32 y);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+#define DX_MOUSE_POINTER_ACTION_MOVED (1)
+#define DX_MOUSE_POINTER_ACTION_ENTERED (2)
+#define DX_MOUSE_POINTER_ACTION_EXITED (3)
+
+/// @brief The opaque type of a "mouse pointer" message
+typedef struct dx_mouse_pointer_msg dx_mouse_pointer_msg;
+
+static inline dx_mouse_pointer_msg* DX_MOUSE_POINTER_MSG(void* p) {
+  return (dx_mouse_pointer_msg*)p;
+}
+
+/// @brief Construct this "mouse pointer" message.
+/// @param action The action of the mouse pointer. Must be #DX_MOUSE_POINTER_ACTION_MOVED, DX_MOUSE_POINTER_ACTION_ENTERED, or DX_MOUSE_POINTER_ACTION_EXITED.
+/// @param modifiers The modifiers.
+/// @param x,y The position of the mouse pointer.
+/// The origin is at the left/top of the canvas. The positive x-axis is pointing right, the positive y-axis is pointing down.
+/// @return The zero value on success. A non-zero value on failure.
+int dx_mouse_pointer_msg_construct(dx_mouse_pointer_msg* self, uint8_t action, uint8_t modifiers, dx_f32 x, dx_f32 y);
+
+void dx_mouse_pointer_msg_destruct(dx_mouse_pointer_msg* self);
+
+uint8_t dx_mouse_pointer_msg_get_action(dx_mouse_pointer_msg* self);
+
+/// @brief Create a "mouse pointer" message.
+/// @param action The action of the mouse pointer. Must be #DX_MOUSE_POINTER_ACTION_MOVED, DX_MOUSE_POINTER_ACTION_ENTERED, or DX_MOUSE_POINTER_ACTION_EXITED.
+/// @param modifiers The modifiers.
+/// @param x,y The position of the mouse pointer.
+/// The origin is at the left/top of the canvas. The positive x-axis is pointing right, the positive y-axis is pointing down.
+/// @return A pointer to the message on success. The null pointer on failure.
+dx_mouse_pointer_msg* dx_mouse_pointer_msg_create(uint8_t action, uint8_t modifiers, dx_f32 x, dx_f32 y);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #endif // DX_CORE_HAPTICALS_H_INCLUDED
-

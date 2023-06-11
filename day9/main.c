@@ -154,21 +154,25 @@ static int run() {
       dx_log("leave: run\n", sizeof("leave: run\n"));
       return 1;
     }
-    dx_msg* msg;
-    if (dx_msg_queue_pop(g_msg_queue, &msg)) {
-      dx_log("leave: run\n", sizeof("leave: run\n"));
-      return 1;
-    }
-    if (msg) {
-      if (on_msg(msg)) {
-        DX_UNREFERENCE(msg);
-        msg = NULL;
+    do {
+      dx_msg* msg;
+      if (dx_msg_queue_pop(g_msg_queue, &msg)) {
         dx_log("leave: run\n", sizeof("leave: run\n"));
         return 1;
       }
-      DX_UNREFERENCE(msg);
-      msg = NULL;
-    }
+      if (msg) {
+        if (on_msg(msg)) {
+          DX_UNREFERENCE(msg);
+          msg = NULL;
+          dx_log("leave: run\n", sizeof("leave: run\n"));
+          return 1;
+        }
+        DX_UNREFERENCE(msg);
+        msg = NULL;
+      } else {
+        break;
+      }
+    } while (true);
     dx_gl_wgl_enter_frame();
     int canvas_width, canvas_height;
     dx_gl_wgl_get_canvas_size(&canvas_width, &canvas_height);

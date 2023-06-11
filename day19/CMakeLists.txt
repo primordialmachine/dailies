@@ -47,6 +47,9 @@ list(APPEND ${name}.dx.headers "dx/core/next_power_of_two.h")
 list(APPEND ${name}.dx.sources "dx/core/convert.c")
 list(APPEND ${name}.dx.headers "dx/core/convert.h")
 
+list(APPEND ${name}.dx.sources "dx/core/canvas_msgs.c")
+list(APPEND ${name}.dx.headers "dx/core/canvas_msgs.h")
+
 list(APPEND ${name}.dx.sources "dx/core/hapticals.c")
 list(APPEND ${name}.dx.headers "dx/core/hapticals.h")
 list(APPEND ${name}.dx.inlays "dx/core/keyboard_keys.i")

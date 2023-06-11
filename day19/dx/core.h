@@ -21,6 +21,7 @@
 /// @ingroup core
 
 #include "dx/core/byte_array.h"
+#include "dx/core/canvas_msgs.h"
 #include "dx/core/convert.h"
 #include "dx/core/core.h"
 #include "dx/core/count_leading_zeroes.h"

@@ -1,6 +1,8 @@
 #if !defined(DX_CONFIGURATION_H_INCLUDED)
 #define DX_CONFIGURATION_H_INCLUDED
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 #define DX_CONFIGURATION_VISUALS_DIRECT3D (1)
 
 #define DX_CONFIGURATION_VISUALS_OPENGL (2)
@@ -8,6 +10,22 @@
 #define DX_CONFIGURATION_VISUALS_VULKAN3D (3)
 
 #define DX_CONFIGURATION_VISUALS DX_CONFIGURATION_VISUALS_OPENGL
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/// If defined an evaluating to @a 1 and if compiled in debug mode,
+/// then "magic bytes" memory corruption detection pattern is available for dx_object.
+/// A macro DX_DEBUG_CHECK_MAGIC_BYTES is provided.
+/// If this function is invoked on a pointer that does not point to a valid dx_object object,
+/// then there is a good chance (but only a chance) that this function will cause a debug break.
+#define DX_OBJECT_WITH_MAGIC_BYTES (0)
+
+/// If defined and evaluating to @a 1,
+/// then atomic reference counting is enabled.
+/// Otherwise it is disabled, that is, non-atomic reference counting is performed.
+#define DX_ATOMIC_REFERENCE_COUNTING_ENABLED (1)
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /// If defined and evaluating to @a 1,
 /// then a function dx_math_tests() is provided

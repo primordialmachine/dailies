@@ -91,4 +91,12 @@ int dx_convert_utf8bytes_to_f32(char const* p, dx_size n, dx_f32* target);
 /// @return The zero value on success. A non-zero value on failure.
 int dx_convert_uf8bytes_to_f64(char const* p, dx_size n, dx_f64* target);
 
+/// @ingroup core
+/// @brief Convert a string to a <code>dx_bool</code> value.
+/// @param p A pointer to an UTF-8 string of @a n Bytes.
+/// @param n The length, in Bytes, of the UTF-8 string pointed to by @a p.
+/// @param target A pointer to a <code>dx_bool</code> variable.
+/// @return The zero value on success. A non-zero value on failure.
+int dx_convert_utf8bytes_to_bool(char const* p, dx_size n, dx_bool* target);
+
 #endif // DX_CORE_CONVERT_H_INCLUDED

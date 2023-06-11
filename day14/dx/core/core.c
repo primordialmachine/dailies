@@ -33,14 +33,41 @@ void dx_set_error(dx_error error) {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 dx_reference_counter dx_reference_counter_increment(dx_reference_counter* reference_counter) {
-  return InterlockedIncrement64(reference_counter);
+#if 1 == DX_ATOMIC_REFERENCE_COUNTING_ENABLED
+  #if defined(_WIN64)
+    return InterlockedIncrement64(reference_counter);
+  #else
+    return InterlockedIncrement(reference_counter);
+  #endif
+#else
+  return ++(*reference_counter);
+#endif
 }
 
 dx_reference_counter dx_reference_counter_decrement(dx_reference_counter* reference_counter) {
-  return InterlockedDecrement64(reference_counter);
+#if 1 == DX_ATOMIC_REFERENCE_COUNTING_ENABLED
+  #if defined(_WIN64)
+    return InterlockedDecrement64(reference_counter);
+  #else
+    return InterlockedDecrement(reference_counter);
+  #endif
+#else
+  return --(*reference_counter);
+#endif
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+void DX_DEBUG_CHECK_MAGIC_BYTES(void* p) {
+#if _DEBUG && 1 == DX_OBJECT_WITH_MAGIC_BYTES
+  DX_DEBUG_ASSERT(NULL != p);
+  dx_object* q = DX_OBJECT(p);
+  DX_DEBUG_ASSERT(q->magic_bytes[0] == 66);
+  DX_DEBUG_ASSERT(q->magic_bytes[1] == 12);
+  DX_DEBUG_ASSERT(q->magic_bytes[2] == 19);
+  DX_DEBUG_ASSERT(q->magic_bytes[3] == 82);
+#endif
+}
 
 dx_object* dx_object_alloc(size_t size) {
   if (size < sizeof(dx_object)) {
@@ -54,14 +81,22 @@ dx_object* dx_object_alloc(size_t size) {
   }
   object->reference_count = 1;
   object->destruct = NULL;
+#if _DEBUG && 1 == DX_OBJECT_WITH_MAGIC_BYTES
+  object->magic_bytes[0] = 66;
+  object->magic_bytes[1] = 12;
+  object->magic_bytes[2] = 19;
+  object->magic_bytes[3] = 82;
+#endif
   return object;
 }
 
 void dx_object_reference(dx_object *object) {
+  DX_DEBUG_CHECK_MAGIC_BYTES(object);
   dx_reference_counter_increment(&object->reference_count);
 }
 
 void dx_object_unreference(dx_object* object) {
+  DX_DEBUG_CHECK_MAGIC_BYTES(object);
   if (!dx_reference_counter_decrement(&object->reference_count)) {
     if (object->destruct) {
       object->destruct(object);

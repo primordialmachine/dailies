@@ -134,9 +134,12 @@ struct _dx_impl_node {
   dx_pointer_hashmap_value value;
 };
 
+typedef _dx_impl_node* _dx_impl_bucket;
+
+
 struct _dx_impl {
   
-  _dx_impl_node** buckets;
+  _dx_impl_bucket* buckets;
   /// @brief Size of this hashmap.
   dx_size size;
   /// @brief The capacity of this hashmap.
@@ -162,18 +165,16 @@ struct _dx_impl {
 
 #define _DX_IMPL_LEAST_CAPACITY 1
 
-#define _DX_IMPL_GREATEST_CAPACITY (DX_SIZE_GREATEST / sizeof(_dx_impl_node*))
-
-#define _DX_IMPL_BUCKET_SIZE sizeof(_dx_impl_node*)
+#define _DX_IMPL_GREATEST_CAPACITY (DX_SIZE_GREATEST / sizeof(_dx_impl_bucket))
 
 static _dx_impl_node** _dx_impl_allocate_bucket_array(size_t n) {
   size_t overflow;
-  dx_size n_bytes = dx_mul_sz(n, _DX_IMPL_BUCKET_SIZE, &overflow);
+  dx_size n_bytes = dx_mul_sz(n, sizeof(_dx_impl_bucket), &overflow);
   if (overflow) {
     dx_set_error(DX_ALLOCATION_FAILED);
     return NULL;
   }
-  _dx_impl_node** buckets = malloc(n_bytes > 0 ? n_bytes : _DX_IMPL_BUCKET_SIZE);
+  _dx_impl_bucket* buckets = malloc(n_bytes > 0 ? n_bytes : sizeof(_dx_impl_bucket));
   if (!buckets) {
     dx_set_error(DX_ALLOCATION_FAILED);
     return NULL;

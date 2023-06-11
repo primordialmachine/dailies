@@ -545,7 +545,10 @@ void dx_log(char const *p, size_t n);
 
 #define DX_MSG_TYPE_QUIT (2)
 
-#define DX_MSG_TYPE_INPUT (3)
+/// @brief Messages related to the canvas.
+#define DX_MSG_TYPE_CANVAS (3)
+
+#define DX_MSG_TYPE_INPUT (4)
 
 // The opaque type of a message.
 typedef struct dx_msg dx_msg;

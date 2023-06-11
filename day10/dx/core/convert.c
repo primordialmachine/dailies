@@ -647,3 +647,25 @@ int dx_convert_uf8bytes_to_f64(char const* p, dx_size n, dx_f64* target) {
 #undef N_MAX
   return 0;
 }
+
+int dx_convert_utf8bytes_to_bool(char const* p, dx_size n, dx_bool* target) {
+  if (!p || !target) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  static_assert(sizeof("true") != sizeof("false"), "environment not supported");
+  switch (n) {
+    case sizeof("true") - sizeof(char) : {
+      *target = !memcmp(p, "true", n);
+      return 0;
+    } break;
+    case sizeof("false") - sizeof(char) : {
+      *target = !memcmp(p, "false", n);
+      return 0;
+    } break;
+    default: {
+      dx_set_error(DX_CONVERSION_FAILED);
+      return 1;
+    } break;
+  };
+}

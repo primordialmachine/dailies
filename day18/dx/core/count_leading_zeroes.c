@@ -1,6 +1,6 @@
 #include "dx/core/count_leading_zeroes.h"
 
-#if defined(_MSCVER)
+#if defined(_MSC_VER)
   #include <intrin.h>
 #endif
 

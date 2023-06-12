@@ -8,7 +8,7 @@ static void removed_callback(dx_object** p) {
   if (*p) DX_UNREFERENCE(*p);
 }
 
-int dx_object_array_initialize(dx_object_array* self, size_t initial_capacity) {
+int dx_object_array_initialize(dx_object_array* self, dx_size initial_capacity) {
   if (dx_pointer_array_initialize(&self->backend, initial_capacity, (void(*)(void*))&added_callback, (void(*)(void*))&removed_callback)) {
     return 1;
   }
@@ -94,7 +94,7 @@ dx_object*
 dx_object_array_get_at
   (
     dx_object_array* self,
-    size_t index
+    dx_size index
   )
 {
   if (!self) {

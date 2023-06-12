@@ -30,8 +30,12 @@ list(APPEND ${name}.dx.sources "dx/core/core.c" "dx/core/os.c" "dx/core/string.c
 list(APPEND ${name}.dx.headers "dx/core/core.h" "dx/core/os.h" "dx/core/string.h")
 list(APPEND ${name}.dx.sources "dx/core/math.c")
 list(APPEND ${name}.dx.headers "dx/core/math.h")
-list(APPEND ${name}.dx.sources "dx/core/pointer_array.c" "dx/core/byte_array.c")
-list(APPEND ${name}.dx.headers "dx/core/pointer_array.h" "dx/core/byte_array.h")
+list(APPEND ${name}.dx.sources "dx/core/byte_array.c")
+list(APPEND ${name}.dx.headers "dx/core/byte_array.h")
+list(APPEND ${name}.dx.sources "dx/core/pointer_array.c")
+list(APPEND ${name}.dx.headers "dx/core/pointer_array.h")
+list(APPEND ${name}.dx.sources "dx/core/pointer_hashmap.c")
+list(APPEND ${name}.dx.headers "dx/core/pointer_hashmap.h")
 list(APPEND ${name}.dx.sources "dx/core/file_system.c")
 list(APPEND ${name}.dx.headers "dx/core/file_system.h")
 list(APPEND ${name}.dx.sources "dx/core/visuals.c")
@@ -56,6 +60,12 @@ list(APPEND ${name}.dx.inlays "dx/core/mouse_buttons.i")
 # DX asset sources.
 list(APPEND ${name}.dx.sources "dx/asset/image.c" "dx/asset/texture.c" "dx/asset/material.c" "dx/asset/mesh.c" "dx/asset/mesh/generators.c")
 list(APPEND ${name}.dx.headers "dx/asset/image.h" "dx/asset/texture.h" "dx/asset/material.h" "dx/asset/mesh.h" "dx/asset/mesh/generators.h")
+
+# DX ADL sources.
+list(APPEND ${name}.dx.sources "dx/adl/syntactical.c")
+list(APPEND ${name}.dx.headers "dx/adl/syntactical.h")
+list(APPEND ${name}.dx.sources "dx/adl/diagnostics.c")
+list(APPEND ${name}.dx.headers "dx/adl/diagnostics.h")
 
 # DX visuals abstraction layer (VAL).
 list(APPEND ${name}.dx.sources "dx/texture.c" "dx/material.c" "dx/mesh.c" "dx/mesh_instance.c")

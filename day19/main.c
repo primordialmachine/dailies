@@ -72,11 +72,11 @@ static int on_msg(dx_msg* msg) {
 }
 
 static int on_startup_scene(dx_context* context) {
-  g_scenes[0] = DX_SCENE(dx_mesh_viewer_scene_create("cube", NULL));
+  g_scenes[0] = DX_SCENE(dx_mesh_viewer_scene_create("cube"));
   if (!g_scenes[0]) {
     return 1;
   }
-  g_scenes[1] = DX_SCENE(dx_mesh_viewer_scene_create("octahedron", NULL));
+  g_scenes[1] = DX_SCENE(dx_mesh_viewer_scene_create("octahedron"));
   if (!g_scenes[1]) {
     DX_UNREFERENCE(g_scenes[0]);
     g_scenes[0] = NULL;

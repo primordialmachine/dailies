@@ -618,10 +618,11 @@ int dx_convert_utf8bytes_to_f32(char const* p, dx_size n, dx_f32* target) {
     return 1;
   }
 #undef N_MAX
+  *target = v;
   return 0;
 }
 
-int dx_convert_uf8bytes_to_f64(char const* p, dx_size n, dx_f64* target) {
+int dx_convert_utf8bytes_to_f64(char const* p, dx_size n, dx_f64* target) {
   if (dx_parse_flit(p, n)) {
     return 1;
   }
@@ -645,6 +646,7 @@ int dx_convert_uf8bytes_to_f64(char const* p, dx_size n, dx_f64* target) {
     return 1;
   }
 #undef N_MAX
+  *target = v;
   return 0;
 }
 

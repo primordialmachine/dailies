@@ -23,15 +23,15 @@ static inline dx_asset_image* DX_ASSET_IMAGE(void* p) {
 /// For DX_PIXEL_FORMAT_RGB this default value is the color "Black" (0, 0, 0).
 int dx_asset_image_construct(dx_asset_image* self,
                              DX_PIXEL_FORMAT pixel_format,
-                             size_t width,
-                             size_t height,
+                             dx_size width,
+                             dx_size height,
                              DX_RGB_U8 const* color);
 
 void dx_asset_image_destruct(dx_asset_image* self);
 
 dx_asset_image* dx_asset_image_create(DX_PIXEL_FORMAT pixel_format,
-                                      size_t width,
-                                      size_t height,
+                                      dx_size width,
+                                      dx_size height,
                                       DX_RGB_U8 const* color);
 
 // A brush that fills its area with a single color.
@@ -51,12 +51,12 @@ typedef struct DX_ASSET_SOLID_BRUSH {
 typedef struct DX_ASSET_CHECKERBOARD_BRUSH {
   DX_ASSET_BRUSH _parent;
   struct {
-    size_t horizontal;
-    size_t vertical;
+    dx_size horizontal;
+    dx_size vertical;
   } number_of_checkers;
   struct {
-    size_t horizontal;
-    size_t vertical;
+    dx_size horizontal;
+    dx_size vertical;
   } checker_size;
   struct {
     DX_RGB_U8 first;
@@ -73,17 +73,21 @@ typedef struct DX_ASSET_CHECKERBOARD_BRUSH {
 /// @param brush A pointer to the brush.
 /// @return The zero value on success. A non-zero value on failure.
 int dx_asset_image_fill(dx_asset_image* self,
-                        size_t left,
-                        size_t top,
-                        size_t width,
-                        size_t height,
+                        dx_size left,
+                        dx_size top,
+                        dx_size width,
+                        dx_size height,
                         DX_ASSET_BRUSH const* brush);
 
 struct dx_asset_image {
   dx_object _parent;
+  /// @brief The pixel format.
   DX_PIXEL_FORMAT pixel_format;
-  size_t width;
-  size_t height;
+  /// @brief The width, in pixels.
+  dx_size width;
+  /// @brief The height, in pixels.
+  dx_size height;
+  /// @brief A pointer to the pixel data.
   void* pixels;
 };
 

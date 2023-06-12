@@ -122,7 +122,7 @@ dx_pointer_array_increase_capacity
     dx_set_error(DX_ALLOCATION_FAILED);
     return 1;  
   }
-  dx_pointer_array_element *new_elements = realloc(self->elements, new_capacity_bytes > 0 ? 1 : 0);
+  dx_pointer_array_element *new_elements = realloc(self->elements, new_capacity_bytes > 0 ? new_capacity_bytes : 1);
   if (!new_elements) {
     dx_set_error(DX_ALLOCATION_FAILED);
     return 1;    
@@ -158,7 +158,7 @@ dx_pointer_array_append
     dx_pointer_array_element pointer
   )
 {
-  if (!self || !pointer) {
+  if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
@@ -172,7 +172,7 @@ dx_pointer_array_prepend
     dx_pointer_array_element pointer
   )
 {
-  if (!self || !pointer) {
+  if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
@@ -187,7 +187,7 @@ dx_pointer_array_insert
     dx_size index
   )
 {
-  if (!self || !pointer) {
+  if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }

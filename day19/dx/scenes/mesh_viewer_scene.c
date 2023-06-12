@@ -14,46 +14,23 @@
 #include "dx/scenes/create_assets.h"
 #include "dx/adl/syntactical.h"
 
-static int mesh_instance_on_startup(dx_mesh_viewer_scene* self) {
-  DX_MAT4 m;
-  dx_mesh_instance* mesh_instance;
-
+static int mesh_instance_on_startup(dx_mesh_viewer_scene* self, dx_context* context, dx_asset_scene* asset_scene) {
   if (dx_object_array_initialize(&self->mesh_instances, 2)) {
     return 1;
   }
-
-  //
-  dx_mat4_set_translate(&m, -1, 0, 0);
-  mesh_instance = dx_mesh_instance_create(m, self->mesh);
-  if (!mesh_instance) {
-    dx_object_array_uninitialize(&self->mesh_instances);
-    return 1;
-  }
-  if (dx_object_array_append(&self->mesh_instances, DX_OBJECT(mesh_instance))) {
+  for (size_t i = 0, n = dx_object_array_get_size(&asset_scene->mesh_instances); i < n; ++i) {
+    dx_asset_mesh_instance* asset_mesh_instance = DX_ASSET_MESH_INSTANCE(dx_object_array_get_at(&asset_scene->mesh_instances, i));
+    dx_mesh* mesh = dx_mesh_create(context, asset_mesh_instance->mesh);
+    dx_mesh_instance* mesh_instance = dx_mesh_instance_create(asset_mesh_instance->world_matrix, mesh);
+    if (dx_object_array_append(&self->mesh_instances, DX_OBJECT(mesh_instance))) {
+      DX_UNREFERENCE(mesh_instance);
+      mesh_instance = NULL;
+      dx_object_array_uninitialize(&self->mesh_instances);
+      return 1;
+    }
     DX_UNREFERENCE(mesh_instance);
     mesh_instance = NULL;
-    dx_object_array_uninitialize(&self->mesh_instances);
-    return 1;
   }
-  DX_UNREFERENCE(mesh_instance);
-  mesh_instance = NULL;
-
-  //
-  dx_mat4_set_translate(&m, +1, 0, 0);
-  mesh_instance = dx_mesh_instance_create(m, self->mesh);
-  if (!mesh_instance) {
-    dx_object_array_uninitialize(&self->mesh_instances);
-    return 1;
-  }
-  if (dx_object_array_append(&self->mesh_instances, DX_OBJECT(mesh_instance))) {
-    DX_UNREFERENCE(mesh_instance);
-    mesh_instance = NULL;
-    dx_object_array_uninitialize(&self->mesh_instances);
-    return 1;
-  }
-  DX_UNREFERENCE(mesh_instance);
-  mesh_instance = NULL;
-
   return 0;
 }
 
@@ -162,7 +139,6 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
   }
 #endif
   {
-    dx_asset_mesh_instance* asset_mesh_instance = NULL;
     if (!strcmp(scene->name, "cube")) {
       char* p;
       size_t n;
@@ -171,7 +147,7 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
         p = NULL;
         return 1;
       }
-      asset_mesh_instance = _create_mesh_instance_from_text(p, n);
+      scene->asset_scene = _create_scene_from_text(p, n);
       free(p);
       p = NULL;
     } else if (!strcmp(scene->name, "octahedron")) {
@@ -182,32 +158,22 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
         p = NULL;
         return 1;
       }
-      asset_mesh_instance = _create_mesh_instance_from_text(p, n);
+      scene->asset_scene = _create_scene_from_text(p, n);
       free(p);
       p = NULL;
     }
-    if (!asset_mesh_instance) {
-      return 1;
-    }
-    if (scene->on_mesh_loaded) {
-      if (scene->on_mesh_loaded(asset_mesh_instance->mesh)) {
-        DX_UNREFERENCE(asset_mesh_instance);
-        asset_mesh_instance = NULL;
-        return 1;
-      }
-    }
-    scene->mesh = dx_mesh_create(context, asset_mesh_instance->mesh);
-    DX_UNREFERENCE(asset_mesh_instance);
-    asset_mesh_instance = NULL;
-    if (!scene->mesh) {
-      return 1;
-    }
+  #if 0
+  #endif
+  #if 0
+  #endif
+  #if 0
+  #endif
   }
   //
   scene->angle = 0.f;
-  if (mesh_instance_on_startup(scene)) {
-    DX_UNREFERENCE(scene->mesh);
-    scene->mesh = NULL;
+  if (mesh_instance_on_startup(scene, context, scene->asset_scene)) {
+    DX_UNREFERENCE(scene->asset_scene);
+    scene->asset_scene = NULL;
     return 1;
   }
   //
@@ -219,16 +185,16 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
     dx_command_list* commands = dx_command_list_create();
     if (!commands) {
       mesh_instance_on_shutdown(scene);
-      DX_UNREFERENCE(scene->mesh);
-      scene->mesh = NULL;
+      DX_UNREFERENCE(scene->asset_scene);
+      scene->asset_scene = NULL;
       return 1;
     }
     if (make_commands_1(commands)) {
       DX_UNREFERENCE(commands);
       commands = NULL;
       mesh_instance_on_shutdown(scene);
-      DX_UNREFERENCE(scene->mesh);
-      scene->mesh = NULL;
+      DX_UNREFERENCE(scene->asset_scene);
+      scene->asset_scene = NULL;
       return 1;
     }
     scene->commands = commands;
@@ -286,18 +252,19 @@ static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* scene, dx_context* 
 
 static int dx_mesh_viewer_scene_shutdown(dx_mesh_viewer_scene* scene, dx_context* context) {
   mesh_instance_on_shutdown(scene);
-  if (scene->mesh) {
-    DX_UNREFERENCE(scene->mesh);
-    scene->mesh = NULL;
+  if (scene->asset_scene) {
+    DX_UNREFERENCE(scene->asset_scene);
+    scene->asset_scene = NULL;
   }
   if (scene->commands) {
     DX_UNREFERENCE(scene->commands);
     scene->commands = NULL;
   }
+  dx_object_array_uninitialize(&scene->mesh_instances);
   return 0;
 }
 
-int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const* name, int (*on_mesh_loaded)(dx_asset_mesh*)) {
+int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const* name) {
   if (dx_scene_construct(DX_SCENE(scene))) {
     return 1;
   }
@@ -306,10 +273,10 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const* name
     dx_scene_destruct(DX_SCENE(scene));
     return 1;
   }
-  scene->on_mesh_loaded = on_mesh_loaded;
   dx_mat4_set_identity(&scene->projection_matrix);
   dx_mat4_set_identity(&scene->view_matrix);
   dx_mat4_set_identity(&scene->projection_matrix);
+  scene->asset_scene = NULL;
   scene->commands = NULL;
   DX_SCENE(scene)->startup = (int (*)(dx_scene*, dx_context*)) & dx_mesh_viewer_scene_startup;
   DX_SCENE(scene)->render = (int (*)(dx_scene*, dx_context*, float, int, int)) & dx_mesh_viewer_scene_render;
@@ -326,12 +293,12 @@ void dx_mesh_viewer_scene_destruct(dx_mesh_viewer_scene* scene) {
   dx_scene_destruct(DX_SCENE(scene));
 }
 
-dx_mesh_viewer_scene* dx_mesh_viewer_scene_create(char const* name, int (*on_mesh_loaded)(dx_asset_mesh*)) {
+dx_mesh_viewer_scene* dx_mesh_viewer_scene_create(char const* name) {
   dx_mesh_viewer_scene* scene = DX_MESH_VIEWER_SCENE(dx_object_alloc(sizeof(dx_mesh_viewer_scene)));
   if (!scene) {
     return NULL;
   }
-  if (dx_mesh_viewer_scene_construct(scene, name, on_mesh_loaded)) {
+  if (dx_mesh_viewer_scene_construct(scene, name)) {
     DX_UNREFERENCE(scene);
     scene = NULL;
     return NULL;

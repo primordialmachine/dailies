@@ -22,7 +22,7 @@ struct dx_object_array {
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_ALLOCATION_FAILED @a initial_capacity is too big
 /// - #DX_ALLOCATION_FAILED an allocation failed
-int dx_object_array_initialize(dx_object_array* self, size_t initial_capacity);
+int dx_object_array_initialize(dx_object_array* self, dx_size initial_capacity);
 
 /// @brief Uninitialize this dx_object_array object.
 /// @param self A pointer to this dx_object_array object.
@@ -117,7 +117,7 @@ dx_object*
 dx_object_array_get_at
   (
     dx_object_array* self,
-    size_t index
+    dx_size index
   );
 
 /// @brief Get the size, in elements.

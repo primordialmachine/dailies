@@ -14,6 +14,8 @@ struct dx_asset_mesh_instance {
   dx_object _parent;
   /// @brief The mesh of this mesh instance.
   dx_asset_mesh* mesh;
+  /// @brief The world matrix of this mesh instance.
+  DX_MAT4 world_matrix;
 };
 
 /// @brief Construct this dx_asset_mesh_instance object.

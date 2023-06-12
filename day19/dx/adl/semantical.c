@@ -16,6 +16,11 @@ static dx_string* _parse_type(dx_adl_node* node);
 
 static int _parse_n8(dx_adl_node* node, char const* name, dx_n8* target);
 static int _parse_sz(dx_adl_node* node, char const* name, dx_size* target);
+static int _parse_f32(dx_adl_node* node, char const* name, dx_f32* target);
+static int _parse_f64(dx_adl_node* node, char const* name, dx_f64* target);
+
+/// @param palette A pointer to a palette or the null pointer.
+static int _parse_rgb_u8(dx_adl_node* node, char const* name, dx_asset_palette* palette, DX_RGB_U8* target);
 
 static dx_string* _parse_type(dx_adl_node* node) {
   dx_string* key = dx_string_create("type", sizeof("type") - 1);
@@ -67,51 +72,132 @@ static int _parse_sz(dx_adl_node* node, char const* name, dx_size* target) {
   return 0;
 }
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-static int _parse_solid_brush_1(DX_ASSET_SOLID_BRUSH* brush, dx_adl_node* root_node, dx_asset_palette* palette);
-
-static int _parse_checkerboard_brush_1(DX_ASSET_CHECKERBOARD_BRUSH* brush, dx_adl_node* root_node, dx_asset_palette* palette);
-
-static DX_ASSET_SOLID_BRUSH* _parse_solid_brush(dx_adl_node* node, dx_asset_palette* palette);
-
-static DX_ASSET_CHECKERBOARD_BRUSH* _parse_checkerboard_brush(dx_adl_node* node, dx_asset_palette* palette);
-
-static int _parse_solid_brush_1(DX_ASSET_SOLID_BRUSH* brush, dx_adl_node* root_node, dx_asset_palette* palette) {
-  dx_string* name1 = NULL;
-  if (!root_node) {
-    goto END;
+static int _parse_f32(dx_adl_node* node, char const* name, dx_f32* target) {
+  dx_string* name1 = dx_string_create(name, strlen(name));
+  if (!name) {
+    return 1;
   }
-  {
-    dx_adl_node* node = NULL;
-    dx_asset_palette_entry* entry;
-    //
-    name1 = dx_string_create("color", sizeof("color") - 1);
-    if (!name1) {
-      goto END;
-    }
-    node = dx_adl_node_map_get(root_node, name1);
-    DX_UNREFERENCE(name1);
-    name1 = NULL;
-    if (!node || node->type != dx_adl_node_type_string) {
-      goto END;
-    }
-    entry = dx_asset_palette_get(palette, node->string);
-    if (!entry) {
-      goto END;
-    }
-    brush->color = entry->value;
+  dx_adl_node* child_node = dx_adl_node_map_get(node, name1);
+  DX_UNREFERENCE(name1);
+  name1 = NULL;
+  if (!child_node || child_node->type != dx_adl_node_type_number) {
+    return 1;
   }
-
-END:
-  if (name1) {
-    DX_UNREFERENCE(name1);
-    name1 = NULL;
+  if (dx_convert_utf8bytes_to_f32(child_node->number->bytes, child_node->number->number_of_bytes, target)) {
+    return 1;
   }
   return 0;
 }
 
-static int _parse_checkerboard_brush_1(DX_ASSET_CHECKERBOARD_BRUSH* brush, dx_adl_node* root_node, dx_asset_palette* palette) {
+static int _parse_f64(dx_adl_node* node, char const* name, dx_f64* target) {
+  dx_string* name1 = dx_string_create(name, strlen(name));
+  if (!name) {
+    return 1;
+  }
+  dx_adl_node* child_node = dx_adl_node_map_get(node, name1);
+  DX_UNREFERENCE(name1);
+  name1 = NULL;
+  if (!child_node || child_node->type != dx_adl_node_type_number) {
+    return 1;
+  }
+  if (dx_convert_utf8bytes_to_f64(child_node->number->bytes, child_node->number->number_of_bytes, target)) {
+    return 1;
+  }
+  return 0;
+}
+
+static int _parse_rgb_u8(dx_adl_node* node, char const* name, dx_asset_palette* palette, DX_RGB_U8* target) {
+  dx_string* name1 = dx_string_create(name, strlen(name));
+  if (!name1) {
+    return 1;
+  }
+  dx_adl_node* child_node = dx_adl_node_map_get(node, name1);
+  DX_UNREFERENCE(name1);
+  name1 = NULL;
+  if (!child_node || child_node->type != dx_adl_node_type_string) {
+    return 1;
+  }
+  dx_asset_palette_entry* palette_entry = palette ? dx_asset_palette_get(palette, child_node->string) : NULL;
+  if (!palette_entry) {
+    return 1;
+  }
+  (*target) = palette_entry->value;
+  return 0;
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static int _parse_translation(DX_MAT4* target, dx_adl_node* node, dx_adl_semantical_state* state);
+
+static int _parse_solid_brush_1(DX_ASSET_SOLID_BRUSH* target, dx_adl_node* node, dx_adl_semantical_state* state);
+
+static int _parse_checkerboard_brush_1(DX_ASSET_CHECKERBOARD_BRUSH* target, dx_adl_node* node, dx_adl_semantical_state* state);
+
+static DX_ASSET_SOLID_BRUSH* _parse_solid_brush(dx_adl_node* node, dx_adl_semantical_state* state);
+
+static DX_ASSET_CHECKERBOARD_BRUSH* _parse_checkerboard_brush(dx_adl_node* node, dx_adl_semantical_state* state);
+
+static dx_asset_image* _parse_image(dx_adl_node* node, dx_adl_semantical_state* state);
+
+static dx_asset_texture* _parse_texture(dx_adl_node* node, dx_adl_semantical_state* state);
+
+static dx_asset_material* _parse_material(dx_adl_node* node, dx_adl_semantical_state* state);
+
+static dx_asset_mesh* _parse_mesh(dx_adl_node* node, dx_adl_semantical_state* state);
+
+static dx_asset_mesh_instance* _parse_mesh_instance(dx_adl_node* node, dx_adl_semantical_state* state);
+
+static dx_asset_scene* _parse_scene(dx_adl_node* node, dx_adl_semantical_state* state);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static int _parse_translation(DX_MAT4* target, dx_adl_node* node, dx_adl_semantical_state* state) {
+  if (!target || !node || !state) {
+    return 1;
+  }
+  dx_f32 x, y, z;
+  if (_parse_f32(node, "x", &x)) {
+    return 1;
+  }
+  if (_parse_f32(node, "y", &y)) {
+    return 1;
+  }
+  if (_parse_f32(node, "z", &z)) {
+    return 1;
+  }
+  dx_mat4_set_translate(target, x, y, z);
+  return 0;
+}
+
+
+DX_MAT4* dx_adl_parse_translation(dx_adl_node* node, dx_adl_semantical_state* state) {
+  DX_MAT4* target = malloc(sizeof(DX_MAT4));
+  if (!target) {
+    return NULL;
+  }
+  memset(target, 0, sizeof(DX_MAT4));
+  if (_parse_translation(target, node, state)) {
+    free(target);
+    target = NULL;
+    return NULL;
+  }
+  return target;
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static int _parse_solid_brush_1(DX_ASSET_SOLID_BRUSH* target, dx_adl_node* node, dx_adl_semantical_state* state) {
+  if (!node) {
+    goto END;
+  }
+  if (_parse_rgb_u8(node, "color", state->palette, &target->color)) {
+    goto END;
+  }
+END:
+  return 0;
+}
+
+static int _parse_checkerboard_brush_1(DX_ASSET_CHECKERBOARD_BRUSH* target, dx_adl_node* root_node, dx_adl_semantical_state* state) {
   dx_adl_node* child_node = NULL;
   dx_string* name1 = NULL;
   {
@@ -130,11 +216,11 @@ static int _parse_checkerboard_brush_1(DX_ASSET_CHECKERBOARD_BRUSH* brush, dx_ad
       goto END;
     }
     // numberOfCheckers.horizontal
-    if (_parse_sz(number_of_checkers_node, "horizontal", &brush->number_of_checkers.horizontal)) {
+    if (_parse_sz(number_of_checkers_node, "horizontal", &target->number_of_checkers.horizontal)) {
       goto END;
     }
     // numberOfCheckers.vertical
-    if (_parse_sz(number_of_checkers_node, "vertical", &brush->number_of_checkers.vertical)) {
+    if (_parse_sz(number_of_checkers_node, "vertical", &target->number_of_checkers.vertical)) {
       goto END;
     }
   }
@@ -152,11 +238,11 @@ static int _parse_checkerboard_brush_1(DX_ASSET_CHECKERBOARD_BRUSH* brush, dx_ad
       goto END;
     }
     // checkerSize.horizontal
-    if (_parse_sz(checker_size_node, "horizontal", &brush->checker_size.horizontal)) {
+    if (_parse_sz(checker_size_node, "horizontal", &target->checker_size.horizontal)) {
       goto END;
     }
     // checkerSize.vertical
-    if (_parse_sz(checker_size_node, "vertical", &brush->checker_size.vertical)) {
+    if (_parse_sz(checker_size_node, "vertical", &target->checker_size.vertical)) {
       goto END;
     }
   }
@@ -175,40 +261,15 @@ static int _parse_checkerboard_brush_1(DX_ASSET_CHECKERBOARD_BRUSH* brush, dx_ad
     if (!checker_colors_node) {
       goto END;
     }
-    //
-    name1 = dx_string_create("first", sizeof("first") - 1);
-    if (!name1) {
+    // checkerColors.first
+    if (_parse_rgb_u8(checker_colors_node, "first", state->palette, &target->checker_colors.first)) {
       goto END;
     }
-    node = dx_adl_node_map_get(checker_colors_node, name1);
-    DX_UNREFERENCE(name1);
-    name1 = NULL;
-    if (!node) {
+    // checkerColors.second
+    if (_parse_rgb_u8(checker_colors_node, "second", state->palette, &target->checker_colors.second)) {
       goto END;
     }
-    entry = dx_asset_palette_get(palette, node->string);
-    if (!entry) {
-      goto END;
-    }
-    brush->checker_colors.first = entry->value;
-    //
-    name1 = dx_string_create("second", sizeof("second") - 1);
-    if (!name1) {
-      goto END;
-    }
-    node = dx_adl_node_map_get(checker_colors_node, name1);
-    DX_UNREFERENCE(name1);
-    name1 = NULL;
-    if (!node) {
-      goto END;
-    }
-    entry = dx_asset_palette_get(palette, node->string);
-    if (!entry) {
-      goto END;
-    }
-    brush->checker_colors.second = entry->value;
   }
-
 END:
   if (name1) {
     DX_UNREFERENCE(name1);
@@ -217,14 +278,14 @@ END:
   return 0;
 }
 
-static DX_ASSET_SOLID_BRUSH* _parse_solid_brush(dx_adl_node* node, dx_asset_palette* palette) {
+static DX_ASSET_SOLID_BRUSH* _parse_solid_brush(dx_adl_node* node, dx_adl_semantical_state* state) {
   DX_ASSET_SOLID_BRUSH* brush = malloc(sizeof(DX_ASSET_SOLID_BRUSH));
   if (!brush) {
     return NULL;
   }
   memset(brush, 0, sizeof(DX_ASSET_SOLID_BRUSH));
   brush->_parent.flags = DX_ASSET_BRUSH_FLAGS_SOLID;
-  if (_parse_solid_brush_1(brush, node, palette)) {
+  if (_parse_solid_brush_1(brush, node, state)) {
     free(brush);
     brush = NULL;
     return NULL;
@@ -232,14 +293,14 @@ static DX_ASSET_SOLID_BRUSH* _parse_solid_brush(dx_adl_node* node, dx_asset_pale
   return brush;
 }
 
-static DX_ASSET_CHECKERBOARD_BRUSH* _parse_checkerboard_brush(dx_adl_node* node, dx_asset_palette* palette) {
+static DX_ASSET_CHECKERBOARD_BRUSH* _parse_checkerboard_brush(dx_adl_node* node, dx_adl_semantical_state* state) {
   DX_ASSET_CHECKERBOARD_BRUSH* brush = malloc(sizeof(DX_ASSET_CHECKERBOARD_BRUSH));
   if (!brush) {
     return NULL;
   }
   memset(brush, 0, sizeof(DX_ASSET_CHECKERBOARD_BRUSH));
   brush->_parent.flags = DX_ASSET_BRUSH_FLAGS_CHECKBERBOARD;
-  if (_parse_checkerboard_brush_1(brush, node, palette)) {
+  if (_parse_checkerboard_brush_1(brush, node, state)) {
     free(brush);
     brush = NULL;
     return NULL;
@@ -247,7 +308,7 @@ static DX_ASSET_CHECKERBOARD_BRUSH* _parse_checkerboard_brush(dx_adl_node* node,
   return brush;
 }
 
-DX_ASSET_BRUSH* dx_adl_parse_brush(dx_adl_node* node, dx_asset_palette* palette) {
+DX_ASSET_BRUSH* dx_adl_parse_brush(dx_adl_node* node, dx_adl_semantical_state* state) {
   DX_ASSET_BRUSH* brush = NULL;
   dx_string* solid_type = NULL;
   dx_string* checkerboard_type = NULL;
@@ -267,12 +328,12 @@ DX_ASSET_BRUSH* dx_adl_parse_brush(dx_adl_node* node, dx_asset_palette* palette)
   }
 
   if (dx_string_is_equal_to(type, solid_type)) {
-    brush = (DX_ASSET_BRUSH*)_parse_solid_brush(node, palette);
+    brush = (DX_ASSET_BRUSH*)_parse_solid_brush(node, state);
     if (!brush) {
       goto END;
     }
   } else if (dx_string_is_equal_to(type, checkerboard_type)) {
-    brush = (DX_ASSET_BRUSH*)_parse_checkerboard_brush(node, palette);
+    brush = (DX_ASSET_BRUSH*)_parse_checkerboard_brush(node, state);
     if (!brush) {
       goto END;
     }
@@ -294,7 +355,7 @@ END:
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static dx_asset_image* _parse_image(dx_adl_node* node, dx_asset_palette* palette) {
+static dx_asset_image* _parse_image(dx_adl_node* node, dx_adl_semantical_state* state) {
   dx_asset_image* image = NULL;
   size_t width, height;
   DX_RGB_U8* color = NULL;
@@ -309,25 +370,13 @@ static dx_asset_image* _parse_image(dx_adl_node* node, dx_asset_palette* palette
   }
   // color
   {
-    dx_string* name = dx_string_create("color", sizeof("color") - 1);
-    if (!name) {
-      goto END;
-    }
-    dx_adl_node* child_node = dx_adl_node_map_get(node, name);
-    DX_UNREFERENCE(name);
-    name = NULL;
-    if (!child_node) {
-      goto END;
-    }
-    dx_asset_palette_entry* palette_entry = dx_asset_palette_get(palette, child_node->string);
-    if (!palette_entry) {
-      goto END;
-    }
     color = malloc(sizeof(DX_RGB_U8));
     if (!color) {
       goto END;
     }
-    *color = palette_entry->value;
+    if (_parse_rgb_u8(node, "color", state->palette, color)) {
+      goto END;
+    }
   }
   // brush
   {
@@ -341,7 +390,7 @@ static dx_asset_image* _parse_image(dx_adl_node* node, dx_asset_palette* palette
     if (!child_node) {
       goto END;
     }
-    brush = dx_adl_parse_brush(child_node, palette);
+    brush = dx_adl_parse_brush(child_node, state);
     if (!brush) {
       goto END;
     }
@@ -365,7 +414,7 @@ END:
   return image;
 }
 
-dx_asset_image* dx_adl_parse_image(dx_adl_node* node, dx_asset_palette* palette) {
+dx_asset_image* dx_adl_parse_image(dx_adl_node* node, dx_adl_semantical_state* state) {
   dx_asset_image* image = NULL;
   dx_string* image_type = NULL;
   dx_string* type = NULL;
@@ -379,7 +428,7 @@ dx_asset_image* dx_adl_parse_image(dx_adl_node* node, dx_asset_palette* palette)
     goto END;
   }
   if (dx_string_is_equal_to(type, image_type)) {
-    image = _parse_image(node, palette);
+    image = _parse_image(node, state);
     if (!image) {
       goto END;
     }
@@ -397,7 +446,7 @@ END:
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static dx_asset_texture* _parse_texture(dx_adl_node* node, dx_asset_palette* palette) {
+static dx_asset_texture* _parse_texture(dx_adl_node* node, dx_adl_semantical_state* state) {
   dx_asset_texture* texture = NULL;
   dx_asset_image* image = NULL;
   // image
@@ -412,7 +461,7 @@ static dx_asset_texture* _parse_texture(dx_adl_node* node, dx_asset_palette* pal
     if (!child_node) {
       goto END;
     }
-    image = dx_adl_parse_image(child_node, palette);
+    image = dx_adl_parse_image(child_node, state);
     if (!image) {
       goto END;
     }
@@ -431,7 +480,7 @@ END:
   return texture;
 }
 
-dx_asset_texture* dx_adl_parse_texture(dx_adl_node* node, dx_asset_palette* palette) {
+dx_asset_texture* dx_adl_parse_texture(dx_adl_node* node, dx_adl_semantical_state* state) {
   dx_asset_texture* asset = NULL;
   dx_string* expected_type = NULL;
   dx_string* received_type = NULL;
@@ -445,7 +494,7 @@ dx_asset_texture* dx_adl_parse_texture(dx_adl_node* node, dx_asset_palette* pale
     goto END;
   }
   if (dx_string_is_equal_to(expected_type, received_type)) {
-    asset = _parse_texture(node, palette);
+    asset = _parse_texture(node, state);
     if (!asset) {
       goto END;
     }
@@ -463,7 +512,7 @@ END:
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static dx_asset_material* _parse_material(dx_adl_node* node, dx_asset_palette* palette) {
+static dx_asset_material* _parse_material(dx_adl_node* node, dx_adl_semantical_state* state) {
   dx_asset_material* material = NULL;
   dx_asset_texture* ambient_texture = NULL;
   // ambientTexture?
@@ -477,7 +526,7 @@ static dx_asset_material* _parse_material(dx_adl_node* node, dx_asset_palette* p
     DX_UNREFERENCE(name);
     name = NULL;
     if (child_node) {
-      ambient_texture = dx_adl_parse_texture(child_node, palette);
+      ambient_texture = dx_adl_parse_texture(child_node, state);
       if (!ambient_texture) {
         goto END;
       }
@@ -500,7 +549,7 @@ END:
   return material;
 }
 
-dx_asset_material* dx_adl_parse_material(dx_adl_node* node, dx_asset_palette* palette) {
+dx_asset_material* dx_adl_parse_material(dx_adl_node* node, dx_adl_semantical_state* state) {
   dx_asset_material* asset = NULL;
   dx_string* expected_type = NULL;
   dx_string* received_type = NULL;
@@ -514,7 +563,7 @@ dx_asset_material* dx_adl_parse_material(dx_adl_node* node, dx_asset_palette* pa
     goto END;
   }
   if (dx_string_is_equal_to(expected_type, received_type)) {
-    asset = _parse_material(node, palette);
+    asset = _parse_material(node, state);
     if (!asset) {
       goto END;
     }
@@ -532,7 +581,7 @@ END:
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static dx_asset_mesh* _parse_mesh(dx_adl_node* node, dx_asset_palette* palette) {
+static dx_asset_mesh* _parse_mesh(dx_adl_node* node, dx_adl_semantical_state* state) {
   dx_asset_mesh* mesh = NULL;
   dx_string* generator = NULL;
   dx_asset_material* material = NULL;
@@ -565,7 +614,7 @@ static dx_asset_mesh* _parse_mesh(dx_adl_node* node, dx_asset_palette* palette) 
     if (!child_node) {
       goto END;
     }
-    material = dx_adl_parse_material(child_node, palette);
+    material = dx_adl_parse_material(child_node, state);
     if (!material) {
       goto END;
     }
@@ -582,7 +631,7 @@ END:
   return mesh;
 }
 
-dx_asset_mesh* dx_adl_parse_mesh(dx_adl_node* node, dx_asset_palette* palette) {
+dx_asset_mesh* dx_adl_parse_mesh(dx_adl_node* node, dx_adl_semantical_state* state) {
   dx_asset_mesh* asset = NULL;
   dx_string* expected_type = NULL;
   dx_string* received_type = NULL;
@@ -597,7 +646,7 @@ dx_asset_mesh* dx_adl_parse_mesh(dx_adl_node* node, dx_asset_palette* palette) {
     goto END;
   }
   if (dx_string_is_equal_to(expected_type, received_type)) {
-    asset = _parse_mesh(node, palette);
+    asset = _parse_mesh(node, state);
     if (!asset) {
       goto END;
     }
@@ -615,9 +664,10 @@ END:
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static dx_asset_mesh_instance* _parse_mesh_instance(dx_adl_node* node, dx_asset_palette* palette) {
+static dx_asset_mesh_instance* _parse_mesh_instance(dx_adl_node* node, dx_adl_semantical_state* state) {
   dx_asset_mesh_instance* mesh_instance = NULL;
   dx_asset_mesh* mesh = NULL;
+  DX_MAT4* transformation = NULL;
   // mesh
   {
     dx_string* name = dx_string_create("mesh", sizeof("mesh") - 1);
@@ -630,24 +680,54 @@ static dx_asset_mesh_instance* _parse_mesh_instance(dx_adl_node* node, dx_asset_
     if (!child_node) {
       goto END;
     }
-    mesh = _parse_mesh(child_node, palette);
+    mesh = _parse_mesh(child_node, state);
     if (!mesh) {
       goto END;
+    }
+  }
+  // transformation?
+  {
+    dx_string* name = dx_string_create("transformation", sizeof("transformation") - 1);
+    if (!name) {
+      goto END;
+    }
+    dx_error old_error = dx_get_error();
+    dx_adl_node* child_node = dx_adl_node_map_get(node, name);
+    DX_UNREFERENCE(name);
+    name = NULL;
+    if (!child_node) {
+      if (dx_get_error() == DX_NOT_FOUND) {
+        dx_set_error(old_error);
+      } else {
+        goto END;
+      }
+    } else {
+      transformation = dx_adl_parse_translation(child_node, state);
+      if (!transformation) {
+        goto END;
+      }
     }
   }
   mesh_instance = dx_asset_mesh_instance_create(mesh);
   if (!mesh_instance) {
     goto END;
   }
+  if (transformation) {
+    mesh_instance->world_matrix = *transformation;
+  }
 END:
   if (mesh) {
     DX_UNREFERENCE(mesh);
     mesh = NULL;
   }
+  if (transformation) {
+    free(transformation);
+    transformation = NULL;
+  }
   return mesh_instance;
 }
 
-dx_asset_mesh_instance* dx_adl_parse_mesh_instance(dx_adl_node* node, dx_asset_palette* palette) {
+dx_asset_mesh_instance* dx_adl_parse_mesh_instance(dx_adl_node* node, dx_adl_semantical_state* state) {
   dx_asset_mesh_instance* asset = NULL;
   dx_string* expected_type = NULL;
   dx_string* received_type = NULL;
@@ -661,7 +741,88 @@ dx_asset_mesh_instance* dx_adl_parse_mesh_instance(dx_adl_node* node, dx_asset_p
     goto END;
   }
   if (dx_string_is_equal_to(expected_type, received_type)) {
-    asset = _parse_mesh_instance(node, palette);
+    asset = _parse_mesh_instance(node, state);
+    if (!asset) {
+      goto END;
+    }
+  } else {
+    dx_set_error(DX_SEMANTICAL_ERROR);
+    goto END;
+  }
+END:
+  if (expected_type) {
+    DX_UNREFERENCE(expected_type);
+    expected_type = NULL;
+  }
+  return asset;
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static dx_asset_scene* _parse_scene(dx_adl_node* node, dx_adl_semantical_state* state) {
+  dx_asset_scene* scene = dx_asset_scene_create();
+  if (!scene) {
+    goto END;
+  }
+  // meshInstances
+  {
+    dx_string* name = dx_string_create("meshInstances", sizeof("meshInstances") - 1);
+    if (!name) {
+      DX_UNREFERENCE(scene);
+      scene = NULL;
+      goto END;
+    }
+    dx_adl_node* node1 = dx_adl_node_map_get(node, name);
+    DX_UNREFERENCE(name);
+    name = NULL;
+    if (!node1 || node1->type != dx_adl_node_type_list) {
+      DX_UNREFERENCE(scene);
+      scene = NULL;
+      goto END;
+    }
+    for (size_t i = 0, n = dx_adl_node_list_get_size(node1); i < n; ++i) {
+      dx_adl_node* node2 = dx_adl_node_list_get(node1, i);
+      if (!node2) {
+        DX_UNREFERENCE(scene);
+        scene = NULL;
+        goto END;
+      }
+      dx_asset_mesh_instance* mesh_instance = _parse_mesh_instance(node2, state);
+      if (!mesh_instance) {
+        DX_UNREFERENCE(scene);
+        scene = NULL;
+        goto END;
+      }
+      if (dx_object_array_append(&scene->mesh_instances, DX_OBJECT(mesh_instance))) {
+        DX_UNREFERENCE(mesh_instance);
+        mesh_instance = NULL;
+        DX_UNREFERENCE(scene);
+        scene = NULL;
+        goto END;
+      }
+      DX_UNREFERENCE(mesh_instance);
+      mesh_instance = NULL;
+    }
+  }
+END:
+  return scene;
+}
+
+dx_asset_scene* dx_adl_parse_scene(dx_adl_node* node, dx_adl_semantical_state* state) {
+  dx_asset_scene* asset = NULL;
+  dx_string* expected_type = NULL;
+  dx_string* received_type = NULL;
+
+  received_type = _parse_type(node);
+  if (!received_type) {
+    return NULL;
+  }
+  expected_type = dx_string_create("Scene", sizeof("Scene") - 1);
+  if (!expected_type) {
+    goto END;
+  }
+  if (dx_string_is_equal_to(expected_type, received_type)) {
+    asset = _parse_scene(node, state);
     if (!asset) {
       goto END;
     }

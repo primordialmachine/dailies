@@ -7,6 +7,7 @@ int dx_asset_mesh_instance_construct(dx_asset_mesh_instance* self, dx_asset_mesh
   }
   self->mesh = mesh;
   DX_REFERENCE(self->mesh);
+  dx_mat4_set_identity(&self->world_matrix);
   DX_OBJECT(self)->destruct = (void(*)(dx_object*))&dx_asset_mesh_instance_destruct;
   return 0;
 }

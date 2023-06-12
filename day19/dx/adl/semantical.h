@@ -7,30 +7,43 @@
 #include "dx/asset/mesh.h"
 #include "dx/asset/mesh_instance.h"
 #include "dx/asset/palette.h"
+#include "dx/asset/scene.h"
 #include "dx/asset/texture.h"
-
-DX_ASSET_BRUSH* dx_adl_parse_brush(dx_adl_node* node, dx_asset_palette* palette);
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-dx_asset_image* dx_adl_parse_image(dx_adl_node* node, dx_asset_palette* palette);
+#include "dx/adl/semantical/state.h"
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-dx_asset_texture* dx_adl_parse_texture(dx_adl_node* node, dx_asset_palette* palette);
+DX_MAT4* dx_adl_parse_translation(dx_adl_node* node, dx_adl_semantical_state* state);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-dx_asset_material* dx_adl_parse_material(dx_adl_node* node, dx_asset_palette* palette);
+DX_ASSET_BRUSH* dx_adl_parse_brush(dx_adl_node* node, dx_adl_semantical_state* state);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-dx_asset_mesh* dx_adl_parse_mesh(dx_adl_node* node, dx_asset_palette* palette);
+dx_asset_image* dx_adl_parse_image(dx_adl_node* node, dx_adl_semantical_state* state);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-dx_asset_mesh_instance* dx_adl_parse_mesh_instance(dx_adl_node* node, dx_asset_palette* palette);
+dx_asset_texture* dx_adl_parse_texture(dx_adl_node* node, dx_adl_semantical_state* state);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+dx_asset_material* dx_adl_parse_material(dx_adl_node* node, dx_adl_semantical_state* state);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+dx_asset_mesh* dx_adl_parse_mesh(dx_adl_node* node, dx_adl_semantical_state* state);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+dx_asset_mesh_instance* dx_adl_parse_mesh_instance(dx_adl_node* node, dx_adl_semantical_state* state);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+dx_asset_scene* dx_adl_parse_scene(dx_adl_node* node, dx_adl_semantical_state* state);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 
 #endif // DX_ADL_SEMANTICAL_H_INCLUDED

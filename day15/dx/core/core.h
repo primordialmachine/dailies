@@ -342,7 +342,6 @@ typedef float dx_f32;
   #error("target environment not supported")
 #endif
 
-
 /// @ingroup core
 /// @brief A IEEE 754 64 bit floating point value.
 /// @remark An alias for <code>double</code>.
@@ -439,8 +438,12 @@ typedef int dx_error;
 #define DX_NOT_FOUND (10)
 
 /// @ingroup core
+/// @brief Symbolic constant for a dx_error value indicating a failure because something exists.
+#define DX_EXISTS (11)
+
+/// @ingroup core
 /// @brief Symbolic constant for a dx_error value indicating a failure because of an overflow.
-#define DX_OVERFLOW (11)
+#define DX_OVERFLOW (12)
 
 /// @ingroup core
 /// @brief Get the value of the error variable.

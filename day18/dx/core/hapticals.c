@@ -1,4 +1,4 @@
-/// @file dx/core/keyboard/hapticals.c
+/// @file dx/core/hapticals.c
 /// @brief Mouse buttons and keyboard keys.
 #include "dx/core/hapticals.h"
 

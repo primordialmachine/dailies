@@ -89,7 +89,7 @@ int dx_convert_utf8bytes_to_f32(char const* p, dx_size n, dx_f32* target);
 /// @param n The length, in Bytes, of the UTF-8 string pointed to by @a p.
 /// @param target A pointer to a <code>dx_f64</code> variable.
 /// @return The zero value on success. A non-zero value on failure.
-int dx_convert_uf8bytes_to_f64(char const* p, dx_size n, dx_f64* target);
+int dx_convert_utf8bytes_to_f64(char const* p, dx_size n, dx_f64* target);
 
 /// @ingroup core
 /// @brief Convert a string to a <code>dx_bool</code> value.

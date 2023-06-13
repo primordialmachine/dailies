@@ -1,7 +1,7 @@
 #if !defined(DX_ASSET_MESH_H_INCLUDED)
 #define DX_ASSET_MESH_H_INCLUDED
 
-#include "dx/core.h"
+#include "dx/asset/material.h"
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -21,6 +21,9 @@ static inline dx_asset_mesh* DX_ASSET_MESH(void* p) {
 
 struct dx_asset_mesh {
   dx_object _parent;
+
+  /// @brief The material of this mesh.
+  dx_asset_material* material;
 
   /// @brief The number of vertices of this mesh.
   uint32_t number_of_vertices;
@@ -45,14 +48,16 @@ struct dx_asset_mesh {
 
 /// @brief Generate a mesh.
 /// @param specifier The specifier.
+/// @param material The material.
 /// @remarks
 /// A "specifier" specifies what mesh this function shall return.
 /// The following specifiers are currently supported:
 /// - "triangle" a triangle mesh
 /// - "quadriliteral" a quadriliteral mesh
+/// - "cube" a cube mesh
 /// - "empty" an empty mesh
 /// @return A pointer to the dx_asset_mesh object on success. A null pointer on failure.
-dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier);
+dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier, dx_asset_material* material);
 
 /// @brief Pack the mesh data into a single stream of the specified format.
 /// @param self A pointer to this mesh.
@@ -65,6 +70,14 @@ dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier);
 /// <code>*number_of_bytes</code> was assigned the length, in Bytes, of the packed mesh data.
 /// <code>*bytes</code> was assigned a pointer to an array of length <code>*number_of_bytes</code>.
 int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, void **bytes, size_t *number_of_bytes);
+
+/// @brief Transform a range of vertices.
+/// @param self A pointer to this mesh.
+/// @param a A pointer to the transformation matrix.
+/// @param i The index of the vertex at which the range starts.
+/// @param n The number of vertices in the range.
+/// @return The zero value on success. A non-zero value on failure.
+int dx_asset_mesh_transform_range(dx_asset_mesh* self, DX_MAT4 const* a, size_t i, size_t n);
 
 /// @brief Append a quadriliteral.
 /// @param self A pointer to this mesh.
@@ -93,5 +106,12 @@ int dx_asset_mesh_clear(dx_asset_mesh* self);
 /// @param self A pointer to this mesh.
 /// @param color A pointer to "mesh ambient rgba" value.
 void dx_asset_mesh_set_mesh_ambient_rgba(dx_asset_mesh* self, DX_VEC4 const* value);
+
+/// @brief Append the specified range to the end of this mesh.
+/// @param self A pointer to this mesh.
+/// @param i The index of the vertex at which the range starts.
+/// @param n The length, in vertices, of the range.
+/// @return The zero value on success. A non-zero value on failure.
+int dx_asset_mesh_append_range(dx_asset_mesh* self, size_t i, size_t n);
 
 #endif // DX_ASSET_MESH_H_INCLUDED

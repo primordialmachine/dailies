@@ -50,10 +50,12 @@ dx_command* dx_command_create_clear_depth(float l, float b, float w, float h, fl
   return command;
 }
 
-int dx_command_construct_draw(dx_command* command, dx_vbinding* vbinding, dx_cbinding* cbinding, dx_program* program, int start, int length) {
+int dx_command_construct_draw(dx_command* command, dx_vbinding* vbinding, dx_material* material, dx_cbinding* cbinding, dx_program* program, int start, int length) {
   command->kind = DX_COMMAND_KIND_DRAW;
   command->draw_command.vbinding = vbinding;
   DX_REFERENCE(vbinding);
+  command->draw_command.material = material;
+  DX_REFERENCE(material);
   command->draw_command.cbinding = cbinding;
   DX_REFERENCE(cbinding);
   command->draw_command.program = program;
@@ -63,12 +65,12 @@ int dx_command_construct_draw(dx_command* command, dx_vbinding* vbinding, dx_cbi
   return 0;
 }
 
-dx_command* dx_command_create_draw(dx_vbinding* vbinding, dx_cbinding* cbinding, dx_program* program, int start, int length) {
+dx_command* dx_command_create_draw(dx_vbinding* vbinding, dx_material* material, dx_cbinding* cbinding, dx_program* program, int start, int length) {
   dx_command* command = DX_COMMAND(dx_object_alloc(sizeof(dx_command)));
   if (!command) {
     return NULL;
   }
-  if (dx_command_construct_draw(command, vbinding, cbinding, program, start, length)) {
+  if (dx_command_construct_draw(command, vbinding, material, cbinding, program, start, length)) {
     DX_UNREFERENCE(command);
     command = NULL;
     return command;
@@ -105,6 +107,8 @@ void dx_command_destruct(dx_command* command) {
       command->draw_command.program = NULL;
       DX_UNREFERENCE(command->draw_command.cbinding);
       command->draw_command.cbinding = NULL;
+      DX_UNREFERENCE(command->draw_command.material);
+      command->draw_command.material = NULL;
       DX_UNREFERENCE(command->draw_command.vbinding);
       command->draw_command.vbinding = NULL;
     } break;

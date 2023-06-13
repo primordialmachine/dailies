@@ -39,13 +39,13 @@ int dx_context_bind_texture(dx_context* context, size_t unit, dx_texture* textur
 /// Create a buffer.
 /// @param context A pointer to this context.
 /// @return The buffer.
-/// @return A pointer to the buffer on success. A null pointero n failure.
+/// @return A pointer to the buffer on success. A null pointer on failure.
 dx_buffer* dx_context_create_buffer(dx_context* context);
 
 /// Create a variable binding.
 /// @param context A pointer to this context.
-/// @param vertex_format The vertex format of the buffer.
-/// @param buffer The buffer of the binding.
+/// @param vertex_format The vertex format of the variable binding.
+/// @param buffer The buffer of the variable binding.
 /// @return A pointer to the variable binding on success. A null pointer on failure.
 dx_vbinding* dx_context_create_vbinding(dx_context* context, DX_VERTEX_FORMAT vertex_format, dx_buffer* buffer);
 

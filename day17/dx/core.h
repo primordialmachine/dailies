@@ -29,6 +29,7 @@
 #include "dx/core/hapticals.h"
 #include "dx/core/math.h"
 #include "dx/core/next_power_of_two.h"
+#include "dx/core/object_array.h"
 #include "dx/core/os.h"
 #include "dx/core/pointer_hashmap.h"
 #include "dx/core/safe_add_nx.h"

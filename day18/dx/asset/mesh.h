@@ -1,7 +1,7 @@
 #if !defined(DX_ASSET_MESH_H_INCLUDED)
 #define DX_ASSET_MESH_H_INCLUDED
 
-#include "dx/material.h"
+#include "dx/asset/material.h"
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

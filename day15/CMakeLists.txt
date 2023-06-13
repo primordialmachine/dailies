@@ -16,6 +16,10 @@ set(${name}.dx.headers "")
 list(APPEND ${name}.dx.sources "dx/application.c" "dx/configuration.c" "dx/scene.c")
 list(APPEND ${name}.dx.headers "dx/application.h" "dx/configuration.h" "dx/scene.h")
 
+# DX scene / create assets.
+list(APPEND ${name}.dx.sources "dx/scenes/create_assets.c")
+list(APPEND ${name}.dx.headers "dx/scenes/create_assets.h")
+
 # DX core sources.
 set(${name}.dx.core.inlays "")
 set(${name}.dx.core.sources "")
@@ -26,8 +30,8 @@ list(APPEND ${name}.dx.sources "dx/core/core.c" "dx/core/os.c" "dx/core/string.c
 list(APPEND ${name}.dx.headers "dx/core/core.h" "dx/core/os.h" "dx/core/string.h")
 list(APPEND ${name}.dx.sources "dx/core/math.c")
 list(APPEND ${name}.dx.headers "dx/core/math.h")
-list(APPEND ${name}.dx.sources "dx/core/byte_array.c")
-list(APPEND ${name}.dx.headers "dx/core/byte_array.h")
+list(APPEND ${name}.dx.sources "dx/core/object_array.c" "dx/core/byte_array.c")
+list(APPEND ${name}.dx.headers "dx/core/object_array.h" "dx/core/byte_array.h")
 list(APPEND ${name}.dx.sources "dx/core/pointer_array.c")
 list(APPEND ${name}.dx.headers "dx/core/pointer_array.h")
 list(APPEND ${name}.dx.sources "dx/core/pointer_hashmap.c")
@@ -54,20 +58,35 @@ list(APPEND ${name}.dx.inlays "dx/core/keyboard_keys.i")
 list(APPEND ${name}.dx.inlays "dx/core/mouse_buttons.i")
 
 # DX asset sources.
-list(APPEND ${name}.dx.sources "dx/asset/image.c" "dx/asset/texture.c" "dx/asset/material.c" "dx/asset/mesh.c" "dx/asset/mesh/generators.c")
-list(APPEND ${name}.dx.headers "dx/asset/image.h" "dx/asset/texture.h" "dx/asset/material.h" "dx/asset/mesh.h" "dx/asset/mesh/generators.h")
+list(APPEND ${name}.dx.sources "dx/asset/mesh.c" "dx/asset/mesh_instance.c" "dx/asset/mesh/generators.c")
+list(APPEND ${name}.dx.headers "dx/asset/mesh.h" "dx/asset/mesh_instance.h" "dx/asset/mesh/generators.h")
+
+list(APPEND ${name}.dx.sources "dx/asset/scene.c")
+list(APPEND ${name}.dx.headers "dx/asset/scene.h")
+
+list(APPEND ${name}.dx.sources "dx/asset/texture.c" "dx/asset/material.c")
+list(APPEND ${name}.dx.headers "dx/asset/texture.h" "dx/asset/material.h")
+
+list(APPEND ${name}.dx.sources "dx/asset/image.c" "dx/asset/palette.c")
+list(APPEND ${name}.dx.headers "dx/asset/image.h" "dx/asset/palette.h")
 
 # DX ADL sources.
 list(APPEND ${name}.dx.sources "dx/adl/syntactical.c")
 list(APPEND ${name}.dx.headers "dx/adl/syntactical.h")
+
 list(APPEND ${name}.dx.sources "dx/adl/diagnostics.c")
 list(APPEND ${name}.dx.headers "dx/adl/diagnostics.h")
 
+list(APPEND ${name}.dx.sources "dx/adl/semantical.c")
+list(APPEND ${name}.dx.headers "dx/adl/semantical.h")
+list(APPEND ${name}.dx.sources "dx/adl/semantical/state.c")
+list(APPEND ${name}.dx.headers "dx/adl/semantical/state.h")
+
 # DX visuals abstraction layer (VAL).
-list(APPEND ${name}.dx.sources "dx/texture.c")
-list(APPEND ${name}.dx.headers "dx/texture.h")
-list(APPEND ${name}.dx.sources "dx/program_text.c" "dx/command.c" "dx/texture.c" "dx/program.c" "dx/context.c" "dx/cbinding.c" "dx/vbinding.c" "dx/buffer.c")
-list(APPEND ${name}.dx.headers "dx/program_text.h" "dx/command.h" "dx/texture.h" "dx/program.h" "dx/context.h" "dx/cbinding.h" "dx/vbinding.h" "dx/buffer.h")
+list(APPEND ${name}.dx.sources "dx/texture.c" "dx/material.c" "dx/mesh.c" "dx/mesh_instance.c")
+list(APPEND ${name}.dx.headers "dx/texture.h" "dx/material.h" "dx/mesh.h" "dx/mesh_instance.h")
+list(APPEND ${name}.dx.sources "dx/program_text.c" "dx/command.c" "dx/program.c" "dx/context.c" "dx/cbinding.c" "dx/vbinding.c" "dx/buffer.c")
+list(APPEND ${name}.dx.headers "dx/program_text.h" "dx/command.h" "dx/program.h" "dx/context.h" "dx/cbinding.h" "dx/vbinding.h" "dx/buffer.h")
 
 # DX VAL OpenGL backend.
 set(${name}.dx.gl.sources "dx/gl/context.c" "dx/gl/wgl/context.c" "dx/gl/texture.c" "dx/gl/program.c" "dx/gl/buffer.c" "dx/gl/binding.c" "dx/gl/wgl/wm.c")
@@ -102,6 +121,7 @@ add_files( ${name}.dx.inlays "dx/asm/${infix}/_imul*.i")
 add_files( ${name}.dx.sources "dx/asm/${infix}/_imul*.c" )
 add_files( ${name}.dx.headers "dx/asm/${infix}/_imul*.h" )
 add_files( ${name}.dx.asms "dx/asm/${infix}/_imul*.asm" )
+#
 if( CMAKE_SIZEOF_VOID_P EQUAL 4 )
   set_source_files_properties(
       ${${name}.dx.asms}
@@ -132,6 +152,13 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.asms})
 project(${name})
 
 add_executable(${name} ${${name}.sources} ${${name}.headers} ${${name}.readmes} ${${name}.inlays} ${${name}.asms})
+
+# DLL plugins.
+add_dependencies(${name} tif-writer)
+add_custom_command(TARGET ${name} POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                   ${CMAKE_CURRENT_BINARY_DIR}/../tif-writer/$<CONFIG>/tif-writer.dll $<TARGET_FILE_DIR:${name}>
+                   COMMAND_EXPAND_LISTS)
 
 if(MSVC)
   # Treat certain warnings as errors.

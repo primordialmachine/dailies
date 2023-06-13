@@ -32,7 +32,7 @@ int dx_gl_texture_construct(dx_gl_texture* self, dx_gl_context* context) {
   }
   context->glBindTexture(GL_TEXTURE_2D, self->id);
   // Create the default 8x8 pixels amber texture.
-  dx_asset_image* image = dx_asset_image_create_rgb_u8(DX_PIXEL_FORMAT_RGB_U8, 8, 8, &dx_colors_amber);
+  dx_asset_image* image = dx_asset_image_create(DX_PIXEL_FORMAT_RGB_U8, 8, 8, &dx_colors_amber);
   if (!image) {
     context->glDeleteTextures(1, &self->id);
     self->id = 0;

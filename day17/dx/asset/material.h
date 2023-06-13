@@ -54,7 +54,6 @@ int dx_asset_material_set_ambient_color(dx_asset_material* self, DX_VEC4 const* 
 /// @return The zero value on success. A non-zero value on failure.
 /// @failure This function has set the error variable.
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
-/// - #DX_INVALID_ARGUMENT @a value is a null pointer
 int dx_asset_material_set_ambient_texture(dx_asset_material* self, dx_asset_texture* value);
 
 #endif // DX_ASSET_MATERIAL_H_INCLUDED

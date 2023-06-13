@@ -6,18 +6,18 @@
 #include <string.h>
 
 typedef struct EXTEND2 {
-  size_t width;
-  size_t height;
+  dx_size width;
+  dx_size height;
 } EXTEND2;
 
 typedef struct OFFSET2 {
-  size_t left;
-  size_t top;
+  dx_size left;
+  dx_size top;
 } OFFSET2;
 
 static const DX_RGB_U8 black = { 0, 0, 0 };
 
-static size_t get_bytes_per_pixel(DX_PIXEL_FORMAT pixel_format);
+static dx_size get_bytes_per_pixel(DX_PIXEL_FORMAT pixel_format);
 
 static void fill_rgb_u8(void* pixels, OFFSET2 fill_offset, EXTEND2 fill_extend, EXTEND2 image_extend, DX_RGB_U8 const* color);
 
@@ -25,7 +25,7 @@ static int on_solid(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, DX_ASS
 
 static int on_checkerboard(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, DX_ASSET_CHECKERBOARD_BRUSH const* brush);
 
-static size_t get_bytes_per_pixel(DX_PIXEL_FORMAT pixel_format) {
+static dx_size get_bytes_per_pixel(DX_PIXEL_FORMAT pixel_format) {
   switch (pixel_format) {
   case DX_PIXEL_FORMAT_RGB_U8: {
     return 3;
@@ -45,8 +45,8 @@ static void fill_rgb_u8(void* pixels, OFFSET2 fill_offset, EXTEND2 fill_extend, 
   if (fill_offset.top > image_extend.height) {
     return;
   }
-  size_t fill_right = fill_offset.left + fill_extend.width;
-  size_t fill_bottom = fill_offset.top + fill_extend.height;
+  dx_size fill_right = fill_offset.left + fill_extend.width;
+  dx_size fill_bottom = fill_offset.top + fill_extend.height;
   // clamp
   if (fill_right > image_extend.width) {
     fill_right = image_extend.width;
@@ -60,11 +60,11 @@ static void fill_rgb_u8(void* pixels, OFFSET2 fill_offset, EXTEND2 fill_extend, 
   if (fill_offset.top == fill_bottom) {
     return;
   }
-  size_t bytes_per_pixel = get_bytes_per_pixel(DX_PIXEL_FORMAT_RGB_U8);
-  for (size_t y = fill_offset.top; y < fill_bottom; ++y) {
-    for (size_t x = fill_offset.left; x < fill_right; ++x) {
-      size_t offset_pixels = y * image_extend.width + x;
-      size_t offset_bytes = offset_pixels * bytes_per_pixel;
+  dx_size bytes_per_pixel = get_bytes_per_pixel(DX_PIXEL_FORMAT_RGB_U8);
+  for (dx_size y = fill_offset.top; y < fill_bottom; ++y) {
+    for (dx_size x = fill_offset.left; x < fill_right; ++x) {
+      dx_size offset_pixels = y * image_extend.width + x;
+      dx_size offset_bytes = offset_pixels * bytes_per_pixel;
       *(DX_RGB_U8*)(((uint8_t*)pixels) + offset_bytes) = *color;
     }
   }
@@ -72,22 +72,22 @@ static void fill_rgb_u8(void* pixels, OFFSET2 fill_offset, EXTEND2 fill_extend, 
 
 int dx_asset_image_construct(dx_asset_image* self,
                              DX_PIXEL_FORMAT pixel_format,
-                             size_t width,
-                             size_t height,
+                             dx_size width,
+                             dx_size height,
                              DX_RGB_U8 const* color) {
   self->width = width;
   self->height = height;
   self->pixel_format = pixel_format;
-  size_t overflow;
-  size_t number_of_pixels = dx_mul_sz(self->width, self->height, &overflow);
+  dx_size overflow;
+  dx_size number_of_pixels = dx_mul_sz(self->width, self->height, &overflow);
   if (overflow) {
     return 1;
   }
-  size_t bytes_per_pixel = get_bytes_per_pixel(pixel_format);
+  dx_size bytes_per_pixel = get_bytes_per_pixel(pixel_format);
   if (dx_get_error()) {
     return 1;
   }
-  size_t number_of_bytes = dx_mul_sz(number_of_pixels, sizeof(uint8_t) * bytes_per_pixel, &overflow);
+  dx_size number_of_bytes = dx_mul_sz(number_of_pixels, sizeof(uint8_t) * bytes_per_pixel, &overflow);
   if (overflow) {
     return 1;
   }
@@ -118,10 +118,10 @@ void dx_asset_image_destruct(dx_asset_image* self) {
   self->pixels = NULL;
 }
 
-dx_asset_image* dx_asset_image_create_rgb_u8(DX_PIXEL_FORMAT pixel_format,
-                                             size_t width,
-                                             size_t height,
-                                             DX_RGB_U8 const* color) {
+dx_asset_image* dx_asset_image_create(DX_PIXEL_FORMAT pixel_format,
+                                      dx_size width,
+                                      dx_size height,
+                                      DX_RGB_U8 const* color) {
   dx_asset_image* self = DX_ASSET_IMAGE(dx_object_alloc(sizeof(dx_asset_image)));
   if (!self) {
     return NULL;
@@ -149,8 +149,8 @@ static int on_solid(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, DX_ASS
 }
 
 static int on_checkerboard(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, DX_ASSET_CHECKERBOARD_BRUSH const* brush) {
-  for (size_t y = 0; y < brush->number_of_checkers.vertical; ++y) {
-    size_t t = offset.top + y * brush->checker_size.vertical,
+  for (dx_size y = 0; y < brush->number_of_checkers.vertical; ++y) {
+    dx_size t = offset.top + y * brush->checker_size.vertical,
            h = brush->checker_size.vertical;
     // Fast clip.
     if (t + h > offset.top + extend.height) {
@@ -158,11 +158,11 @@ static int on_checkerboard(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend,
     }
     // Slow clip.
     if (t + h > offset.top + extend.height) {
-      size_t delta = (t + h) - (offset.top + extend.height);
+      dx_size delta = (t + h) - (offset.top + extend.height);
       h -= delta;
     }
-    for (size_t x = 0; x < brush->number_of_checkers.horizontal; ++x) {
-      size_t l = offset.left + x * brush->checker_size.horizontal,
+    for (dx_size x = 0; x < brush->number_of_checkers.horizontal; ++x) {
+      dx_size l = offset.left + x * brush->checker_size.horizontal,
              w = brush->checker_size.horizontal;
       // Fast clip.
       if (l > offset.left + extend.width) {
@@ -170,7 +170,7 @@ static int on_checkerboard(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend,
       }
       // Slow clip.
       if (l + w > offset.left + extend.width) {
-        size_t delta = (l + w) - (offset.left + extend.width);
+        dx_size delta = (l + w) - (offset.left + extend.width);
         w -= delta;
       }
       int even_x = x % 2 == 0;
@@ -189,10 +189,10 @@ static int on_checkerboard(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend,
 }
 
 int dx_asset_image_fill(dx_asset_image* self,
-                        size_t left,
-                        size_t top,
-                        size_t width,
-                        size_t height,
+                        dx_size left,
+                        dx_size top,
+                        dx_size width,
+                        dx_size height,
                         DX_ASSET_BRUSH const* brush) {
   switch (brush->flags) {
   case DX_ASSET_BRUSH_FLAGS_SOLID: {

@@ -68,59 +68,18 @@ static int on_msg(dx_msg* msg) {
   return 0;
 }
 
-/// @brief Callback function supported by mesh_viewer_scene constructor.
-/// Invokeed when the mesh to be viewed was loaded.
-/// Allows for post-processing the mesh.
-/// @param mesh The mesh to be viewed.
-/// @return @a 0 o success. A non-zero value on failure.
-static int on_quadriliteral_mesh_loaded_callback(dx_asset_mesh* mesh) {
-  static const DX_VEC4 colors[] = {
-    { 1.f, 0.f, 0.f, 1.f },
-    { 0.f, 1.f, 0.f, 1.f },
-    { 0.f, 0.f, 1.f, 1.f },
-    //
-    { 1.f, 1.f, 0.f, 1.f },
-    { 0.f, 1.f, 1.f, 1.f },
-    { 1.f, 0.f, 1.f, 1.f },
-  };
-  if (6 != mesh->number_of_vertices) {
-    return 1;
-  }
-  for (size_t i = 0, n = mesh->number_of_vertices; i < n; ++i) {
-    mesh->vertices.ambient_rgba[i] = colors[i];
-  }
-  return 0;
-}
+#if 0
+#endif
 
-/// @brief Callback function supported by mesh_viewer_scene constructor.
-/// Invoked when the mesh to be viewed was loaded.
-/// Allows for post-processing the mesh.
-/// @param mesh The mesh to be viewede.
-/// @return @a 0 on success. A non-zero value on failure. 
-static int on_triangle_mesh_loaded_callback(dx_asset_mesh* mesh) {
-  static const DX_VEC4 colors[] = {
-    { 1.f, 0.f, 0.f, 1.f },
-    { 0.f, 1.f, 0.f, 1.f },
-    { 0.f, 0.f, 1.f, 1.f },
-  };
-  if (3 != mesh->number_of_vertices) {
-    return 1;
-  }
-  // How do we know which vertices meet?
-  // Well we do not actually, this was trying out.
-  // "mesh" should provide "face" information.
-  for (size_t i = 0, n = mesh->number_of_vertices; i < n; ++i) {
-    mesh->vertices.ambient_rgba[i] = colors[i % 3];
-  }
-  return 0;
-}
+#if 0
+#endif
 
 static int on_startup_scene(dx_context* context) {
-  g_scenes[0] = DX_SCENE(dx_mesh_viewer_scene_create("quadriliteral", &on_quadriliteral_mesh_loaded_callback));
+  g_scenes[0] = DX_SCENE(dx_mesh_viewer_scene_create("quadriliteral"));
   if (!g_scenes[0]) {
     return 1;
   }
-  g_scenes[1] = DX_SCENE(dx_mesh_viewer_scene_create("triangle", &on_triangle_mesh_loaded_callback));
+  g_scenes[1] = DX_SCENE(dx_mesh_viewer_scene_create("triangle"));
   if (!g_scenes[1]) {
     DX_UNREFERENCE(g_scenes[0]);
     g_scenes[0] = NULL;

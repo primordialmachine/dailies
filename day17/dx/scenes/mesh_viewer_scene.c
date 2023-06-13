@@ -10,33 +10,43 @@
 #include <float.h>
 // snprintf
 #include <stdio.h>
-#include "dx/program_text.h"
-#include "dx/texture.h"
-#include "dx/program.h"
 #include "dx/cbinding.h"
-#include "dx/asset/material.h"
 #include "dx/scenes/create_assets.h"
+#include "dx/adl/syntactical.h"
 
-static dx_cbinding* create_cbinding() {
-  DX_MAT4 identity;
-  dx_mat4_set_identity(&identity);
-  dx_cbinding* cbinding = dx_cbinding_create();
-  if (!cbinding) {
-    return NULL;
+static int mesh_instance_on_startup(dx_mesh_viewer_scene* self, dx_context* context, dx_asset_scene* asset_scene) {
+  if (dx_object_array_initialize(&self->mesh_instances, 2)) {
+    return 1;
   }
-  static const DX_VEC4 malachite = { 0.f, 255.f / 255.f, 64.f / 255.f, 1.0f }; // color called "Malachite" (0, 255, 64) from "Capri"'s tetradic palette
-  dx_cbinding_set_vec4(cbinding, "vs_mesh_ambient_rgba", &malachite);
-  dx_cbinding_set_mat4(cbinding, "matrices.projection_matrix", &identity);
-  dx_cbinding_set_mat4(cbinding, "matrices.view_matrix", &identity);
-  dx_cbinding_set_mat4(cbinding, "vs_mesh_world_matrix", &identity);
-  dx_cbinding_set_texture_index(cbinding, "ambient_texture_sampler", 0);
-  return cbinding;
+  for (size_t i = 0, n = dx_object_array_get_size(&asset_scene->mesh_instances); i < n; ++i) {
+    dx_asset_mesh_instance* asset_mesh_instance = DX_ASSET_MESH_INSTANCE(dx_object_array_get_at(&asset_scene->mesh_instances, i));
+    dx_mesh* mesh = dx_mesh_create(context, asset_mesh_instance->mesh);
+    dx_mesh_instance* mesh_instance = dx_mesh_instance_create(asset_mesh_instance->world_matrix, mesh);
+    if (dx_object_array_append(&self->mesh_instances, DX_OBJECT(mesh_instance))) {
+      DX_UNREFERENCE(mesh_instance);
+      mesh_instance = NULL;
+      dx_object_array_uninitialize(&self->mesh_instances);
+      return 1;
+    }
+    DX_UNREFERENCE(mesh_instance);
+    mesh_instance = NULL;
+  }
+  return 0;
 }
 
+static void mesh_instance_on_shutdown(dx_mesh_viewer_scene* self) {
+  dx_object_array_uninitialize(&self->mesh_instances);
+}
+
+static int viewer_push_constants(dx_mesh_viewer_scene* self, dx_cbinding* cbinding) {
+  dx_cbinding_set_mat4(cbinding, "matrices.projection_matrix", &self->projection_matrix);
+  dx_cbinding_set_mat4(cbinding, "matrices.view_matrix", &self->view_matrix);
+  return 0;
+}
 
 // the initial position of the viewer.
 // must be different from TARGET.
-static DX_VEC3 const SOURCE = { 0.f, 0.f, 2.f };
+static DX_VEC3 const SOURCE = { 0.f, 0.f, 3.f };
 
 // Rotate viewer with 25 degrees per second counter-clockwise around the y-axis.
 static float const degrees_per_second = 25.f;
@@ -113,91 +123,80 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
     return 1;
   }
 #endif
+#if defined(DX_SAFE_MUL_IX_WITH_TESTS) && 1 == DX_SAFE_MUL_IX_WITH_TESTS
+  if (dx_safe_mul_ix_tests()) {
+    return 1;
+  }
+#endif
 #if defined(DX_SAFE_MUL_NX_WITH_TESTS) && 1 == DX_SAFE_MUL_NX_WITH_TESTS
   if (dx_safe_mul_nx_tests()) {
     return 1;
   }
 #endif
+#if defined(DX_ADL_PARSER_WITH_TESTS) && 1 == DX_ADL_PARSER_WITH_TESTS
+  if (dx_adl_parser_tests()) {
+    return 1;
+  }
+#endif
   {
-    dx_asset_material* asset_material = _create_checkerboard_material();
-    if (!asset_material) {
-      return 1;
-    }
-    dx_asset_mesh* asset_mesh = _create_mesh(scene->name, asset_material);
-    DX_UNREFERENCE(asset_material);
-    asset_material = NULL;
-    if (!asset_mesh) {
-      return 1;
-    }
-    if (scene->on_mesh_loaded) {
-      if (scene->on_mesh_loaded(asset_mesh)) {
-        DX_UNREFERENCE(asset_mesh);
-        asset_mesh = NULL;
+    if (!strcmp(scene->name, "cube")) {
+      char* p;
+      size_t n;
+      if (dx_get_file_contents("./assets/cube.adl", &p, &n)) {
+        free(p);
+        p = NULL;
         return 1;
       }
+      scene->asset_scene = _create_scene_from_text(p, n);
+      free(p);
+      p = NULL;
+    } else if (!strcmp(scene->name, "octahedron")) {
+      char* p;
+      size_t n;
+      if (dx_get_file_contents("./assets/octahedron.adl", &p, &n)) {
+        free(p);
+        p = NULL;
+        return 1;
+      }
+      scene->asset_scene = _create_scene_from_text(p, n);
+      free(p);
+      p = NULL;
     }
-    scene->mesh = dx_mesh_create(context, asset_mesh);
-    if (!scene->mesh) {
-      return 1;
-    }
+  #if 0
+  #endif
+  #if 0
+  #endif
+  #if 0
+  #endif
   }
+  //
   scene->angle = 0.f;
-
+  if (mesh_instance_on_startup(scene, context, scene->asset_scene)) {
+    DX_UNREFERENCE(scene->asset_scene);
+    scene->asset_scene = NULL;
+    return 1;
+  }
   //
   dx_mat4_set_identity(&scene->projection_matrix);
   update_viewer(scene);
-  dx_mat4_set_identity(&scene->world_matrix);
   //
   {
     dx_command* command;
     dx_command_list* commands = dx_command_list_create();
     if (!commands) {
-      DX_UNREFERENCE(scene->mesh);
-      scene->mesh = NULL;
+      mesh_instance_on_shutdown(scene);
+      DX_UNREFERENCE(scene->asset_scene);
+      scene->asset_scene = NULL;
       return 1;
     }
     if (make_commands_1(commands)) {
       DX_UNREFERENCE(commands);
       commands = NULL;
-      DX_UNREFERENCE(scene->mesh);
-      scene->mesh = NULL;
+      mesh_instance_on_shutdown(scene);
+      DX_UNREFERENCE(scene->asset_scene);
+      scene->asset_scene = NULL;
       return 1;
     }
-    dx_cbinding* cbinding = create_cbinding();
-    if (!cbinding) {
-      DX_UNREFERENCE(commands);
-      commands = NULL;
-      DX_UNREFERENCE(scene->mesh);
-      scene->mesh = NULL;
-      return 1;
-    }
-    // draw command
-    command = dx_command_create_draw(scene->mesh->vbinding,
-                                     scene->mesh->material,
-                                     cbinding,
-                                     scene->mesh->program,
-                                     0,
-                                     scene->mesh->asset_mesh->number_of_vertices);
-    DX_UNREFERENCE(cbinding);
-    cbinding = NULL;
-    if (!command) {
-      DX_UNREFERENCE(commands);
-      commands = NULL;
-      DX_UNREFERENCE(scene->mesh);
-      scene->mesh = NULL;
-      return 1;
-    }
-    if (dx_command_list_append(commands, command)) {
-      DX_UNREFERENCE(command);
-      command = NULL;
-      DX_UNREFERENCE(commands);
-      commands = NULL;
-      DX_UNREFERENCE(scene->mesh);
-      scene->mesh = NULL;
-      return 1;
-    }
-    DX_UNREFERENCE(command);
-    command = NULL;
     scene->commands = commands;
   }
   //
@@ -228,35 +227,44 @@ static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* scene, dx_context* 
     command->viewport_command.w = (float)canvas_width;
     command->viewport_command.h = (float)canvas_height;
   }
+  // the "on enter frame" commands.
+  if (dx_context_execute_commands(context, scene->commands)) {
+    return 1;
+  }
+  // the "per mesh instance" commands.
   {
-    // bind the uniforms
-    dx_command* command = dx_command_list_get_at(scene->commands, 3);
-    dx_cbinding* cbinding = command->draw_command.cbinding;
-    //
-    {
-      static const DX_VEC4 mesh_color = { 0.f, 255.f / 255.f, 64.f / 255.f, 1.0f }; // color called "Malachite" (0, 255, 64) from "Capri"'s tetradic palette
-      dx_cbinding_set_vec4(cbinding, "vs_mesh_ambient_rgba", &mesh_color);
-      dx_cbinding_set_mat4(cbinding, "matrices.projection_matrix", &scene->projection_matrix);
-      dx_cbinding_set_mat4(cbinding, "matrices.view_matrix", &scene->view_matrix);
-      dx_cbinding_set_mat4(cbinding, "vs_mesh_world_matrix", &scene->world_matrix);
+    for (size_t i = 0, n = dx_object_array_get_size(&scene->mesh_instances); i < n; ++i) {
+      dx_mesh_instance* mesh_instance = DX_MESH_INSTANCE(dx_object_array_get_at(&scene->mesh_instances, i));
+      if (!mesh_instance) {
+        return 1;
+      }
+      // update the constant binding
+      dx_cbinding* cbinding = dx_mesh_instance_get_cbinding(mesh_instance);
+      dx_mesh_instance_update_cbinding(mesh_instance, cbinding);
+      viewer_push_constants(scene, cbinding);
+      if (dx_context_execute_commands(context, mesh_instance->commands)) {
+        return 1;
+      }
     }
   }
-  return dx_context_execute_commands(context, scene->commands);
+  return 0;
 }
 
 static int dx_mesh_viewer_scene_shutdown(dx_mesh_viewer_scene* scene, dx_context* context) {
-  if (scene->mesh) {
-    DX_UNREFERENCE(scene->mesh);
-    scene->mesh = NULL;
+  mesh_instance_on_shutdown(scene);
+  if (scene->asset_scene) {
+    DX_UNREFERENCE(scene->asset_scene);
+    scene->asset_scene = NULL;
   }
   if (scene->commands) {
     DX_UNREFERENCE(scene->commands);
     scene->commands = NULL;
   }
+  dx_object_array_uninitialize(&scene->mesh_instances);
   return 0;
 }
 
-int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const *name, int (*on_mesh_loaded)(dx_asset_mesh*)) {
+int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const* name) {
   if (dx_scene_construct(DX_SCENE(scene))) {
     return 1;
   }
@@ -265,13 +273,13 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const *name
     dx_scene_destruct(DX_SCENE(scene));
     return 1;
   }
-  scene->on_mesh_loaded = on_mesh_loaded;
   dx_mat4_set_identity(&scene->projection_matrix);
   dx_mat4_set_identity(&scene->view_matrix);
   dx_mat4_set_identity(&scene->projection_matrix);
+  scene->asset_scene = NULL;
   scene->commands = NULL;
   DX_SCENE(scene)->startup = (int (*)(dx_scene*, dx_context*)) & dx_mesh_viewer_scene_startup;
-  DX_SCENE(scene)->render = (int (*)(dx_scene*, dx_context*, float, int, int)) &dx_mesh_viewer_scene_render;
+  DX_SCENE(scene)->render = (int (*)(dx_scene*, dx_context*, float, int, int)) & dx_mesh_viewer_scene_render;
   DX_SCENE(scene)->shutdown = (int (*)(dx_scene*, dx_context*)) dx_mesh_viewer_scene_shutdown;
   DX_OBJECT(scene)->destruct = (void (*)(dx_object*)) & dx_mesh_viewer_scene_destruct;
   return 0;
@@ -285,12 +293,12 @@ void dx_mesh_viewer_scene_destruct(dx_mesh_viewer_scene* scene) {
   dx_scene_destruct(DX_SCENE(scene));
 }
 
-dx_mesh_viewer_scene* dx_mesh_viewer_scene_create(char const* name, int (*on_mesh_loaded)(dx_asset_mesh*)) {
+dx_mesh_viewer_scene* dx_mesh_viewer_scene_create(char const* name) {
   dx_mesh_viewer_scene* scene = DX_MESH_VIEWER_SCENE(dx_object_alloc(sizeof(dx_mesh_viewer_scene)));
   if (!scene) {
     return NULL;
   }
-  if (dx_mesh_viewer_scene_construct(scene, name, on_mesh_loaded)) {
+  if (dx_mesh_viewer_scene_construct(scene, name)) {
     DX_UNREFERENCE(scene);
     scene = NULL;
     return NULL;

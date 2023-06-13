@@ -3,6 +3,8 @@
 
 #include "dx/core.h"
 
+/// A "constant binding" (dx_cbinding) provides inputs to "constants" in "programs"
+/// (like the "variable binding" (dx_vbinding) provides inputs to "variables" in "programs").
 typedef struct dx_cbinding dx_cbinding;
 static inline dx_cbinding* DX_CBINDING(void* p) {
   return (dx_cbinding*)p;

@@ -226,7 +226,6 @@ int dx_cbinding_iter_next(dx_cbinding_iter* iter) {
   }
 }
 
-
 bool dx_cbinding_iter_has_value(dx_cbinding_iter const* iter) {
   _entry* entry = (_entry*)iter->b;
   return NULL != entry;

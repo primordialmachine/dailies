@@ -62,6 +62,10 @@ static int resize_vertex_arrays(dx_asset_mesh* self, bool shrink, size_t number_
 }
 
 static void dx_asset_mesh_destruct(dx_asset_mesh* self) {
+  if (self->material) {
+    DX_UNREFERENCE(self->material);
+    self->material = NULL;
+  }
   if (self->vertices.ambient_uv) {
     free(self->vertices.ambient_uv);
     self->vertices.ambient_uv = NULL;
@@ -76,8 +80,8 @@ static void dx_asset_mesh_destruct(dx_asset_mesh* self) {
   }
 }
 
-static int dx_asset_mesh_construct(dx_asset_mesh* self, dx_string* specifier) {
-  if (!self || !specifier) {
+static int dx_asset_mesh_construct(dx_asset_mesh* self, dx_string* specifier, dx_asset_material* material) {
+  if (!self || !specifier || !material) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
@@ -118,9 +122,11 @@ static int dx_asset_mesh_construct(dx_asset_mesh* self, dx_string* specifier) {
     } \
   }
 
+SELECT_GENERATOR(cube)
 SELECT_GENERATOR(empty)
 SELECT_GENERATOR(quadriliteral)
 SELECT_GENERATOR(triangle)
+SELECT_GENERATOR(octahedron)
 
 #undef SELECT_GENERATOR
   
@@ -144,16 +150,18 @@ SELECT_GENERATOR(triangle)
     self->vertices.xyz = NULL;
     return 1;
   }
+  self->material = material;
+  DX_REFERENCE(material);
   DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_asset_mesh_destruct;
   return 0;
 }
 
-dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier) {
+dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier, dx_asset_material* material) {
   dx_asset_mesh* self = DX_ASSET_MESH(dx_object_alloc(sizeof(dx_asset_mesh)));
   if (!self) {
     return NULL;
   }
-  if (dx_asset_mesh_construct(self, specifier)) {
+  if (dx_asset_mesh_construct(self, specifier, material)) {
     DX_UNREFERENCE(self);
     self = NULL;
     return NULL;
@@ -231,6 +239,21 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
     return 1;
   } break;
   };
+  return 0;
+}
+
+int dx_asset_mesh_transform_range(dx_asset_mesh* self, DX_MAT4 const* a, size_t i, size_t n) {
+  if (!self || !a) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  if (i + n > self->number_of_vertices) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  for (size_t j = i, m = i + n; j < m; ++j) {
+    dx_transform_point(&self->vertices.xyz[j], &self->vertices.xyz[j], a);
+  }
   return 0;
 }
 

@@ -3,6 +3,7 @@
 
 #include "dx/vbinding.h"
 #include "dx/cbinding.h"
+#include "dx/material.h"
 #include "dx/program.h"
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -44,16 +45,17 @@ int dx_command_construct_clear_depth(dx_command* render_command, float l, float 
 /// @return A pointer to the command.
 dx_command* dx_command_create_clear_depth(float l, float b, float w, float h, float depth);
 
-int dx_command_construct_draw(dx_command* render_command, dx_vbinding* vbinding, dx_cbinding* cbinding, dx_program* program, int start, int length);
+int dx_command_construct_draw(dx_command* render_command, dx_vbinding* vbinding, dx_material* material, dx_cbinding* cbinding, dx_program* program, int start, int length);
 
 /// Create a draw command.
 /// @param vbinding The variable binding.
+/// @param material The material.
 /// @param cbinding The constant binding.
 /// @param program The program.
 /// @param start The index at which the vertex sequence starts at.
 /// @param length The length of the vertex sequence.
 /// @return A pointer to the command.
-dx_command* dx_command_create_draw(dx_vbinding* vbinding, dx_cbinding* cbinding, dx_program* program, int start, int length);
+dx_command* dx_command_create_draw(dx_vbinding* vbinding, dx_material* material, dx_cbinding* cbinding, dx_program* program, int start, int length);
 
 int dx_command_construct_viewport(dx_command* render_command, float l, float b, float w, float h);
 
@@ -90,6 +92,7 @@ struct dx_command {
     } clear_depth_command;
     struct {
       dx_vbinding* vbinding;
+      dx_material* material;
       dx_cbinding* cbinding;
       dx_program* program;
       int start;

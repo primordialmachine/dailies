@@ -104,7 +104,7 @@ endif()
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
                                            ${CMAKE_CURRENT_SOURCE_DIR}/external/opengl/includes)
 
-target_link_libraries(${name} dailies.day16today19)
+target_link_libraries(${name} dailies.day15today19)
 
 find_package(Doxygen)
 

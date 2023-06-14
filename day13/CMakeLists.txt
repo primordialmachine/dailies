@@ -12,78 +12,28 @@ set(name "dailies.day13")
 set(${name}.dx.inlays "")
 set(${name}.dx.sources "")
 set(${name}.dx.headers "")
+set(${name}.dx.readmes "")
+set(${name}.dx.asms "")
+
+list(APPEND ${name}.dx.sources "main.c")
+list(APPEND ${name}.dx.readmes "README.md")
 
 list(APPEND ${name}.dx.sources "dx/application.c" "dx/configuration.c" "dx/scene.c")
 list(APPEND ${name}.dx.headers "dx/application.h" "dx/configuration.h" "dx/scene.h")
-
-# DX core sources.
-set(${name}.dx.core.inlays "")
-set(${name}.dx.core.sources "")
-set(${name}.dx.core.headers "")
-list(APPEND ${name}.dx.sources "dx/core.c")
-list(APPEND ${name}.dx.headers "dx/core.h")
-list(APPEND ${name}.dx.sources "dx/core/core.c" "dx/core/os.c" "dx/core/string.c")
-list(APPEND ${name}.dx.headers "dx/core/core.h" "dx/core/os.h" "dx/core/string.h")
-list(APPEND ${name}.dx.sources "dx/core/math.c")
-list(APPEND ${name}.dx.headers "dx/core/math.h")
-list(APPEND ${name}.dx.sources "dx/core/byte_array.c")
-list(APPEND ${name}.dx.headers "dx/core/byte_array.h")
-list(APPEND ${name}.dx.sources "dx/core/object_array.c")
-list(APPEND ${name}.dx.headers "dx/core/object_array.h")
-list(APPEND ${name}.dx.sources "dx/core/pointer_array.c")
-list(APPEND ${name}.dx.headers "dx/core/pointer_array.h")
-list(APPEND ${name}.dx.sources "dx/core/pointer_hashmap.c")
-list(APPEND ${name}.dx.headers "dx/core/pointer_hashmap.h")
-list(APPEND ${name}.dx.sources "dx/core/file_system.c")
-list(APPEND ${name}.dx.headers "dx/core/file_system.h")
-list(APPEND ${name}.dx.sources "dx/core/visuals.c")
-list(APPEND ${name}.dx.headers "dx/core/visuals.h")
-list(APPEND ${name}.dx.sources "dx/core/safe_add_nx.c" "dx/core/safe_mul_ix.c" "dx/core/safe_mul_nx.c")
-list(APPEND ${name}.dx.headers "dx/core/safe_add_nx.h" "dx/core/safe_mul_ix.h" "dx/core/safe_mul_nx.h")
-list(APPEND ${name}.dx.sources "dx/core/count_leading_zeroes.c")
-list(APPEND ${name}.dx.headers "dx/core/count_leading_zeroes.h")
-list(APPEND ${name}.dx.sources "dx/core/next_power_of_two.c")
-list(APPEND ${name}.dx.headers "dx/core/next_power_of_two.h")
-list(APPEND ${name}.dx.sources "dx/core/convert.c")
-list(APPEND ${name}.dx.headers "dx/core/convert.h")
-
-list(APPEND ${name}.dx.sources "dx/core/canvas_msgs.c")
-list(APPEND ${name}.dx.headers "dx/core/canvas_msgs.h")
-
-list(APPEND ${name}.dx.sources "dx/core/hapticals.c")
-list(APPEND ${name}.dx.headers "dx/core/hapticals.h")
-list(APPEND ${name}.dx.inlays "dx/core/keyboard_keys.i")
-list(APPEND ${name}.dx.inlays "dx/core/mouse_buttons.i")
-
-# DX asset sources.
-list(APPEND ${name}.dx.sources "dx/asset/mesh.c" "dx/asset/mesh/generators.c")
-list(APPEND ${name}.dx.headers "dx/asset/mesh.h" "dx/asset/mesh/generators.h")
-list(APPEND ${name}.dx.sources "dx/asset/image.c")
-list(APPEND ${name}.dx.headers "dx/asset/image.h")
-list(APPEND ${name}.dx.sources "dx/asset/texture.c")
-list(APPEND ${name}.dx.headers "dx/asset/texture.h")
-list(APPEND ${name}.dx.sources "dx/asset/material.c")
-list(APPEND ${name}.dx.headers "dx/asset/material.h")
-list(APPEND ${name}.dx.sources "dx/asset/palette.c")
-list(APPEND ${name}.dx.headers "dx/asset/palette.h")
-list(APPEND ${name}.dx.sources "dx/asset/mesh_instance.c")
-list(APPEND ${name}.dx.headers "dx/asset/mesh_instance.h")
-list(APPEND ${name}.dx.sources "dx/asset/scene.c")
-list(APPEND ${name}.dx.headers "dx/asset/scene.h")
-
-# DX ADL sources.
-list(APPEND ${name}.dx.sources "dx/adl/syntactical.c")
-list(APPEND ${name}.dx.headers "dx/adl/syntactical.h")
-list(APPEND ${name}.dx.sources "dx/adl/diagnostics.c")
-list(APPEND ${name}.dx.headers "dx/adl/diagnostics.h")
 
 # DX visuals abstraction layer (VAL).
 list(APPEND ${name}.dx.sources "dx/program_text.c" "dx/command.c" "dx/program.c" "dx/context.c" "dx/cbinding.c" "dx/vbinding.c" "dx/buffer.c")
 list(APPEND ${name}.dx.headers "dx/program_text.h" "dx/command.h" "dx/program.h" "dx/context.h" "dx/cbinding.h" "dx/vbinding.h" "dx/buffer.h")
 
 # DX VAL OpenGL backend.
-set(${name}.dx.gl.sources "dx/gl/context.c" "dx/gl/wgl/context.c" "dx/gl/program.c" "dx/gl/buffer.c" "dx/gl/binding.c" "dx/gl/wgl/wm.c")
-set(${name}.dx.gl.headers "dx/gl/context.h" "dx/gl/wgl/context.h" "dx/gl/program.h" "dx/gl/buffer.h" "dx/gl/binding.h" "dx/gl/wgl/wm.h" )
+set(${name}.dx.gl.inlays "")
+set(${name}.dx.gl.sources "")
+set(${name}.dx.gl.headers "")
+set(${name}.dx.gl.readmes "")
+set(${name}.dx.gl.asms "")
+
+list(APPEND ${name}.dx.gl.sources "dx/gl/context.c" "dx/gl/wgl/context.c" "dx/gl/program.c" "dx/gl/buffer.c" "dx/gl/binding.c" "dx/gl/wgl/wm.c")
+list(APPEND ${name}.dx.gl.headers "dx/gl/context.h" "dx/gl/wgl/context.h" "dx/gl/program.h" "dx/gl/buffer.h" "dx/gl/binding.h" "dx/gl/wgl/wm.h" )
 
 # Assembler sources.
 enable_language(ASM_MASM) # Enable ASM provided by MASM.
@@ -126,24 +76,26 @@ endif()
 list(APPEND ${name}.dx.sources "dx/scenes/mesh_viewer_scene.c")
 list(APPEND ${name}.dx.headers "dx/scenes/mesh_viewer_scene.h")
 
-set(${name}.sources "main.c" ${${name}.dx.sources} ${${name}.dx.gl.sources})
+set(${name}.sources ${${name}.dx.sources} ${${name}.dx.gl.sources})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.sources})
 
 set(${name}.headers ${${name}.dx.headers} ${${name}.dx.gl.headers})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.headers})
 
-set(${name}.readmes "README.md")
+set(${name}.readmes ${${name}.dx.readmes} ${${name}.dx.gl.readmes})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.readmes})
 
-set(${name}.inlays ${${name}.dx.inlays} "dx/gl/functions.i")
+set(${name}.inlays ${${name}.dx.inlays} ${${name}.dx.gl.inlays} "dx/gl/functions.i")
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.inlays})
 
-set(${name}.asms ${${name}.dx.asms})
+set(${name}.asms ${${name}.dx.asms} ${${name}.dx.gl.asms})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.asms})
 
 project(${name})
 
 add_executable(${name} ${${name}.sources} ${${name}.headers} ${${name}.readmes} ${${name}.inlays} ${${name}.asms})
+
+target_link_libraries(${name} dailies.day10today14)
 
 if(MSVC)
   # Treat certain warnings as errors.

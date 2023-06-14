@@ -8,79 +8,27 @@ cmake_minimum_required(VERSION 3.20)
 set(name "dailies.day19")
 
 
-# DX sources.
+# One list for inlays files, one list for source files, one list for headers, one list for readmes.
 set(${name}.dx.inlays "")
 set(${name}.dx.sources "")
 set(${name}.dx.headers "")
+set(${name}.dx.readmes "")
 
-list(APPEND ${name}.dx.sources "dx/application.c" "dx/configuration.c" "dx/scene.c")
-list(APPEND ${name}.dx.headers "dx/application.h" "dx/configuration.h" "dx/scene.h")
+# "README.md".
+set(${name}.dx.readmes "README.md")
 
-# DX scene / create assets.
+# "main.c".
+list(APPEND ${name}.dx.sources "main.c")
+
+# "dx/application.(c|h)" & "dx/scene.(c|h)".
+list(APPEND ${name}.dx.sources "dx/application.c" "dx/scene.c")
+list(APPEND ${name}.dx.headers "dx/application.h" "dx/scene.h")
+
+# "dx/scenes/*".
+list(APPEND ${name}.dx.sources "dx/scenes/mesh_viewer_scene.c")
+list(APPEND ${name}.dx.headers "dx/scenes/mesh_viewer_scene.h")
 list(APPEND ${name}.dx.sources "dx/scenes/create_assets.c")
 list(APPEND ${name}.dx.headers "dx/scenes/create_assets.h")
-
-# DX core sources.
-set(${name}.dx.core.inlays "")
-set(${name}.dx.core.sources "")
-set(${name}.dx.core.headers "")
-list(APPEND ${name}.dx.sources "dx/core.c")
-list(APPEND ${name}.dx.headers "dx/core.h")
-list(APPEND ${name}.dx.sources "dx/core/core.c" "dx/core/os.c" "dx/core/string.c")
-list(APPEND ${name}.dx.headers "dx/core/core.h" "dx/core/os.h" "dx/core/string.h")
-list(APPEND ${name}.dx.sources "dx/core/math.c")
-list(APPEND ${name}.dx.headers "dx/core/math.h")
-list(APPEND ${name}.dx.sources "dx/core/object_array.c" "dx/core/byte_array.c")
-list(APPEND ${name}.dx.headers "dx/core/object_array.h" "dx/core/byte_array.h")
-list(APPEND ${name}.dx.sources "dx/core/pointer_array.c")
-list(APPEND ${name}.dx.headers "dx/core/pointer_array.h")
-list(APPEND ${name}.dx.sources "dx/core/pointer_hashmap.c")
-list(APPEND ${name}.dx.headers "dx/core/pointer_hashmap.h")
-list(APPEND ${name}.dx.sources "dx/core/file_system.c")
-list(APPEND ${name}.dx.headers "dx/core/file_system.h")
-list(APPEND ${name}.dx.sources "dx/core/visuals.c")
-list(APPEND ${name}.dx.headers "dx/core/visuals.h")
-list(APPEND ${name}.dx.sources "dx/core/safe_add_nx.c" "dx/core/safe_mul_ix.c" "dx/core/safe_mul_nx.c")
-list(APPEND ${name}.dx.headers "dx/core/safe_add_nx.h" "dx/core/safe_mul_ix.h" "dx/core/safe_mul_nx.h")
-list(APPEND ${name}.dx.sources "dx/core/count_leading_zeroes.c")
-list(APPEND ${name}.dx.headers "dx/core/count_leading_zeroes.h")
-list(APPEND ${name}.dx.sources "dx/core/next_power_of_two.c")
-list(APPEND ${name}.dx.headers "dx/core/next_power_of_two.h")
-list(APPEND ${name}.dx.sources "dx/core/convert.c")
-list(APPEND ${name}.dx.headers "dx/core/convert.h")
-
-list(APPEND ${name}.dx.sources "dx/core/canvas_msgs.c")
-list(APPEND ${name}.dx.headers "dx/core/canvas_msgs.h")
-
-list(APPEND ${name}.dx.sources "dx/core/hapticals.c")
-list(APPEND ${name}.dx.headers "dx/core/hapticals.h")
-list(APPEND ${name}.dx.inlays "dx/core/keyboard_keys.i")
-list(APPEND ${name}.dx.inlays "dx/core/mouse_buttons.i")
-
-# DX asset sources.
-list(APPEND ${name}.dx.sources "dx/asset/mesh.c" "dx/asset/mesh_instance.c" "dx/asset/mesh/generators.c")
-list(APPEND ${name}.dx.headers "dx/asset/mesh.h" "dx/asset/mesh_instance.h" "dx/asset/mesh/generators.h")
-
-list(APPEND ${name}.dx.sources "dx/asset/scene.c")
-list(APPEND ${name}.dx.headers "dx/asset/scene.h")
-
-list(APPEND ${name}.dx.sources "dx/asset/texture.c" "dx/asset/material.c")
-list(APPEND ${name}.dx.headers "dx/asset/texture.h" "dx/asset/material.h")
-
-list(APPEND ${name}.dx.sources "dx/asset/image.c" "dx/asset/palette.c")
-list(APPEND ${name}.dx.headers "dx/asset/image.h" "dx/asset/palette.h")
-
-# DX ADL sources.
-list(APPEND ${name}.dx.sources "dx/adl/syntactical.c")
-list(APPEND ${name}.dx.headers "dx/adl/syntactical.h")
-
-list(APPEND ${name}.dx.sources "dx/adl/diagnostics.c")
-list(APPEND ${name}.dx.headers "dx/adl/diagnostics.h")
-
-list(APPEND ${name}.dx.sources "dx/adl/semantical.c")
-list(APPEND ${name}.dx.headers "dx/adl/semantical.h")
-list(APPEND ${name}.dx.sources "dx/adl/semantical/state.c")
-list(APPEND ${name}.dx.headers "dx/adl/semantical/state.h")
 
 # DX visuals abstraction layer (VAL).
 list(APPEND ${name}.dx.sources "dx/texture.c" "dx/material.c" "dx/mesh.c" "dx/mesh_instance.c")
@@ -89,17 +37,13 @@ list(APPEND ${name}.dx.sources "dx/program_text.c" "dx/command.c" "dx/program.c"
 list(APPEND ${name}.dx.headers "dx/program_text.h" "dx/command.h" "dx/program.h" "dx/context.h" "dx/cbinding.h" "dx/vbinding.h" "dx/buffer.h")
 
 # DX VAL OpenGL backend.
-set(${name}.dx.gl.sources "dx/gl/context.c" "dx/gl/wgl/context.c" "dx/gl/texture.c" "dx/gl/program.c" "dx/gl/buffer.c" "dx/gl/binding.c" "dx/gl/wgl/wm.c")
-set(${name}.dx.gl.headers "dx/gl/context.h" "dx/gl/wgl/context.h" "dx/gl/texture.h" "dx/gl/program.h" "dx/gl/buffer.h" "dx/gl/binding.h" "dx/gl/wgl/wm.h" )
-
-# Assembler sources.
-enable_language(ASM_MASM) # Enable ASM provided by MASM.
-
-# Small utility function to find files by expression and append them to the specified list.
-function(add_files file_list expression)
-  file(GLOB_RECURSE temporary ${expression})
-  set(${file_list} ${${file_list}} ${temporary} PARENT_SCOPE)
-endfunction()
+set(${name}.dx.gl.inlays "")
+set(${name}.dx.gl.sources "")
+set(${name}.dx.gl.headers "")
+set(${name}.dx.gl.readmes "")
+list(APPEND ${name}.dx.gl.sources "dx/gl/context.c" "dx/gl/wgl/context.c" "dx/gl/texture.c" "dx/gl/program.c" "dx/gl/buffer.c" "dx/gl/binding.c" "dx/gl/wgl/wm.c")
+list(APPEND ${name}.dx.gl.headers "dx/gl/context.h" "dx/gl/wgl/context.h" "dx/gl/texture.h" "dx/gl/program.h" "dx/gl/buffer.h" "dx/gl/binding.h" "dx/gl/wgl/wm.h" )
+list(APPEND ${name}.dx.gl.inlays "dx/gl/functions.i")
 
 # The target architecture determines which implementation to compile.
 if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
@@ -111,39 +55,17 @@ elseif( CMAKE_SIZEOF_VOID_P EQUAL 4 )
 else()
   message( FATAL_ERROR "unable to detect architecture" )
 endif()
-#
-add_files( ${name}.dx.inlays "dx/asm/${infix}/_umul*.i")
-add_files( ${name}.dx.sources "dx/asm/${infix}/_umul*.c" )
-add_files( ${name}.dx.headers "dx/asm/${infix}/_umul*.h" )
-add_files( ${name}.dx.asms "dx/asm/${infix}/_umul*.asm" )
-#
-add_files( ${name}.dx.inlays "dx/asm/${infix}/_imul*.i")
-add_files( ${name}.dx.sources "dx/asm/${infix}/_imul*.c" )
-add_files( ${name}.dx.headers "dx/asm/${infix}/_imul*.h" )
-add_files( ${name}.dx.asms "dx/asm/${infix}/_imul*.asm" )
-#
-if( CMAKE_SIZEOF_VOID_P EQUAL 4 )
-  set_source_files_properties(
-      ${${name}.dx.asms}
-      PROPERTIES
-      COMPILE_FLAGS "/safeseh"
-  )
-endif()
 
-# DX scenes sources.
-list(APPEND ${name}.dx.sources "dx/scenes/mesh_viewer_scene.c")
-list(APPEND ${name}.dx.headers "dx/scenes/mesh_viewer_scene.h")
-
-set(${name}.sources "main.c" ${${name}.dx.sources} ${${name}.dx.gl.sources})
+set(${name}.sources ${${name}.dx.sources} ${${name}.dx.gl.sources})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.sources})
 
 set(${name}.headers ${${name}.dx.headers} ${${name}.dx.gl.headers})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.headers})
 
-set(${name}.readmes "README.md")
+set(${name}.readmes ${${name}.dx.readmes} ${${name}.dx.gl.readmes})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.readmes})
 
-set(${name}.inlays ${${name}.dx.inlays} "dx/gl/functions.i")
+set(${name}.inlays ${${name}.dx.inlays} ${${name}.dx.gl.inlays})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.inlays})
 
 set(${name}.asms ${${name}.dx.asms})
@@ -181,6 +103,8 @@ endif()
 
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
                                            ${CMAKE_CURRENT_SOURCE_DIR}/external/opengl/includes)
+
+target_link_libraries(${name} dailies.day16today19)
 
 find_package(Doxygen)
 

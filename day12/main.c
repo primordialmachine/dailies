@@ -24,7 +24,7 @@ static dx_scene* g_scenes[2] = { NULL, NULL };
 
 static int on_msg(dx_msg* msg);
 
-static int on_render(dx_context* context, int canvas_width, int canvas_height);
+static int on_render(dx_context* context, float delta_seconds, int canvas_width, int canvas_height);
 
 static int run();
 
@@ -110,8 +110,8 @@ static int on_shutdown_scene(dx_context* context) {
   return 0;
 }
 
-static int on_render_scene(dx_context* context, int canvas_width, int canvas_height) {
-  if (dx_scene_render(g_scenes[g_scene_index], context, canvas_width, canvas_height)) {
+static int on_render_scene(dx_context* context, float delta_seconds, int canvas_width, int canvas_height) {
+  if (dx_scene_render(g_scenes[g_scene_index], context, delta_seconds, canvas_width, canvas_height)) {
     return 1;
   }
   return 0;
@@ -141,7 +141,14 @@ static int run() {
   if (on_startup_scene(ctx)) {
     return 1;
   }
+  uint64_t last = GetTickCount64();
+  uint64_t now = last;
+  uint64_t delta = now - last;
   while (!g_quit) {
+    now = GetTickCount64();
+    delta = now - last;
+    last = now;
+
     if (dx_gl_wgl_update_wm()) {
       dx_log("leave: run\n", sizeof("leave: run\n"));
       on_shutdown_scene(ctx);
@@ -171,7 +178,7 @@ static int run() {
     dx_gl_wgl_enter_frame();
     int canvas_width, canvas_height;
     dx_gl_wgl_get_canvas_size(&canvas_width, &canvas_height);
-    on_render_scene(ctx, canvas_width, canvas_height);
+    on_render_scene(ctx, ((float)delta) / 1000.f, canvas_width, canvas_height);
     dx_gl_wgl_leave_frame();
   }
   on_shutdown_scene(ctx);

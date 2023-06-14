@@ -279,7 +279,7 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
   return 0;
 }
 
-static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* scene, dx_context* context, int canvas_width, int canvas_height) {
+static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* scene, dx_context* context, float delta_seconds, int canvas_width, int canvas_height) {
   {
     dx_command* command = NULL;
 
@@ -344,7 +344,7 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const *name
   dx_mat4_set_identity(&scene->projection_matrix);
   scene->commands = NULL;
   DX_SCENE(scene)->startup = (int (*)(dx_scene*, dx_context*)) & dx_mesh_viewer_scene_startup;
-  DX_SCENE(scene)->render = (int (*)(dx_scene*, dx_context*, int, int)) &dx_mesh_viewer_scene_render;
+  DX_SCENE(scene)->render = (int (*)(dx_scene*, dx_context*, float, int, int)) &dx_mesh_viewer_scene_render;
   DX_SCENE(scene)->shutdown = (int (*)(dx_scene*, dx_context*)) dx_mesh_viewer_scene_shutdown;
   DX_OBJECT(scene)->destruct = (void (*)(dx_object*)) & dx_mesh_viewer_scene_destruct;
   return 0;

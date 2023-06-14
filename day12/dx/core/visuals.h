@@ -16,8 +16,14 @@ typedef enum DX_VERTEX_FORMAT {
   /// @brief A vertex of the format color.
   DX_VERTEX_FORMAT_COLOR = 2,
 
+  /// @brief A vertex of the format texture.
+  DX_VERTEX_FORMAT_TEXTURE = 4,
+
   /// @brief A vertex of the format position first, color second.
   DX_VERTEX_FORMAT_POSITION_COLOR = (DX_VERTEX_FORMAT_POSITION | DX_VERTEX_FORMAT_COLOR),
+
+  /// @brief A vertex of the format position first, texture second.
+  DX_VERTEX_FORMAT_POSITION_TEXTURE = (DX_VERTEX_FORMAT_POSITION | DX_VERTEX_FORMAT_TEXTURE),
 
 } DX_VERTEX_FORMAT;
 

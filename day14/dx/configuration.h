@@ -85,4 +85,10 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+/// If defined and evaluating to @a 1,
+/// then a function dx_adl_parser_tests() is provided
+/// which performs tests on functionality provided by "dx/asset/reader.h".
+/// This function succeeds if all such tests succeed, otherwise it fails.
+#define DX_ADL_PARSER_WITH_TESTS (1)
+
 #endif // DX_CONFIGURATION_H_INCLUDED

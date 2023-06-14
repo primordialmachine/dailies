@@ -10,8 +10,8 @@
 #include <float.h>
 // snprintf
 #include <stdio.h>
-#include "dx/program_text.h"
 #include "dx/cbinding.h"
+#include "dx/program_text.h"
 
 static dx_cbinding* create_cbinding() {
   DX_MAT4 identity;
@@ -101,7 +101,7 @@ on_error:
   return NULL;
 }
 
-// add commands "clear color" and "set viewport".
+// add commands "clear color", "clear depth", and "set viewport".
 static int add_enter_frame_commands(dx_command_list* commands) {
   dx_command* command;
   // clear color command
@@ -146,7 +146,10 @@ static int add_enter_frame_commands(dx_command_list* commands) {
   return 0;
 }
 
-static int add_mesh_draw_command(dx_command_list* commands, char const* name, dx_context* context) {
+static int add_mesh_draw_command(dx_command_list* commands,
+                                 int (*on_mesh_loaded)(dx_asset_mesh*),
+                                 char const* name,
+                                 dx_context* context) {
   dx_string* name1 = dx_string_create(name, strlen(name));
   if (!name1) {
     return 1;
@@ -156,6 +159,13 @@ static int add_mesh_draw_command(dx_command_list* commands, char const* name, dx
   name1 = NULL;
   if (!mesh) {
     return 1;
+  }
+  if (on_mesh_loaded) {
+    if (on_mesh_loaded(mesh)) {
+      DX_UNREFERENCE(mesh);
+      mesh = NULL;
+      return 1;
+    }
   }
   dx_buffer* buffer = dx_context_create_buffer(context);
   if (!buffer) {
@@ -282,7 +292,7 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
       commands = NULL;
       return 1;
     }
-    if (add_mesh_draw_command(commands, scene->name, context)) {
+    if (add_mesh_draw_command(commands, scene->on_mesh_loaded, scene->name, context)) {
       DX_UNREFERENCE(commands);
       commands = NULL;
       return 1;
@@ -365,7 +375,7 @@ static int dx_mesh_viewer_scene_shutdown(dx_mesh_viewer_scene* scene, dx_context
   return 0;
 }
 
-int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const *name) {
+int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const *name, int (*on_mesh_loaded)(dx_asset_mesh*)) {
   if (dx_scene_construct(DX_SCENE(scene))) {
     return 1;
   }
@@ -374,6 +384,7 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const *name
     dx_scene_destruct(DX_SCENE(scene));
     return 1;
   }
+  scene->on_mesh_loaded = on_mesh_loaded;
   dx_mat4_set_identity(&scene->projection_matrix);
   dx_mat4_set_identity(&scene->view_matrix);
   dx_mat4_set_identity(&scene->projection_matrix);
@@ -393,12 +404,12 @@ void dx_mesh_viewer_scene_destruct(dx_mesh_viewer_scene* scene) {
   dx_scene_destruct(DX_SCENE(scene));
 }
 
-dx_mesh_viewer_scene* dx_mesh_viewer_scene_create(char const* name) {
+dx_mesh_viewer_scene* dx_mesh_viewer_scene_create(char const* name, int (*on_mesh_loaded)(dx_asset_mesh*)) {
   dx_mesh_viewer_scene* scene = DX_MESH_VIEWER_SCENE(dx_object_alloc(sizeof(dx_mesh_viewer_scene)));
   if (!scene) {
     return NULL;
   }
-  if (dx_mesh_viewer_scene_construct(scene, name)) {
+  if (dx_mesh_viewer_scene_construct(scene, name, on_mesh_loaded)) {
     DX_UNREFERENCE(scene);
     scene = NULL;
     return NULL;

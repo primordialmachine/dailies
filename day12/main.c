@@ -65,11 +65,11 @@ static int on_msg(dx_msg* msg) {
 }
 
 static int on_startup_scene(dx_context* context) {
-  g_scenes[0] = DX_SCENE(dx_mesh_viewer_scene_create("quadriliteral"));
+  g_scenes[0] = DX_SCENE(dx_mesh_viewer_scene_create("quadriliteral", NULL));
   if (!g_scenes[0]) {
     return 1;
   }
-  g_scenes[1] = DX_SCENE(dx_mesh_viewer_scene_create("triangle"));
+  g_scenes[1] = DX_SCENE(dx_mesh_viewer_scene_create("triangle", NULL));
   if (!g_scenes[1]) {
     DX_UNREFERENCE(g_scenes[0]);
     g_scenes[0] = NULL;

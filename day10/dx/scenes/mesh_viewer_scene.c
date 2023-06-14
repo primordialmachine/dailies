@@ -13,6 +13,9 @@
 #include "dx/cbinding.h"
 #include "dx/program_text.h"
 
+static DX_VEC4 const start_color = { 0.f, 255.f / 255.f, 64.f / 255.f, 1.0f }; // color called "Malachite" (0, 255, 64) from "Capri"'s tetradic palette
+static DX_VEC4 const end_color = { 255.f / 255.f, 192.f / 255.f, 0.f / 255.f }; // color called "Amber" (255, 192, 0) from "Capri"'s split complementary palette.
+
 static dx_cbinding* create_cbinding() {
   DX_MAT4 identity;
   dx_mat4_set_identity(&identity);
@@ -173,7 +176,16 @@ static int add_mesh_draw_command(dx_command_list* commands,
     mesh = NULL;
     return 1;
   }
-  if (dx_buffer_set_data(buffer, mesh->vertices.xyz, mesh->number_of_vertices * sizeof(DX_VEC3))) {
+  static DX_VERTEX_FORMAT const vertex_format = DX_VERTEX_FORMAT_POSITION_COLOR;
+  void* bytes; size_t number_of_bytes;
+  if (dx_asset_mesh_format(mesh, vertex_format, &bytes, &number_of_bytes)) {
+    DX_UNREFERENCE(buffer);
+    buffer = NULL;
+    DX_UNREFERENCE(mesh);
+    mesh = NULL;
+    return 1;
+  }
+  if (dx_buffer_set_data(buffer, bytes, number_of_bytes)) {
     DX_UNREFERENCE(buffer);
     buffer = NULL;
     DX_UNREFERENCE(mesh);
@@ -181,13 +193,15 @@ static int add_mesh_draw_command(dx_command_list* commands,
     return 1;
   }
   dx_vbinding* vbinding = dx_context_create_vbinding(context, buffer);
-  DX_UNREFERENCE(buffer);
-  buffer = NULL;
   if (!vbinding) {
+    DX_UNREFERENCE(buffer);
+    buffer = NULL;
     DX_UNREFERENCE(mesh);
     mesh = NULL;
     return 1;
   }
+  DX_UNREFERENCE(buffer);
+  buffer = NULL;
   dx_program* program = NULL;
   //
   {
@@ -199,7 +213,7 @@ static int add_mesh_draw_command(dx_command_list* commands,
       mesh = NULL;
       return 1;
     }
-    dx_string* filename = dx_string_create("1", sizeof("1") - 1);
+    dx_string* filename = dx_string_create("2", sizeof("2") - 1);
     if (!filename) {
       DX_UNREFERENCE(path);
       path = NULL;
@@ -279,30 +293,38 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
     return 1;
   }
 #endif
-  dx_mat4_set_ortho(&scene->projection_matrix, -1, +1, -1, +1, -1, +1);
-  dx_mat4_set_identity(&scene->view_matrix);
+  //
+  dx_mat4_set_identity(&scene->projection_matrix);
+  dx_mat4_set_translate(&scene->view_matrix, 0.f, 0.f, -1.f);
   dx_mat4_set_identity(&scene->world_matrix);
-  dx_command_list* commands = dx_command_list_create();
-  if (!commands) {
-    return 1;
+  //
+  {
+    dx_command* command;
+    dx_command_list* commands = dx_command_list_create();
+    if (!commands) {
+      return 1;
+    }
+    if (add_enter_frame_commands(commands)) {
+      DX_UNREFERENCE(commands);
+      commands = NULL;
+      return 1;
+    }
+    if (add_mesh_draw_command(commands, scene->on_mesh_loaded, scene->name, context)) {
+      DX_UNREFERENCE(commands);
+      commands = NULL;
+      return 1;
+    }
+    scene->commands = commands;
   }
-  if (add_enter_frame_commands(commands)) {
-    DX_UNREFERENCE(commands);
-    commands = NULL;
-    return 1;
-  }
-  if (add_mesh_draw_command(commands, scene->on_mesh_loaded, scene->name, context)) {
-    DX_UNREFERENCE(commands);
-    commands = NULL;
-    return 1;
-  }
-  scene->commands = commands;
+  //
+  scene->time = 0.f;
   return 0;
 }
 
 static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* scene, dx_context* context, float delta_seconds, int canvas_width, int canvas_height) {
+  dx_mat4_set_perspective(&scene->projection_matrix, 60.f, (float)canvas_width / (float)canvas_height, +0.1f, 100.f);
   {
-    dx_command* command = NULL;
+    dx_command* command;
 
     // Update the rectangle of the "clear color" command.
     command = dx_command_list_get_at(scene->commands, 0);
@@ -329,7 +351,7 @@ static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* scene, dx_context* 
     command->viewport_command.h = (float)canvas_height;
   }
   {
-    // Update the constants.
+    // bind the constants
     dx_command* command = dx_command_list_get_at(scene->commands, 3);
     if (DX_COMMAND_KIND_DRAW != command->kind) {
       return 1;
@@ -339,7 +361,6 @@ static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* scene, dx_context* 
     dx_cbinding_set_mat4(cbinding, "matrices.view_matrix", &scene->view_matrix);
     dx_cbinding_set_mat4(cbinding, "matrices.world_matrix", &scene->world_matrix);
   }
-  // Execute the commands.
   return dx_context_execute_commands(context, scene->commands);
 }
 

@@ -18,6 +18,10 @@ set(${name}.dx.asms "")
 list(APPEND ${name}.dx.sources "main.c")
 list(APPEND ${name}.dx.readmes "README.md")
 
+# DX scenes sources.
+list(APPEND ${name}.dx.sources "dx/scenes/mesh_viewer_scene.c")
+list(APPEND ${name}.dx.headers "dx/scenes/mesh_viewer_scene.h")
+
 list(APPEND ${name}.dx.sources "dx/application.c" "dx/configuration.c" "dx/scene.c")
 list(APPEND ${name}.dx.headers "dx/application.h" "dx/configuration.h" "dx/scene.h")
 

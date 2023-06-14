@@ -20,6 +20,7 @@ struct dx_mesh_viewer_scene {
   char* name;
   int (*on_mesh_loaded)(dx_asset_mesh*);
 
+
   dx_command_list* commands;
   DX_MAT4 projection_matrix;
   DX_MAT4 view_matrix;

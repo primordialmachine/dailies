@@ -18,6 +18,10 @@ set(${name}.dx.asms "")
 list(APPEND ${name}.dx.sources "main.c")
 list(APPEND ${name}.dx.readmes "README.md")
 
+# DX scenes sources.
+list(APPEND ${name}.dx.sources "dx/scenes/mesh_viewer_scene.c")
+list(APPEND ${name}.dx.headers "dx/scenes/mesh_viewer_scene.h")
+
 list(APPEND ${name}.dx.sources "dx/application.c" "dx/configuration.c" "dx/scene.c")
 list(APPEND ${name}.dx.headers "dx/application.h" "dx/configuration.h" "dx/scene.h")
 
@@ -71,10 +75,6 @@ if( CMAKE_SIZEOF_VOID_P EQUAL 4 )
       COMPILE_FLAGS "/safeseh"
   )
 endif()
-
-# DX scenes sources.
-list(APPEND ${name}.dx.sources "dx/scenes/mesh_viewer_scene.c")
-list(APPEND ${name}.dx.headers "dx/scenes/mesh_viewer_scene.h")
 
 set(${name}.sources ${${name}.dx.sources} ${${name}.dx.gl.sources})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.sources})

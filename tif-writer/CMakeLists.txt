@@ -14,18 +14,7 @@ project(${name})
 
 add_library(${name} MODULE ${${name}.sources})
 
-if(MSVC)
-  # Treat certain warnings as errors.
-
-  # 'function' : different 'const' qualifiers
-  target_compile_options(${name} PRIVATE "/we4090")
-  # 'function' incompatible types - from 'xxx' to 'yyy'
-  target_compile_options(${name} PRIVATE "/we4133")
-  # 'xxx': too many actual parameters
-  target_compile_options(${name} PRIVATE "/we4020")
-  # 'xxx' undefined; assuming extern returning int
-  target_compile_options(${name} PRIVATE "/we4013")
-
-endif()
+# See ${CMAKE_SOURCE_DIR_DIR}/CMakeLibrary.cmake for more information.
+dx_configure_warnings(${name})
 
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

@@ -1,5 +1,7 @@
 #include "dx/asset/scene.h"
 
+DX_DEFINE_OBJECT_TYPE("dx.asset.scene", dx_asset_scene, dx_object)
+
 int dx_asset_scene_construct(dx_asset_scene* self) {
   if (dx_object_array_initialize(&self->mesh_instances, 0)) {
       return 1;

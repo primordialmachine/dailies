@@ -9,6 +9,8 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+DX_DEFINE_OBJECT_TYPE("dx.asset.mesh", dx_asset_mesh, dx_object)
+
 static inline size_t dx_min_sz(size_t x, size_t y) {
   return x < y ? x : y;
 }

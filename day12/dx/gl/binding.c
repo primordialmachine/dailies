@@ -6,7 +6,7 @@ static int dx_gl_binding_activate(dx_gl_binding* binding);
 
 static void dx_gl_binding_destruct(dx_gl_binding* binding);
 
-static int dx_gl_binding_construct(dx_gl_binding* binding, dx_gl_buffer* buffer);
+static int dx_gl_binding_construct(dx_gl_binding* binding, DX_VERTEX_FORMAT vertex_format, dx_gl_buffer* buffer);
 
 static int dx_gl_binding_activate(dx_gl_binding* binding) {
   dx_gl_context* ctx = DX_GL_CONTEXT(DX_VBINDING(binding)->context);
@@ -14,10 +14,13 @@ static int dx_gl_binding_activate(dx_gl_binding* binding) {
   return 0;
 }
 
-static int dx_gl_binding_construct(dx_gl_binding* binding, dx_gl_buffer* buffer) {
+static int dx_gl_binding_construct(dx_gl_binding* binding, DX_VERTEX_FORMAT vertex_format, dx_gl_buffer* buffer) {
   if (dx_vbinding_construct(DX_VBINDING(binding), DX_BUFFER(buffer))) {
     return 1;
   }
+
+  binding->vertex_format = vertex_format;
+
   dx_gl_context* ctx = DX_GL_CONTEXT(DX_VBINDING(binding)->context);
 
   ctx->glGetError();
@@ -54,12 +57,12 @@ static void dx_gl_binding_destruct(dx_gl_binding* binding) {
   dx_vbinding_destruct(DX_VBINDING(binding));
 }
 
-dx_gl_binding* dx_gl_binding_create(dx_gl_buffer* buffer) {
+dx_gl_binding* dx_gl_binding_create(DX_VERTEX_FORMAT vertex_format, dx_gl_buffer* buffer) {
   dx_gl_binding* binding = DX_GL_BINDING(dx_object_alloc(sizeof(dx_gl_binding)));
   if (!binding) {
     return NULL;
   }
-  if (dx_gl_binding_construct(binding, buffer)) {
+  if (dx_gl_binding_construct(binding, vertex_format, buffer)) {
     DX_UNREFERENCE(binding);
     binding = NULL;
     return NULL;

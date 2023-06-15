@@ -4,7 +4,7 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-int dx_adl_word_construct(dx_adl_word* self, dx_adl_word_type type, dx_string* text) {
+int dx_adl_word_construct(dx_adl_word* self, dx_adl_word_kind kind, dx_string* text) {
   if (!self || !text) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -18,12 +18,12 @@ void dx_adl_word_destruct(dx_adl_word* self) {
   self->text = NULL;
 }
 
-dx_adl_word* dx_adl_word_create(dx_adl_word_type type, dx_string* text) {
+dx_adl_word* dx_adl_word_create(dx_adl_word_kind kind, dx_string* text) {
   dx_adl_word* self = DX_ADL_WORD(dx_object_alloc(sizeof(dx_adl_word)));
   if (!self) {
     return NULL;
   }
-  if (dx_adl_word_construct(self, type, text)) {
+  if (dx_adl_word_construct(self, kind, text)) {
     DX_UNREFERENCE(self);
     self = NULL;
     return NULL;
@@ -109,7 +109,7 @@ static int dx_adl_scanner_on_single_quoted_string(dx_adl_scanner* self) {
         }
       } else {
         self->current++;
-        self->type = dx_adl_word_type_string;
+        self->kind = dx_adl_word_kind_string;
         return 0;
       }
     } else if (*self->current == '\\') {
@@ -152,7 +152,7 @@ static int dx_adl_scanner_on_double_quoted_string(dx_adl_scanner* self) {
         }
       } else {
         self->current++;
-        self->type = dx_adl_word_type_string;
+        self->kind = dx_adl_word_kind_string;
         return 0;
       }
     } else if (*self->current == '\\') {
@@ -194,7 +194,7 @@ static int dx_adl_scanner_on_name(dx_adl_scanner* self) {
   if (dx_get_error()) {
     return 1;
   }
-  self->type = dx_adl_word_type_name;
+  self->kind = dx_adl_word_kind_name;
   return 0;
 }
 
@@ -264,7 +264,7 @@ static int dx_adl_scanner_on_number(dx_adl_scanner* self) {
     } while (dx_adl_scanner_is_digit(self));
     if (dx_get_error()) return 1;
   }
-  self->type = dx_adl_word_type_number;
+  self->kind = dx_adl_word_kind_number;
   return 0;
 }
 
@@ -280,7 +280,7 @@ int dx_adl_scanner_construct(dx_adl_scanner* self) {
   self->start = &EMPTY[0];
   self->end = self->start;
   self->current = self->start;
-  self->type = dx_adl_word_type_start_of_input;
+  self->kind = dx_adl_word_kind_start_of_input;
   DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_adl_scanner_destruct;
   return 0;
 }
@@ -362,7 +362,7 @@ int dx_adl_scanner_set(dx_adl_scanner* self, char const* p, size_t l) {
   self->start = p;
   self->end = p + l;
   self->current = p;
-  self->type = dx_adl_word_type_start_of_input;
+  self->kind = dx_adl_word_kind_start_of_input;
   dx_byte_array_clear(&self->text);
   return 0;
 }
@@ -370,7 +370,7 @@ int dx_adl_scanner_set(dx_adl_scanner* self, char const* p, size_t l) {
 int dx_adl_scanner_step(dx_adl_scanner* self) {
 START:
   // If we reached the end of the input, we return immediatly.
-  if (self->type == dx_adl_word_type_end_of_input) {
+  if (self->kind == dx_adl_word_kind_end_of_input) {
     return 0;
   }
   if (dx_adl_scanner_skip_nls_and_ws(self)) {
@@ -379,7 +379,7 @@ START:
   // We have reached the end of the input.
   if (self->current == self->end) {
     dx_byte_array_clear(&self->text);
-    self->type = dx_adl_word_type_end_of_input;
+    self->kind = dx_adl_word_kind_end_of_input;
     return 0;
   }
   switch (*self->current) {
@@ -415,7 +415,7 @@ START:
       if (dx_byte_array_append(&self->text, ",", sizeof(",") - 1)) {
         return 1;
       }
-      self->type = dx_adl_word_type_comma;
+      self->kind = dx_adl_word_kind_comma;
       self->current++;
       return 0;
     } break;
@@ -424,7 +424,7 @@ START:
       if (dx_byte_array_append(&self->text, "(", sizeof("(") - 1)) {
         return 1;
       }
-      self->type = dx_adl_word_type_left_parenthesis;
+      self->kind = dx_adl_word_kind_left_parenthesis;
       self->current++;
       return 0;
     } break;
@@ -433,7 +433,7 @@ START:
       if (dx_byte_array_append(&self->text, ")", sizeof(")") - 1)) {
         return 1;
       }
-      self->type = dx_adl_word_type_right_parenthesis;
+      self->kind = dx_adl_word_kind_right_parenthesis;
       self->current++;
       return 0;
     } break;
@@ -443,7 +443,7 @@ START:
       if (dx_byte_array_append(&self->text, "[", sizeof("[") - 1)) {
         return 1;
       }
-      self->type = dx_adl_word_type_left_square_bracket;
+      self->kind = dx_adl_word_kind_left_square_bracket;
       self->current++;
       return 0;
     } break;
@@ -452,7 +452,7 @@ START:
       if (dx_byte_array_append(&self->text, "]", sizeof("]") - 1)) {
         return 1;
       }
-      self->type = dx_adl_word_type_right_square_bracket;
+      self->kind = dx_adl_word_kind_right_square_bracket;
       self->current++;
       return 0;
     } break;
@@ -462,7 +462,7 @@ START:
       if (dx_byte_array_append(&self->text, "{", sizeof("{") - 1)) {
         return 1;
       }
-      self->type = dx_adl_word_type_left_curly_bracket;
+      self->kind = dx_adl_word_kind_left_curly_bracket;
       self->current++;
       return 0;
     } break;
@@ -471,7 +471,7 @@ START:
       if (dx_byte_array_append(&self->text, "}", sizeof("}") - 1)) {
         return 1;
       }
-      self->type = dx_adl_word_type_right_curly_bracket;
+      self->kind = dx_adl_word_kind_right_curly_bracket;
       self->current++;
       return 0;
     } break;
@@ -481,7 +481,7 @@ START:
       if (dx_byte_array_append(&self->text, ":", sizeof(":") - 1)) {
         return 1;
       }
-      self->type = dx_adl_word_type_colon;
+      self->kind = dx_adl_word_kind_colon;
       self->current++;
       return 0;
     } break;
@@ -519,8 +519,8 @@ size_t dx_adl_scanner_get_word_text_number_of_bytes(dx_adl_scanner const* self) 
   return self->text.size;
 }
 
-dx_adl_word_type dx_adl_scanner_get_word_type(dx_adl_scanner const* self) {
-  return self->type;
+dx_adl_word_kind dx_adl_scanner_get_word_kind(dx_adl_scanner const* self) {
+  return self->kind;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -551,22 +551,22 @@ static bool on_compare_keys(dx_object** a, dx_object** b) {
   return dx_string_is_equal_to(DX_STRING(*a), DX_STRING(*b));
 }
 
-int dx_adl_node_construct(dx_adl_node* self, dx_adl_node_type type) {
+int dx_adl_node_construct(dx_adl_node* self, dx_adl_node_kind kind) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  self->type = type;
-  switch (self->type) {
-    case dx_adl_node_type_error: {
+  self->kind = kind;
+  switch (self->kind) {
+    case dx_adl_node_kind_error: {
       return 0;
     } break;
-    case dx_adl_node_type_list: {
+    case dx_adl_node_kind_list: {
       if (dx_pointer_array_initialize(&self->list, 0, (void(*)(void**)) & on_added, (void(*)(void**)) &on_removed)) {
         return 1;
       }
     } break;
-    case dx_adl_node_type_map: {
+    case dx_adl_node_kind_map: {
       static DX_POINTER_HASHMAP_CONFIGURATION const configuration = {
         .compare_keys_callback = (bool(*)(void**,void**)) &on_compare_keys,
         .hash_key_callback = (size_t(*)(void**)) & on_hash_key,
@@ -579,13 +579,13 @@ int dx_adl_node_construct(dx_adl_node* self, dx_adl_node_type type) {
         return 1;
       }
     } break;
-    case dx_adl_node_type_number: {
+    case dx_adl_node_kind_number: {
       self->number = dx_string_create("0", sizeof("0") - 1);
       if (!self->number) {
         return 1;
       }
     } break;
-    case dx_adl_node_type_string: {
+    case dx_adl_node_kind_string: {
       self->string = dx_string_create("", sizeof("") - 1);
       if (!self->string) {
         return 1;
@@ -602,22 +602,22 @@ int dx_adl_node_construct(dx_adl_node* self, dx_adl_node_type type) {
 
 void dx_adl_node_destruct(dx_adl_node* self) {
   DX_DEBUG_ASSERT(NULL != self);
-  switch (self->type) {
-    case dx_adl_node_type_error: {
+  switch (self->kind) {
+    case dx_adl_node_kind_error: {
     } break;
-    case dx_adl_node_type_list: {
+    case dx_adl_node_kind_list: {
       dx_pointer_array_uninitialize(&self->list);
     } break;
-    case dx_adl_node_type_map: {
+    case dx_adl_node_kind_map: {
       dx_pointer_hashmap_uninitialize(&self->map);
     } break;
-    case dx_adl_node_type_number: {
+    case dx_adl_node_kind_number: {
       DX_DEBUG_ASSERT(NULL != self->number);
       DX_DEBUG_ASSERT(NULL != self->string);
       DX_UNREFERENCE(self->number);
       self->number = NULL;
     } break;
-    case dx_adl_node_type_string: {
+    case dx_adl_node_kind_string: {
       DX_DEBUG_ASSERT(NULL != self->string);
       DX_UNREFERENCE(self->string);
       self->string = NULL;
@@ -625,12 +625,12 @@ void dx_adl_node_destruct(dx_adl_node* self) {
   };
 }
 
-dx_adl_node* dx_adl_node_create(dx_adl_node_type type) {
+dx_adl_node* dx_adl_node_create(dx_adl_node_kind kind) {
   dx_adl_node* self = DX_ADL_NODE(dx_object_alloc(sizeof(dx_adl_node)));
   if (!self) {
     return NULL;
   }
-  if (dx_adl_node_construct(self, type)) {
+  if (dx_adl_node_construct(self, kind)) {
     DX_UNREFERENCE(self);
     self = NULL;
     return NULL;
@@ -638,12 +638,12 @@ dx_adl_node* dx_adl_node_create(dx_adl_node_type type) {
   return self;
 }
 
-dx_adl_node_type dx_adl_node_get_type(dx_adl_node const* self) {
+dx_adl_node_kind dx_adl_node_get_kind(dx_adl_node const* self) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  return self->type;
+  return self->kind;
 }
 
 int dx_adl_node_map_set(dx_adl_node* self, dx_string* name, dx_adl_node* value) {
@@ -651,7 +651,7 @@ int dx_adl_node_map_set(dx_adl_node* self, dx_string* name, dx_adl_node* value) 
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  if (self->type != dx_adl_node_type_map) {
+  if (self->kind != dx_adl_node_kind_map) {
     dx_set_error(DX_INVALID_OPERATION);
     return 1;
   }
@@ -663,7 +663,7 @@ dx_adl_node* dx_adl_node_map_get(dx_adl_node const* self, dx_string* name) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return NULL;
   }
-  if (self->type != dx_adl_node_type_map) {
+  if (self->kind != dx_adl_node_kind_map) {
     dx_set_error(DX_INVALID_OPERATION);
     return NULL;
   }
@@ -675,7 +675,7 @@ int dx_adl_node_list_append(dx_adl_node* self, dx_adl_node* value) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  if (self->type != dx_adl_node_type_list) {
+  if (self->kind != dx_adl_node_kind_list) {
     dx_set_error(DX_INVALID_OPERATION);
     return 1;
   }
@@ -687,7 +687,7 @@ int dx_adl_node_list_prepend(dx_adl_node* self, dx_adl_node* value) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  if (self->type != dx_adl_node_type_list) {
+  if (self->kind != dx_adl_node_kind_list) {
     dx_set_error(DX_INVALID_OPERATION);
     return 1;
   }
@@ -699,7 +699,7 @@ int dx_adl_node_list_insert(dx_adl_node* self, dx_adl_node* value, dx_size index
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  if (self->type != dx_adl_node_type_list) {
+  if (self->kind != dx_adl_node_kind_list) {
     dx_set_error(DX_INVALID_OPERATION);
     return 1;
   }
@@ -711,7 +711,7 @@ dx_adl_node* dx_adl_node_list_get(dx_adl_node* self, dx_size index) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return NULL;
   }
-  if (self->type != dx_adl_node_type_list) {
+  if (self->kind != dx_adl_node_kind_list) {
     dx_set_error(DX_INVALID_OPERATION);
     return NULL;
   }
@@ -723,7 +723,7 @@ dx_size dx_adl_node_list_get_size(dx_adl_node* self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 0;
   }
-  if (self->type != dx_adl_node_type_list) {
+  if (self->kind != dx_adl_node_kind_list) {
     dx_set_error(DX_INVALID_OPERATION);
     return 0;
   }
@@ -735,7 +735,7 @@ dx_string* dx_adl_node_get_string(dx_adl_node const* self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return NULL;
   }
-  if (self->type != dx_adl_node_type_string) {
+  if (self->kind != dx_adl_node_kind_string) {
     dx_set_error(DX_INVALID_OPERATION);
     return NULL;
   }
@@ -747,7 +747,7 @@ int dx_adl_node_set_string(dx_adl_node* self, dx_string* string) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  if (self->type != dx_adl_node_type_string) {
+  if (self->kind != dx_adl_node_kind_string) {
     dx_set_error(DX_INVALID_OPERATION);
     return 1;
   }
@@ -762,7 +762,7 @@ dx_string* dx_adl_node_get_number(dx_adl_node const* self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return NULL;
   }
-  if (self->type != dx_adl_node_type_number) {
+  if (self->kind != dx_adl_node_kind_number) {
     dx_set_error(DX_INVALID_OPERATION);
     return NULL;
   }
@@ -774,7 +774,7 @@ int dx_adl_node_set_number(dx_adl_node* self, dx_string* number) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  if (self->type != dx_adl_node_type_number) {
+  if (self->kind != dx_adl_node_kind_number) {
     dx_set_error(DX_INVALID_OPERATION);
     return 1;
   }
@@ -819,9 +819,9 @@ static int dx_adl_parser_on_list_0(dx_adl_parser* p, dx_adl_node* list_node);
 static int dx_adl_parser_next(dx_adl_parser* self);
 
 static dx_adl_node* dx_adl_parser_on_value(dx_adl_parser* p) {
-  switch (dx_adl_parser_get_word_type(p)) {
-    case dx_adl_word_type_number: {
-      dx_adl_node* node = dx_adl_node_create(dx_adl_node_type_number);
+  switch (dx_adl_parser_get_word_kind(p)) {
+    case dx_adl_word_kind_number: {
+      dx_adl_node* node = dx_adl_node_create(dx_adl_node_kind_number);
       if (!node) {
         return NULL;
       }
@@ -847,8 +847,8 @@ static dx_adl_node* dx_adl_parser_on_value(dx_adl_parser* p) {
       }
       return node;
     } break;
-    case dx_adl_word_type_string: {
-      dx_adl_node* node = dx_adl_node_create(dx_adl_node_type_string);
+    case dx_adl_word_kind_string: {
+      dx_adl_node* node = dx_adl_node_create(dx_adl_node_kind_string);
       if (!node) {
         return NULL;
       }
@@ -874,10 +874,10 @@ static dx_adl_node* dx_adl_parser_on_value(dx_adl_parser* p) {
       }
       return node;
     } break;
-    case dx_adl_word_type_left_curly_bracket: {
+    case dx_adl_word_kind_left_curly_bracket: {
       return dx_adl_parser_on_map(p);
     } break;
-    case dx_adl_word_type_left_square_bracket: {
+    case dx_adl_word_kind_left_square_bracket: {
       return dx_adl_parser_on_list(p);
     } break;
     default: {
@@ -888,18 +888,18 @@ static dx_adl_node* dx_adl_parser_on_value(dx_adl_parser* p) {
 }
 
 static int dx_adl_parser_on_map_0(dx_adl_parser* p, dx_adl_node* map_node) {
-  if (!dx_adl_parser_is_word_type(p, dx_adl_word_type_left_curly_bracket)) {
+  if (!dx_adl_parser_is_word_kind(p, dx_adl_word_kind_left_curly_bracket)) {
     return 1;
   }
   if (dx_adl_parser_next(p)) {
     return 1;
   }
-  while (!dx_adl_parser_is_word_type(p, dx_adl_word_type_right_curly_bracket)) {
+  while (!dx_adl_parser_is_word_kind(p, dx_adl_word_kind_right_curly_bracket)) {
     if (dx_get_error()) {
       return 1;
     }
     // name
-    if (!dx_adl_parser_is_word_type(p, dx_adl_word_type_name)) {
+    if (!dx_adl_parser_is_word_kind(p, dx_adl_word_kind_name)) {
       return 1;
     }
     dx_string* name = dx_string_create(p->scanner->text.elements, p->scanner->text.size);
@@ -912,7 +912,7 @@ static int dx_adl_parser_on_map_0(dx_adl_parser* p, dx_adl_node* map_node) {
       return 1;
     }
     // ':'
-    if (!dx_adl_parser_is_word_type(p, dx_adl_word_type_colon)) {
+    if (!dx_adl_parser_is_word_kind(p, dx_adl_word_kind_colon)) {
       DX_UNREFERENCE(name);
       name = NULL;
       return 1;
@@ -942,7 +942,7 @@ static int dx_adl_parser_on_map_0(dx_adl_parser* p, dx_adl_node* map_node) {
     DX_UNREFERENCE(name);
     name = NULL;
     // if no comma follows, break the loop
-    if (!dx_adl_parser_is_word_type(p, dx_adl_word_type_comma)) {
+    if (!dx_adl_parser_is_word_kind(p, dx_adl_word_kind_comma)) {
       if (dx_get_error()) {
         return 1;
       }
@@ -952,7 +952,7 @@ static int dx_adl_parser_on_map_0(dx_adl_parser* p, dx_adl_node* map_node) {
       return 1;
     }
   }
-  if (!dx_adl_parser_is_word_type(p, dx_adl_word_type_right_curly_bracket)) {
+  if (!dx_adl_parser_is_word_kind(p, dx_adl_word_kind_right_curly_bracket)) {
     return 1;
   }
   if (dx_adl_parser_next(p)) {
@@ -962,7 +962,7 @@ static int dx_adl_parser_on_map_0(dx_adl_parser* p, dx_adl_node* map_node) {
 }
 
 static dx_adl_node* dx_adl_parser_on_map(dx_adl_parser* p) {
-  dx_adl_node* node = dx_adl_node_create(dx_adl_node_type_map);
+  dx_adl_node* node = dx_adl_node_create(dx_adl_node_kind_map);
   if (!node) {
     return NULL;
   }
@@ -975,13 +975,13 @@ static dx_adl_node* dx_adl_parser_on_map(dx_adl_parser* p) {
 }
 
 static int dx_adl_parser_on_list_0(dx_adl_parser* p, dx_adl_node* list_node) {
-  if (!dx_adl_parser_is_word_type(p, dx_adl_word_type_left_square_bracket)) {
+  if (!dx_adl_parser_is_word_kind(p, dx_adl_word_kind_left_square_bracket)) {
     return 1;
   }
   if (dx_adl_parser_next(p)) {
     return 1;
   }
-  while (!dx_adl_parser_is_word_type(p, dx_adl_word_type_right_square_bracket)) {
+  while (!dx_adl_parser_is_word_kind(p, dx_adl_word_kind_right_square_bracket)) {
     // value
     dx_adl_node* value_node = dx_adl_parser_on_value(p);
     if (!value_node) {
@@ -995,7 +995,7 @@ static int dx_adl_parser_on_list_0(dx_adl_parser* p, dx_adl_node* list_node) {
     DX_UNREFERENCE(value_node);
     value_node = NULL;
     // if no comma follows, break the loop
-    if (!dx_adl_parser_is_word_type(p, dx_adl_word_type_comma)) {
+    if (!dx_adl_parser_is_word_kind(p, dx_adl_word_kind_comma)) {
       if (dx_get_error()) {
         return 1;
       }
@@ -1005,7 +1005,7 @@ static int dx_adl_parser_on_list_0(dx_adl_parser* p, dx_adl_node* list_node) {
       return 1;
     }
   }
-  if (!dx_adl_parser_is_word_type(p, dx_adl_word_type_right_square_bracket)) {
+  if (!dx_adl_parser_is_word_kind(p, dx_adl_word_kind_right_square_bracket)) {
     return 1;
   }
   if (dx_adl_parser_next(p)) {
@@ -1015,7 +1015,7 @@ static int dx_adl_parser_on_list_0(dx_adl_parser* p, dx_adl_node* list_node) {
 }
 
 static dx_adl_node* dx_adl_parser_on_list(dx_adl_parser* p) {
-  dx_adl_node* node = dx_adl_node_create(dx_adl_node_type_list);
+  dx_adl_node* node = dx_adl_node_create(dx_adl_node_kind_list);
   if (!node) {
     return NULL;
   }
@@ -1072,27 +1072,27 @@ int dx_adl_parser_set(dx_adl_parser* self, char const* p, size_t l) {
   return dx_adl_scanner_set(self->scanner, p, l);
 }
 
-bool dx_adl_parser_is_word_type(dx_adl_parser const* self, dx_adl_word_type word_type) {
+bool dx_adl_parser_is_word_kind(dx_adl_parser const* self, dx_adl_word_kind word_kind) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return false;
   }
-  bool result = (word_type == dx_adl_parser_get_word_type(self));
+  bool result = (word_kind == dx_adl_parser_get_word_kind(self));
   // Careful here. If an error occured, we must return false.
   return dx_get_error() ? false : result;
 }
 
-dx_adl_word_type dx_adl_parser_get_word_type(dx_adl_parser const* self) {
+dx_adl_word_kind dx_adl_parser_get_word_kind(dx_adl_parser const* self) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return false;
   }
-  return self->scanner->type;
+  return self->scanner->kind;
 }
 
 dx_adl_node* dx_adl_parser_run(dx_adl_parser* self) {
   // <start of input>
-  if (!dx_adl_parser_is_word_type(self, dx_adl_word_type_start_of_input)) {
+  if (!dx_adl_parser_is_word_kind(self, dx_adl_word_kind_start_of_input)) {
     return NULL;
   }
   if (dx_adl_parser_next(self)) {
@@ -1103,7 +1103,7 @@ dx_adl_node* dx_adl_parser_run(dx_adl_parser* self) {
     return NULL;
   }
   // <end of input>
-  if (!dx_adl_parser_is_word_type(self, dx_adl_word_type_end_of_input)) {
+  if (!dx_adl_parser_is_word_kind(self, dx_adl_word_kind_end_of_input)) {
     DX_UNREFERENCE(root_node);
     root_node = NULL;
   }

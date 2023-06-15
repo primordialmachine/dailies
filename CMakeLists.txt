@@ -6,6 +6,8 @@ cmake_minimum_required(VERSION 3.20)
 
 project(dailies)
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLibrary.cmake)
+
 add_subdirectory(tif-writer)
 add_subdirectory(libraries)
 
@@ -18,8 +20,6 @@ add_subdirectory(day6)
 add_subdirectory(day7)
 add_subdirectory(day8)
 add_subdirectory(day9)
-add_subdirectory(day10)
-add_subdirectory(day11)
 add_subdirectory(day12)
 add_subdirectory(day13)
 add_subdirectory(day14)

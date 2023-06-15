@@ -3,10 +3,10 @@
 
 #include "dx/scene.h"
 #include "dx/asset/mesh.h"
-#include "dx/vbinding.h"
-#include "dx/buffer.h"
-#include "dx/program.h"
-#include "dx/command.h"
+#include "dx/val/vbinding.h"
+#include "dx/val/buffer.h"
+#include "dx/val/program.h"
+#include "dx/val/command.h"
 
 /// A scene for viewing a mesh.
 typedef struct dx_mesh_viewer_scene dx_mesh_viewer_scene;
@@ -16,12 +16,13 @@ static inline dx_mesh_viewer_scene* DX_MESH_VIEWER_SCENE(void *p) {
 
 struct dx_mesh_viewer_scene {
   dx_scene _parent;
-  
+
   char* name;
+
   int (*on_mesh_loaded)(dx_asset_mesh*);
 
-
   dx_command_list* commands;
+
   DX_MAT4 projection_matrix;
   DX_MAT4 view_matrix;
   DX_MAT4 world_matrix;
@@ -34,7 +35,7 @@ struct dx_mesh_viewer_scene {
 /// @param name The name of the mesh to view.
 /// @param on_mesh_loaded A pointer to a "on mesh loaded callback" or a null pointer.
 /// @return @a 0 on success. A non-zero value on failure.
-/// @remarks If an "on mesh loaded callback" is provided, that callback is invoked 
+/// @remarks If an "on mesh loaded callback" is provided, that callback is invoked
 /// after the mesh was loaded to allow for custom post-processing on the mesh.
 int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const *name, int (*on_mesh_loaded)(dx_asset_mesh*));
 

@@ -4,6 +4,8 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+DX_DEFINE_OBJECT_TYPE("dx.asset.palette_entry", dx_asset_palette_entry, dx_object)
+
 int dx_asset_palette_entry_construct(dx_asset_palette_entry* self, dx_string* name, DX_RGB_U8 const* value) {
   if (!self || !name || !value) {
     dx_set_error(DX_INVALID_ARGUMENT);
@@ -35,6 +37,8 @@ dx_asset_palette_entry* dx_asset_palette_entry_create(dx_string* name, DX_RGB_U8
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+DX_DEFINE_OBJECT_TYPE("dx.asset.palette", dx_asset_palette, dx_object)
 
 static void on_added(dx_object** a);
 

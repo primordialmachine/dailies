@@ -4,7 +4,7 @@
 #include "dx/asset/image.h"
 
 /// @brief A texture asset.
-typedef struct dx_asset_texture dx_asset_texture;
+DX_DECLARE_OBJECT_TYPE("dx.asset.texture", dx_asset_texture, dx_object)
 
 static inline dx_asset_texture* DX_ASSET_TEXTURE(void* p) {
   return (dx_asset_texture*)p;

@@ -1,5 +1,7 @@
 #include "dx/asset/mesh_instance.h"
 
+DX_DEFINE_OBJECT_TYPE("dx.asset.mesh_instance", dx_asset_mesh_instance, dx_object)
+
 int dx_asset_mesh_instance_construct(dx_asset_mesh_instance* self, dx_asset_mesh* mesh) {
   if (!self || !mesh) {
     dx_set_error(DX_INVALID_ARGUMENT);

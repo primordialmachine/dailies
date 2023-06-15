@@ -5,7 +5,8 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-typedef struct dx_asset_palette_entry dx_asset_palette_entry;
+DX_DECLARE_OBJECT_TYPE("dx.asset.palette_entry", dx_asset_palette_entry, dx_object)
+
 static inline dx_asset_palette_entry* DX_ASSET_PALETTE_ENTRY(void* p) {
   return (dx_asset_palette_entry*)p;
 }
@@ -24,7 +25,8 @@ dx_asset_palette_entry* dx_asset_palette_entry_create(dx_string* name, DX_RGB_U8
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-typedef struct dx_asset_palette dx_asset_palette;
+DX_DECLARE_OBJECT_TYPE("dx.asset.palette", dx_asset_palette, dx_object)
+
 static inline dx_asset_palette* DX_ASSET_PALETTE(void* p) {
   return (dx_asset_palette*)p;
 }

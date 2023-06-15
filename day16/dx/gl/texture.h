@@ -1,7 +1,7 @@
 #if !defined(DX_GL_TEXTURE_H_INCLUDED)
 #define DX_GL_TEXTURE_H_INCLUDED
 
-#include "dx/texture.h"
+#include "dx/val/texture.h"
 #include "dx/gl/context.h"
 
 

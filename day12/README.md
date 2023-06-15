@@ -4,8 +4,7 @@ The folder, in which this `README.md` is located in, contains the source code an
 The program opens a window.
 The window is presenting multiple "scenes" using a modern OpenGL backend.
 
-In the "day10" und "day11" programs we had a scene displaying a triangle and a scene displaying a quadriliteral, respectively.
-We integrate both scenes now into one program and allow switching between them using a key press.
+The first scene displays a quadriliteral, the second scene a triangle.
 
 To exit the program either close the window or press `Escape` when the window has keyboard focus.
 To switch between the two scenes, press `Enter`.

@@ -4,7 +4,7 @@
 #include "dx/core.h"
 
 /// @brief An image asset.
-typedef struct dx_asset_image dx_asset_image;
+DX_DECLARE_OBJECT_TYPE("dx.asset.image", dx_asset_image, dx_object)
 
 static inline dx_asset_image* DX_ASSET_IMAGE(void* p) {
   return (dx_asset_image*)p;

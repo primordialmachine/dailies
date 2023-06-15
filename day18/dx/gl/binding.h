@@ -2,7 +2,7 @@
 #define DX_GL_BINDING_H_INCLUDED
 
 #include "dx/gl/context.h"
-#include "dx/vbinding.h"
+#include "dx/val/vbinding.h"
 typedef struct dx_gl_buffer dx_gl_buffer;
 
 typedef struct dx_gl_binding dx_gl_binding;

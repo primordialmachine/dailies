@@ -3,7 +3,7 @@
 #if !defined(DX_CORE_HAPTICALS_H_INCLUDED)
 #define DX_CORE_HAPTICALS_H_INCLUDED
 
-#include "dx/core/core.h"
+#include "dx/core/msgs.h"
 
 /// @ingroup core-hapticals
 /// @brief The "lmenu" modifier.

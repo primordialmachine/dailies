@@ -2,7 +2,7 @@
 #define DX_SCENE_H_INCLUDED
 
 #include "dx/core.h"
-#include "dx/context.h"
+#include "dx/val/context.h"
 
 /// The base of all "Scenes".
 ///

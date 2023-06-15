@@ -497,3 +497,127 @@ dx_size dx_pointer_hashmap_get_free_capacity(dx_pointer_hashmap const* self) {
   }
   return _dx_impl_get_free_capacity(_DX_IMPL(self->pimpl));
 }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+typedef struct _dx_impl_iterator _dx_impl_iterator;
+static inline _dx_impl_iterator* _DX_IMPL_ITERATOR(void* p) {
+ return (_dx_impl_iterator*)p; 
+}
+struct _dx_impl_iterator {
+  _dx_impl* target;
+  dx_size bucket;
+  _dx_impl_node** previous;
+  _dx_impl_node* current;
+};
+
+static inline void _dx_impl_increment(_dx_impl_iterator* self);
+
+static inline void _dx_impl_increment(_dx_impl_iterator* self) {
+  if (self->current) {
+    self->previous = &self->current->next;
+    self->current = self->current->next;
+  } else {
+    if (self->bucket < self->target->capacity) {
+      do {
+        self->previous = &self->target->buckets[self->bucket];
+        self->current = self->target->buckets[self->bucket];
+        if (self->current != NULL) {
+          break;
+        }
+        self->bucket++;
+      } while (self->bucket < self->target->capacity);
+    }
+  }
+}
+
+int dx_pointer_hashmap_iterator_initialize(dx_pointer_hashmap_iterator* self, dx_pointer_hashmap* target) {
+  if (!self) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 0;
+  }
+  _dx_impl_iterator* pimpl = malloc(sizeof(_dx_impl_iterator));
+  if (!pimpl) {
+    dx_set_error(DX_ALLOCATION_FAILED);
+    return 1;
+  }
+  pimpl->target = _DX_IMPL(target->pimpl);
+  pimpl->bucket = 0;
+  pimpl->previous = NULL;
+  pimpl->current = NULL;
+  _dx_impl_increment(pimpl);
+  self->pimpl = pimpl;
+  return 0;
+}
+
+void dx_pointer_hashmap_iterator_uninitialize(dx_pointer_hashmap_iterator* self) {
+  _dx_impl_iterator* pimpl = _DX_IMPL_ITERATOR(self->pimpl);
+  free(pimpl);  
+}
+
+int dx_pointer_hashmap_iterator_next(dx_pointer_hashmap_iterator* self) {
+  _dx_impl_iterator* pimpl = _DX_IMPL_ITERATOR(self->pimpl);
+  _dx_impl_increment(pimpl);
+  return 0;
+}
+
+bool dx_pointer_hashmap_iterator_has_entry(dx_pointer_hashmap_iterator* self) {
+  if (!self) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return false;
+  }
+  _dx_impl_iterator* pimpl = _DX_IMPL_ITERATOR(self->pimpl);
+  return NULL != pimpl->current;
+}
+
+void* dx_pointer_hashmap_iterator_get_value(dx_pointer_hashmap_iterator* self) {
+  if (!self) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return NULL;
+  }
+  _dx_impl_iterator* pimpl = _DX_IMPL_ITERATOR(self->pimpl);
+  if (!pimpl->current) {
+    dx_set_error(DX_INVALID_OPERATION);
+    return NULL;
+  }
+  return pimpl->current->value;
+}
+
+void* dx_pointer_hashmap_iterator_get_key(dx_pointer_hashmap_iterator* self) {
+  if (!self) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return NULL;
+  }
+  _dx_impl_iterator* pimpl = _DX_IMPL_ITERATOR(self->pimpl);
+  if (!pimpl->current) {
+    dx_set_error(DX_INVALID_OPERATION);
+    return NULL;
+  }
+  return pimpl->current->key;
+}
+
+int dx_pointer_hashmap_iterator_remove(dx_pointer_hashmap_iterator* self) {
+  if (!self) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  _dx_impl_iterator* pimpl = _DX_IMPL_ITERATOR(self->pimpl);
+  if (!pimpl->current) {
+    dx_set_error(DX_INVALID_OPERATION);
+    return 1;
+  }
+  _dx_impl_node** previous = pimpl->previous;
+  _dx_impl_node* current = pimpl->current;
+  // Predecessor points to successor.
+  *previous = current->next;
+  // Decrement size by 1.
+  pimpl->target->size--;
+  // Update iterator.
+  pimpl->previous = previous;
+  pimpl->current = *previous;
+  if (!pimpl->current) {
+    // Only if the removed node was the last in the bucket and hence pimpl->current is now a null pointer.
+    _dx_impl_increment(pimpl);
+  }
+  return 0;
+}

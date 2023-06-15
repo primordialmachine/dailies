@@ -238,14 +238,19 @@ static int run() {
 
 static int startup() {
   dx_log("enter: startup\n", sizeof("enter: startup\n"));
+  if (dx_rti_initialize()) {
+    return 1;
+  }
   g_msg_queue = dx_msg_queue_create();
   if (!g_msg_queue) {
+    dx_rti_unintialize();
     dx_log("leave: startup\n", sizeof("leave: startup\n"));
     return 1;
   }
   if (dx_application_startup(g_msg_queue)) {
     dx_msg_queue_destroy(g_msg_queue);
     g_msg_queue = NULL;
+    dx_rti_unintialize();
     dx_log("leave: startup\n", sizeof("leave: startup\n"));
     return 1;
   }
@@ -253,6 +258,7 @@ static int startup() {
     dx_application_shutdown();
     dx_msg_queue_destroy(g_msg_queue);
     g_msg_queue = NULL;
+    dx_rti_unintialize();
     dx_log("leave: startup\n", sizeof("leave: startup\n"));
     return 1;
   }
@@ -266,6 +272,7 @@ static int shutdown() {
   dx_application_shutdown();
   dx_msg_queue_destroy(g_msg_queue);
   g_msg_queue = NULL;
+  dx_rti_unintialize();
   dx_log("leave: shutdown\n", sizeof("leave: shutdown\n"));
   return 0;
 }

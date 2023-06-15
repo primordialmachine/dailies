@@ -3,7 +3,7 @@
 // INT_MAX
 #include <limits.h>
 
-#include "dx/cbinding.h"
+#include "dx/val/cbinding.h"
 #include "dx/gl/context.h"
 
 // Create a fragment program or vertex program.

@@ -6,7 +6,7 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /// The representation of an application.
-typedef struct dx_application dx_application;
+DX_DECLARE_OBJECT_TYPE("dx.application", dx_application, dx_object)
 
 static dx_application* DX_APPLICATION(void* p) {
   return (dx_application*)p;

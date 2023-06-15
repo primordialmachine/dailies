@@ -1,7 +1,7 @@
 #if !defined(DX_CANVAS_H_INCLUDED)
 #define DX_CANVAS_H_INCLUDED
 
-#include "dx/core/core.h"
+#include "dx/core/msgs.h"
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

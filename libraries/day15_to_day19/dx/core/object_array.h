@@ -2,6 +2,7 @@
 #define DX_CORE_OBJECT_ARRAY_H_INCLUDED
 
 #include "dx/core/pointer_array.h"
+#include "dx/core/object.h"
 
 /// @brief A dynamic array of (pointers to) objects. Also supports null pointers.
 /// Support for reference counting objects.

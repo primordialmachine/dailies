@@ -1,7 +1,7 @@
 #if !defined(DX_GL_BUFFER_H_INCLUDED)
 #define DX_GL_BUFFER_H_INCLUDED
 
-#include "dx/buffer.h"
+#include "dx/val/buffer.h"
 #include "dx/gl/context.h"
 
 typedef struct dx_gl_buffer dx_gl_buffer;

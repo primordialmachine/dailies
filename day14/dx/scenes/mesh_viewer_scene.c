@@ -10,9 +10,10 @@
 #include <float.h>
 // snprintf
 #include <stdio.h>
-#include "dx/cbinding.h"
-#include "dx/program_text.h"
+#include "dx/val/cbinding.h"
+#include "dx/val/program_text.h"
 
+static DX_VEC4 const clear_color = { 0.f / 255.f, 191.f / 255.f, 255.f / 255.f, 0.f }; // color called "Capri" (0, 191, 255)
 static DX_VEC4 const start_color = { 0.f, 255.f / 255.f, 64.f / 255.f, 1.0f }; // color called "Malachite" (0, 255, 64) from "Capri"'s tetradic palette
 static DX_VEC4 const end_color = { 255.f / 255.f, 192.f / 255.f, 0.f / 255.f }; // color called "Amber" (255, 192, 0) from "Capri"'s split complementary palette.
 
@@ -106,9 +107,8 @@ on_error:
 
 // add commands "clear color", "clear depth", and "set viewport".
 static int add_enter_frame_commands(dx_command_list* commands) {
-  dx_command* command;
+  dx_command* command = NULL;
   // clear color command
-  static const DX_VEC4 clear_color = { 0.f / 255.f, 191.f / 255.f, 255.f / 255.f, 0.f }; // color called "Capri" (0, 191, 255)
   command = dx_command_create_clear_color(0, 0, 640, 480, &clear_color);
   if (!command) {
     return 1;
@@ -299,7 +299,7 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
   dx_mat4_set_identity(&scene->world_matrix);
   //
   {
-    dx_command* command;
+    dx_command* command = NULL;
     dx_command_list* commands = dx_command_list_create();
     if (!commands) {
       return 1;
@@ -351,7 +351,7 @@ static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* scene, dx_context* 
     command->viewport_command.h = (float)canvas_height;
   }
   {
-    // bind the constants
+    // Bind the constants.
     dx_command* command = dx_command_list_get_at(scene->commands, 3);
     if (DX_COMMAND_KIND_DRAW != command->kind) {
       return 1;
@@ -361,6 +361,7 @@ static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* scene, dx_context* 
     dx_cbinding_set_mat4(cbinding, "matrices.view_matrix", &scene->view_matrix);
     dx_cbinding_set_mat4(cbinding, "matrices.world_matrix", &scene->world_matrix);
   }
+  // Execute the commands.
   return dx_context_execute_commands(context, scene->commands);
 }
 

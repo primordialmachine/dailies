@@ -10,7 +10,7 @@
 #include <float.h>
 // snprintf
 #include <stdio.h>
-#include "dx/cbinding.h"
+#include "dx/val/cbinding.h"
 #include "dx/scenes/create_assets.h"
 #include "dx/adl/syntactical.h"
 
@@ -162,12 +162,6 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
       free(p);
       p = NULL;
     }
-  #if 0
-  #endif
-  #if 0
-  #endif
-  #if 0
-  #endif
   }
   //
   scene->angle = 0.f;
@@ -181,7 +175,7 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
   update_viewer(scene);
   //
   {
-    dx_command* command;
+    dx_command* command = NULL;
     dx_command_list* commands = dx_command_list_create();
     if (!commands) {
       mesh_instance_on_shutdown(scene);

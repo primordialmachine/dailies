@@ -1,5 +1,7 @@
 #include "dx/asset/material.h"
 
+DX_DEFINE_OBJECT_TYPE("dx.asset.material", dx_asset_material, dx_object)
+
 int dx_asset_material_construct(dx_asset_material* self) {
   self->ambient_color = (DX_VEC4){ 1.f, 1.f, 1.f, 1.f };
   self->ambient_texture = NULL;

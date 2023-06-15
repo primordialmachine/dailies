@@ -1,7 +1,7 @@
 #if !defined(DX_CORE_STRING_H_INCLUDED)
 #define DX_CORE_STRING_H_INCLUDED
 
-#include "dx/core/core.h"
+#include "dx/core/object.h"
 
 /// @brief The type of a string.
 typedef struct dx_string dx_string;

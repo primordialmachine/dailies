@@ -2,9 +2,9 @@
 #define DX_SCENES_MESH_VIEWER_SCENE_H_INCLUDED
 
 #include "dx/scene.h"
-#include "dx/command.h"
-#include "dx/mesh.h"
-#include "dx/mesh_instance.h"
+#include "dx/val/command.h"
+#include "dx/val/mesh.h"
+#include "dx/val/mesh_instance.h"
 #include "dx/asset/mesh_instance.h"
 #include "dx/asset/scene.h"
 

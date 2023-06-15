@@ -3,15 +3,15 @@
 #include "dx/gl/buffer.h"
 #include "dx/gl/binding.h"
 #include "dx/gl/program.h"
-#include "dx/program_text.h"
-#include "dx/command.h"
+#include "dx/val/program_text.h"
+#include "dx/val/command.h"
 
 static dx_gl_buffer* create_buffer(dx_gl_context* ctx) {
   return dx_gl_buffer_create(ctx);
 }
 
-static dx_gl_binding* create_vbinding(dx_gl_context* ctx, dx_gl_buffer* buffer) {
-  return dx_gl_binding_create(buffer);
+static dx_gl_binding* create_vbinding(dx_gl_context* ctx, DX_VERTEX_FORMAT vertex_format, dx_gl_buffer* buffer) {
+  return dx_gl_binding_create(vertex_format, buffer);
 }
 
 static dx_gl_program* create_program(dx_gl_context* ctx, dx_program_text* program_text) {
@@ -106,8 +106,8 @@ int dx_gl_context_construct(dx_gl_context* ctx, void *(*link)(char const *name))
 #include "dx/gl/functions.i"
 #undef DEFINE
   DX_CONTEXT(ctx)->create_buffer = (dx_buffer* (*)(dx_context*)) & create_buffer;
-  DX_CONTEXT(ctx)->create_vbinding = (dx_vbinding* (*)(dx_context*, dx_buffer*)) & create_vbinding;
-  DX_CONTEXT(ctx)->create_program = (dx_program * (*)(dx_context*, dx_program_text*)) & create_program;
+  DX_CONTEXT(ctx)->create_vbinding = (dx_vbinding* (*)(dx_context*, DX_VERTEX_FORMAT, dx_buffer*)) & create_vbinding;
+  DX_CONTEXT(ctx)->create_program = (dx_program* (*)(dx_context*, dx_program_text*)) & create_program;
   DX_CONTEXT(ctx)->execute_commands = (int (*)(dx_context*,dx_command_list*)) & execute_commands;
   DX_OBJECT(ctx)->destruct = (void(*)(dx_object*)) & dx_gl_context_destruct;
   return 0;

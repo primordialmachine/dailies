@@ -4,7 +4,7 @@
 #include "dx/asset/texture.h"
 
 /// @brief A material asset.
-typedef struct dx_asset_material dx_asset_material;
+DX_DECLARE_OBJECT_TYPE("dx.asset.material", dx_asset_material, dx_object)
 
 static inline dx_asset_material* DX_ASSET_MATERIAL(void* p) {
     return (dx_asset_material*)p;

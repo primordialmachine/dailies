@@ -43,39 +43,30 @@ dx_adl_node* _parse(char const* p, size_t n) {
   return node;
 }
 
-dx_asset_mesh_instance* _create_mesh_instance_from_text(char const* adl_text, size_t adl_text_length) {
-  dx_adl_semantical_state* state = dx_adl_semantical_state_create();
-  if (!state) {
-    return NULL;
-  }
-  dx_adl_node* adl_node = _parse(adl_text, adl_text_length);
-  if (!adl_node) {
-    DX_UNREFERENCE(state);
-    state = NULL;
-    return NULL;
-  }
-  dx_asset_mesh_instance* asset_mesh_instance = dx_adl_parse_mesh_instance(adl_node, state);
-  DX_UNREFERENCE(adl_node);
-  adl_node = NULL;
-  DX_UNREFERENCE(state);
-  state = NULL;
-  return asset_mesh_instance;
-}
-
 dx_asset_scene* _create_scene_from_text(char const* adl_text, size_t adl_text_length) {
   dx_adl_semantical_state* state = dx_adl_semantical_state_create();
   if (!state) {
     return NULL;
   }
-  dx_adl_node* adl_node = _parse(adl_text, adl_text_length);
-  if (!adl_node) {
+  dx_adl_semantical_names* names = dx_adl_semantical_names_create();
+  if (!names) {
     DX_UNREFERENCE(state);
     state = NULL;
     return NULL;
   }
-  dx_asset_scene* asset_scene = dx_adl_parse_scene(adl_node, state);
+  dx_adl_node* adl_node = _parse(adl_text, adl_text_length);
+  if (!adl_node) {
+    DX_UNREFERENCE(names);
+    names = NULL;
+    DX_UNREFERENCE(state);
+    state = NULL;
+    return NULL;
+  }
+  dx_asset_scene* asset_scene = dx_adl_parse_scene(adl_node, state, names);
   DX_UNREFERENCE(adl_node);
   adl_node = NULL;
+  DX_UNREFERENCE(names);
+  names = NULL;
   DX_UNREFERENCE(state);
   state = NULL;
   return asset_scene;

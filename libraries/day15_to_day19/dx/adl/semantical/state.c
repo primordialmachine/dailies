@@ -93,6 +93,7 @@ int dx_adl_semantical_state_construct(dx_adl_semantical_state* self) {
   if (!self->palette) {
     return 1;
   }
+  self->scene = NULL;
   static DX_POINTER_HASHMAP_CONFIGURATION const configuration = {
     .compare_keys_callback = (dx_compare_keys_callback*)&compare_keys_callback,
     .hash_key_callback = (dx_hash_key_callback*)&hash_key_callback,
@@ -111,6 +112,10 @@ int dx_adl_semantical_state_construct(dx_adl_semantical_state* self) {
 }
 
 void dx_adl_semantical_state_destruct(dx_adl_semantical_state* self) {
+  if (self->scene) {
+    DX_UNREFERENCE(self->scene);
+    self->scene = NULL;
+  }
   if (self->palette) {
     DX_UNREFERENCE(self->palette);
     self->palette = NULL;

@@ -3,8 +3,8 @@
 #include "dx/gl/buffer.h"
 #include "dx/gl/binding.h"
 #include "dx/gl/program.h"
-#include "dx/program_text.h"
-#include "dx/command.h"
+#include "dx/val/program_text.h"
+#include "dx/val/command.h"
 
 static dx_gl_buffer* create_buffer(dx_gl_context* ctx) {
   return dx_gl_buffer_create(ctx);

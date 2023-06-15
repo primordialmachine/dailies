@@ -131,4 +131,59 @@ dx_size dx_pointer_hashmap_get_capacity(dx_pointer_hashmap const* self);
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 dx_size dx_pointer_hashmap_get_free_capacity(dx_pointer_hashmap const* self);
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/// @brief An iterator for a pointer hash map.
+/// @warning An iterator is invalidated if the hashmap is modified through any other function other than dx_pointer_hashmap_iterator_remove for that particular iterator. 
+/// @detail
+/// Can be used as follows.
+/// @code
+/// dx_pointer_hashmap_iterator iterator;
+/// dx_pointer_hashmap target;
+/// ...
+/// if (dx_pointer_hashmap_iterator_initialize(&target, &target)) { ... }
+/// dx_set_error(DX_NO_ERROR);
+/// while (dx_pointer_hashmap_iterator_has_entry(&target)) {
+///   void* k = dx_pointer_hashmap_iterator_get_key(&target),
+///       * v = dx_pointer_hashmap_iterator_get_value(&target);
+///   if (dx_get_error()) { ... }
+///   ...
+///   if (dx_pointer_hashmap_iterator_next(&target)) { ...  }
+/// }
+/// dx_pointer_hashmap_iterator_uninitialize(&target);
+/// @endcode
+typedef struct dx_pointer_hashmap_iterator dx_pointer_hashmap_iterator;
+
+struct dx_pointer_hashmap_iterator {
+  void* pimpl;
+};
+
+/// @brief Initialize this pointer hashmap iterator.
+/// @param self A pointer to the dx_pointer_hashmap_iterator object.
+/// @param target A pointer to the pointer hashmap to iterate over.
+/// @return The zero value on success. A non-zero value on failure.
+int dx_pointer_hashmap_iterator_initialize(dx_pointer_hashmap_iterator* self, dx_pointer_hashmap* target);
+
+/// @brief Uninitialize this pointer hashmap iterator.
+/// @param self A pointer to the dx_pointer_hashmap_iterator object.
+void dx_pointer_hashmap_iterator_uninitialize(dx_pointer_hashmap_iterator* self);
+
+/// @brief Inc
+/// @return The zero value on success. A non-zero value on failure.
+int dx_pointer_hashmap_iterator_next(dx_pointer_hashmap_iterator* self);
+
+/// @return @a true if this pointer hashmap iterator has an entry. @a false if it does not have an entry. @a false is also returned on failure.
+/// @failure This function has set the error variable.
+bool dx_pointer_hashmap_iterator_has_entry(dx_pointer_hashmap_iterator* self);
+
+/// @return The key on success. A null pointer is also returned on failure.
+/// @failure This function has set the error variable.
+void* dx_pointer_hashmap_iterator_get_value(dx_pointer_hashmap_iterator* self);
+
+/// @return The key on success. A null pointer is also returned on failure.
+/// @failure This function has set the error variable.
+void* dx_pointer_hashmap_iterator_get_key(dx_pointer_hashmap_iterator* self);
+
+int dx_pointer_hashmap_iterator_remove(dx_pointer_hashmap_iterator* self);
+
 #endif // DX_CORE_POINTER_HASHMAP_H_INCLUDED

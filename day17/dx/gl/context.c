@@ -4,8 +4,8 @@
 #include "dx/gl/binding.h"
 #include "dx/gl/program.h"
 #include "dx/gl/texture.h"
-#include "dx/program_text.h"
-#include "dx/command.h"
+#include "dx/val/program_text.h"
+#include "dx/val/command.h"
 
 static int bind_texture(dx_gl_context* ctx, size_t unit, dx_gl_texture* texture) {
   ctx->glActiveTexture(GL_TEXTURE0 + unit);

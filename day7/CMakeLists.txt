@@ -29,24 +29,8 @@ project(${name})
 
 add_executable(${name} ${${name}.sources} ${${name}.headers} ${${name}.readmes})
 
-if(MSVC)
-  # Treat certain warnings as errors.
-
-  # 'function' : different 'const' qualifiers
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4090")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4090")
-  # 'function' incompatible types - from 'xxx' to 'yyy'
-  #target_compile_options(${name} PRIVATE "/we4133")
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4133")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4133")
-  # 'xxx': too many actual parameters
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4020")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4020")
-  # 'xxx' undefined; assuming extern returning int
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4013")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4013")
-
-endif()
+# See ${CMAKE_SOURCE_DIR_DIR}/CMakeLibrary.cmake for more information.
+dx_configure_warnings(${name})
 
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 

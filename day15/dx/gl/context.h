@@ -1,7 +1,7 @@
 #if !defined(DX_GL_CONTEXT_H_INCLUDED)
 #define DX_GL_CONTEXT_H_INCLUDED
 
-#include "dx/context.h"
+#include "dx/val/context.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>

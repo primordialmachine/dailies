@@ -84,11 +84,14 @@ static int on_startup_scene(dx_context* context) {
   }
   //
   if (dx_scene_startup(g_scenes[0], context)) {
+    DX_UNREFERENCE(g_scenes[1]);
+    g_scenes[1] = NULL;
     DX_UNREFERENCE(g_scenes[0]);
     g_scenes[0] = NULL;
     return 1;
   }
   if (dx_scene_startup(g_scenes[1], context)) {
+    dx_scene_shutdown(g_scenes[0], context);
     DX_UNREFERENCE(g_scenes[1]);
     g_scenes[1] = NULL;
     DX_UNREFERENCE(g_scenes[0]);
@@ -132,13 +135,13 @@ static int run() {
     // create the "emit" message.
     msg = DX_MSG(dx_emit_msg_create("Hello, World!\n", sizeof("Hello, World!\n")));
     if (!msg) {
-      dx_log("leave: run\n", sizeof("leave: run\n"));
+      dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
       return 1;
     }
     if (dx_msg_queue_push(g_msg_queue, msg)) {
       DX_UNREFERENCE(msg);
       msg = NULL;
-      dx_log("leave: run\n", sizeof("leave: run\n"));
+      dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
       return 1;
     }
     DX_UNREFERENCE(msg);
@@ -146,6 +149,7 @@ static int run() {
   }
   dx_context* ctx = DX_CONTEXT(dx_gl_wgl_get_context());
   if (on_startup_scene(ctx)) {
+    dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
     return 1;
   }
   uint64_t last = GetTickCount64();
@@ -157,15 +161,15 @@ static int run() {
     last = now;
 
     if (dx_gl_wgl_update_wm()) {
-      dx_log("leave: run\n", sizeof("leave: run\n"));
       on_shutdown_scene(ctx);
+      dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
       return 1;
     }
     do {
       dx_msg* msg;
       if (dx_msg_queue_pop(g_msg_queue, &msg)) {
-        dx_log("leave: run\n", sizeof("leave: run\n"));
         on_shutdown_scene(ctx);
+        dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
         return 1;
       }
       if (msg) {
@@ -173,7 +177,7 @@ static int run() {
           DX_UNREFERENCE(msg);
           msg = NULL;
           on_shutdown_scene(ctx);
-          dx_log("leave: run\n", sizeof("leave: run\n"));
+          dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
           return 1;
         }
         DX_UNREFERENCE(msg);
@@ -189,20 +193,25 @@ static int run() {
     dx_gl_wgl_leave_frame();
   }
   on_shutdown_scene(ctx);
-  dx_log("leave: run\n", sizeof("leave: run\n"));
+  dx_log("leave: run (success)\n", sizeof("leave: run (success)\n"));
   return 0;
 }
 
 static int startup() {
   dx_log("enter: startup\n", sizeof("enter: startup\n"));
+  if (dx_rti_initialize()) {
+    return 1;
+  }
   g_msg_queue = dx_msg_queue_create();
   if (!g_msg_queue) {
+    dx_rti_unintialize();
     dx_log("leave: startup\n", sizeof("leave: startup\n"));
     return 1;
   }
   if (dx_application_startup(g_msg_queue)) {
     dx_msg_queue_destroy(g_msg_queue);
     g_msg_queue = NULL;
+    dx_rti_unintialize();
     dx_log("leave: startup\n", sizeof("leave: startup\n"));
     return 1;
   }
@@ -210,6 +219,7 @@ static int startup() {
     dx_application_shutdown();
     dx_msg_queue_destroy(g_msg_queue);
     g_msg_queue = NULL;
+    dx_rti_unintialize();
     dx_log("leave: startup\n", sizeof("leave: startup\n"));
     return 1;
   }
@@ -223,6 +233,7 @@ static int shutdown() {
   dx_application_shutdown();
   dx_msg_queue_destroy(g_msg_queue);
   g_msg_queue = NULL;
+  dx_rti_unintialize();
   dx_log("leave: shutdown\n", sizeof("leave: shutdown\n"));
   return 0;
 }

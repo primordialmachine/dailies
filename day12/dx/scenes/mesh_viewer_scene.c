@@ -10,8 +10,10 @@
 #include <float.h>
 // snprintf
 #include <stdio.h>
-#include "dx/cbinding.h"
-#include "dx/program_text.h"
+#include "dx/val/cbinding.h"
+#include "dx/val/program_text.h"
+
+static DX_VEC4 const clear_color = { 0.f / 255.f, 191.f / 255.f, 255.f / 255.f, 0.f }; // color called "Capri" (0, 191, 255)
 
 static dx_cbinding* create_cbinding() {
   DX_MAT4 identity;
@@ -103,9 +105,8 @@ on_error:
 
 // add commands "clear color", "clear depth", and "set viewport".
 static int add_enter_frame_commands(dx_command_list* commands) {
-  dx_command* command;
+  dx_command* command = NULL;
   // clear color command
-  static const DX_VEC4 clear_color = { 0.f / 255.f, 191.f / 255.f, 255.f / 255.f, 0.f }; // color called "Capri" (0, 191, 255)
   command = dx_command_create_clear_color(0, 0, 640, 480, &clear_color);
   if (!command) {
     return 1;
@@ -180,7 +181,8 @@ static int add_mesh_draw_command(dx_command_list* commands,
     mesh = NULL;
     return 1;
   }
-  dx_vbinding* vbinding = dx_context_create_vbinding(context, buffer);
+  static DX_VERTEX_FORMAT const vertex_format = DX_VERTEX_FORMAT_POSITION;
+  dx_vbinding* vbinding = dx_context_create_vbinding(context, vertex_format, buffer);
   DX_UNREFERENCE(buffer);
   buffer = NULL;
   if (!vbinding) {

@@ -2,7 +2,7 @@
 #define DX_GL_PROGRAM_H_INCLUDED
 
 #include "dx/gl/context.h"
-#include "dx/program.h"
+#include "dx/val/program.h"
 
 typedef struct dx_gl_program dx_gl_program;
 

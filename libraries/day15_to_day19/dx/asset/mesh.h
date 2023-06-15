@@ -13,7 +13,7 @@
 /// rgba ambient denotes the color coordinates and the alpha of the vertex in the non-pbr lighting model.
 /// uv ambient denotes the texture coordinates for the rgba ambient texture in the non-pbr ligthting model.
 /// A mesh always has a dx_asset_material associated.
-typedef struct dx_asset_mesh dx_asset_mesh;
+DX_DECLARE_OBJECT_TYPE("dx.asset.mesh", dx_asset_mesh, dx_object)
 
 static inline dx_asset_mesh* DX_ASSET_MESH(void* p) {
   return (dx_asset_mesh*)p;

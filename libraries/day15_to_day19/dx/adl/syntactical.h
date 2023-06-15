@@ -9,7 +9,7 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-/// @brief Enumeration of word types.
+/// @brief Enumeration of word kinds.
 /// @details
 /// The following section describes the lexicals of the asset description language.
 ///
@@ -149,81 +149,85 @@
 /// double_quoted_string := double_quote, {NOT(newline | double_quote)}, double_quote
 /// single_quoted_string := single_quote, {NOT(newline | single_quote)}, single_quote
 /// @endcode
-typedef enum dx_adl_word_type {
+DX_DECLARE_ENUMERATION_TYPE("dx.adl.word_kind", dx_adl_word_kind)
+
+enum dx_adl_word_kind {
 
   /// @brief Value denoting an error instead of a valid word as specified by the ADL lexicals.
-  dx_adl_word_type_error,
+  dx_adl_word_kind_error,
   /// @brief Value denoting a warning instead of a valid word as specified by the ADL lexicals.
-  dx_adl_word_type_warning,
+  dx_adl_word_kind_warning,
 
   /// @brief The word <code>start_of_input</code>.
-  dx_adl_word_type_start_of_input,
+  dx_adl_word_kind_start_of_input,
   /// @brief The word <code>end of input</code>.
-  dx_adl_word_type_end_of_input,
+  dx_adl_word_kind_end_of_input,
 
   /// @brief The word <code>comma</code>.
-  dx_adl_word_type_comma,
+  dx_adl_word_kind_comma,
 
   /// @brief The word <code>colon</code>:
-  dx_adl_word_type_colon,
+  dx_adl_word_kind_colon,
   
   /// @brief The word <code>left parenthesis</code>.
-  dx_adl_word_type_left_parenthesis,
+  dx_adl_word_kind_left_parenthesis,
   /// @brief The word <code>right parenthesis</code>.
-  dx_adl_word_type_right_parenthesis,
+  dx_adl_word_kind_right_parenthesis,
   
   /// @brief The word <code>left curly bracket</code>.
-  dx_adl_word_type_left_curly_bracket,
+  dx_adl_word_kind_left_curly_bracket,
   /// @brief The word <code>right curly bracket</code>.
-  dx_adl_word_type_right_curly_bracket,
+  dx_adl_word_kind_right_curly_bracket,
 
   /// @brief The word <code>left square bracket</code>.
-  dx_adl_word_type_left_square_bracket,
+  dx_adl_word_kind_left_square_bracket,
   /// @brief The word <code>right square bracket</code>.
-  dx_adl_word_type_right_square_bracket,
+  dx_adl_word_kind_right_square_bracket,
 
   /// @brief The type of the words <code>string</code>.
-  dx_adl_word_type_string,
+  dx_adl_word_kind_string,
   /// @brief The word <code>name</code>.
-  dx_adl_word_type_name,
+  dx_adl_word_kind_name,
   /// @brief The word <code>number</code>.
-  dx_adl_word_type_number,
+  dx_adl_word_kind_number,
 
-} dx_adl_word_type;
+};
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-typedef struct dx_adl_word dx_adl_word;
+DX_DECLARE_OBJECT_TYPE("dx.adl.word", dx_adl_word, dx_object)
+
 static inline dx_adl_word* DX_ADL_WORD(void* p) {
   return (dx_adl_word*)p;
 }
 
 struct dx_adl_word {
   dx_object parent;
-  dx_adl_word_type type;
+  dx_adl_word_kind kind;
   dx_string* text;
 };
 
-/// @brief Construct this word with the specified word type and the specified word text.
+/// @brief Construct this word with the specified word kind and the specified word text.
 /// @param self A pointer to this word.
-/// @param type The type of the word.
+/// @param kind The kind of the word.
 /// @param text The text of the word.
-int dx_adl_word_construct(dx_adl_word* self, dx_adl_word_type type, dx_string* text);
+int dx_adl_word_construct(dx_adl_word* self, dx_adl_word_kind kind, dx_string* text);
 
 /// @brief Destruct this word.
 /// @param self A pointer to this word.
 void dx_adl_word_destruct(dx_adl_word* self);
 
-/// @brief Create this word with the specified word type and the specified word text.
-/// @param type The type of the word.
+/// @brief Create this word with the specified word kind and the specified word text.
+/// @param kind The kind of the word.
 /// @param text The text of the word.
 /// @return A pointer to the word on success. The null pointer on failure.
-dx_adl_word* dx_adl_word_create(dx_adl_word_type type, dx_string* text);
+dx_adl_word* dx_adl_word_create(dx_adl_word_kind kind, dx_string* text);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /// @brief A scanner used for scanning programs of the language "2023-06-01".
-typedef struct dx_adl_scanner dx_adl_scanner;
+DX_DECLARE_OBJECT_TYPE("dx.adl.scanner", dx_adl_scanner, dx_object)
+
 static inline dx_adl_scanner* DX_ADL_SCANNER(void* p) {
   return (dx_adl_scanner*)p;
 }
@@ -237,8 +241,10 @@ struct dx_adl_scanner {
   /// @brief Pointer to the beginning of the current Byte.
   char const* current;
 
+  /// @brief The text of the current word.
   dx_byte_array text;
-  uint16_t type;
+  /// @brief The kind of the current word.
+  dx_adl_word_kind kind;
 };
 
 /// @brief Construct this scanner with an empty input.
@@ -284,30 +290,32 @@ size_t dx_adl_scanner_get_word_text_number_of_bytes(dx_adl_scanner const* self);
 
 /// @brief Get the type of the current token.
 /// @param self A pointer to this scanner.
-/// @return The type of the current token. #dx_adl_word_type_error is returned on on failure.
+/// @return The type of the current token. #dx_adl_word_kind_error is returned on on failure.
 /// @failure This function has set the the error variable.
-dx_adl_word_type dx_adl_scanner_get_word_type(dx_adl_scanner const* self);
+dx_adl_word_kind dx_adl_scanner_get_word_kind(dx_adl_scanner const* self);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-typedef enum dx_adl_node_type {
-  dx_adl_node_type_error = 0,
+DX_DECLARE_ENUMERATION_TYPE("dx.adl.node_kind", dx_adl_node_kind)
+enum dx_adl_node_kind {
+  dx_adl_node_kind_error = 0,
 
-  dx_adl_node_type_list,
-  dx_adl_node_type_map,
-  dx_adl_node_type_number,
-  dx_adl_node_type_string,
-} dx_adl_node_type;
+  dx_adl_node_kind_list,
+  dx_adl_node_kind_map,
+  dx_adl_node_kind_number,
+  dx_adl_node_kind_string,
+};
 
 /// @brief An ADL node of a programs of the language "2023-06-01".
-typedef struct dx_adl_node dx_adl_node;
+DX_DECLARE_OBJECT_TYPE("dx.adl.node", dx_adl_node, dx_object)
+
 static inline dx_adl_node* DX_ADL_NODE(void* p) {
   return (dx_adl_node*)p;
 }
 
 struct dx_adl_node {
   dx_object _parent;
-  dx_adl_node_type type;
+  dx_adl_node_kind kind;
   union {
     dx_pointer_array list;
     dx_pointer_hashmap map;
@@ -318,34 +326,34 @@ struct dx_adl_node {
 
 /// @brief Construct this ADL node with the specified type.
 /// @param self A pointer to this ADL node.
-/// @param type The type of this ADL node.
+/// @param kind The kind of this ADL node.
 /// @success The node was assigned default values for the specified type.
 /// Default values are:
-/// - #dx_adl_node_type_empty: -
-/// - #dx_adl_node_type_string: the empty string
-/// - #dx_adl_node_type_number: the zero integer number
-/// - #dx_adl_node_type_map: the empty map
-/// - #dx_adl_node_type_list: the empty list
+/// - #dx_adl_node_kind_empty: -
+/// - #dx_adl_node_kind_string: the empty string
+/// - #dx_adl_node_kind_number: the zero integer number
+/// - #dx_adl_node_kind_map: the empty map
+/// - #dx_adl_node_kind_list: the empty list
 /// @failure This function has set the error variable.
-int dx_adl_node_construct(dx_adl_node* self, dx_adl_node_type type);
+int dx_adl_node_construct(dx_adl_node* self, dx_adl_node_kind kind);
 
 /// @brief Destruct this ADL node.
 /// @param self A pointer to this ADL node.
 void dx_adl_node_destruct(dx_adl_node* self);
 
 /// @brief Create this ADL node with the specified type.
-/// @param type The type of this ADL node.
+/// @param kind The kind of this ADL node.
 /// @return A pointer to this ADL node. The null pointer on failure.
 /// @success The node was assigned default values for the specified type.
 /// See dx_adl_node_construct for details.
 /// @failure This function has set the error variable.
-dx_adl_node* dx_adl_node_create(dx_adl_node_type type);
+dx_adl_node* dx_adl_node_create(dx_adl_node_kind kind);
 
-/// @brief Get the node type of this ADL node.
+/// @brief Get the node kind of this ADL node.
 /// @param self A pointer to this ADL node.
-/// @return The node type. This may be #dx_node_type_error. #dx_node_type_error is also returned on failure.
+/// @return The node kind. This may be #dx_node_kind_error. #dx_node_kind_error is also returned on failure.
 /// @failure This function has set the the error variable.
-dx_adl_node_type dx_adl_node_get_type(dx_adl_node const* self);
+dx_adl_node_kind dx_adl_node_get_kind(dx_adl_node const* self);
 
 /// @brief Add or update the mapping from name to value in this ADL map node.
 /// @param self A pointer to this ADL node.
@@ -355,7 +363,7 @@ dx_adl_node_type dx_adl_node_get_type(dx_adl_node const* self);
 /// @failure This function has set the the error variable. In particular, the following error codes are set:
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a value is a null pointer
-/// - #DX_INVALID_OPERATION this node is not of node type #dx_adl_node_type_map.
+/// - #DX_INVALID_OPERATION this node is not of node kind #dx_adl_node_kind_map.
 int dx_adl_node_map_set(dx_adl_node* self, dx_string* name, dx_adl_node* value);
 
 /// @brief Get a mapping from a name to a value in this ADL map node.
@@ -376,7 +384,7 @@ dx_adl_node* dx_adl_node_map_get(dx_adl_node const* self, dx_string* name);
 /// @failure This function has set the the error variable. In particular, the following error codes are set:
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a value is a null pointer
-/// - #DX_INVALID_OPERATION this node is not of node type #dx_adl_node_type_list.
+/// - #DX_INVALID_OPERATION this node is not of node kind #dx_adl_node_kind_list.
 int dx_adl_node_list_append(dx_adl_node* self, dx_adl_node* value);
 
 /// @brief Prepend an ADL node to this ADL list node.
@@ -386,7 +394,7 @@ int dx_adl_node_list_append(dx_adl_node* self, dx_adl_node* value);
 /// @failure This function has set the the error variable. In particular, the following error codes are set:
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a value is a null pointer
-/// - #DX_INVALID_OPERATION this node is not of node type #dx_adl_node_type_list.
+/// - #DX_INVALID_OPERATION this node is not of node kind #dx_adl_node_kind_list.
 int dx_adl_node_list_prepend(dx_adl_node* self, dx_adl_node* value);
 
 /// @brief Insert an ADL node into this ADL list node.
@@ -397,7 +405,7 @@ int dx_adl_node_list_prepend(dx_adl_node* self, dx_adl_node* value);
 /// @failure This function has set the the error variable. In particular, the following error codes are set:
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a value is a null pointer
-/// - #DX_INVALID_OPERATION this node is not of node type #dx_adl_node_type_list.
+/// - #DX_INVALID_OPERATION this node is not of node kind #dx_adl_node_kind_list.
 int dx_adl_node_list_insert(dx_adl_node* self, dx_adl_node* value, dx_size index);
 
 /// @brief Get an ADL node at the specified index in this ADL list node.
@@ -407,7 +415,7 @@ int dx_adl_node_list_insert(dx_adl_node* self, dx_adl_node* value, dx_size index
 /// @failure This function has set the the error variable. In particular, the following error codes are set:
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a index is greater than or equal to the length of this ADL list node
-/// - #DX_INVALID_OPERATION this node is not of node type #dx_adl_node_type_list.
+/// - #DX_INVALID_OPERATION this node is not of node kind #dx_adl_node_kind_list.
 dx_adl_node* dx_adl_node_list_get(dx_adl_node* self, dx_size index);
 
 /// @brief Get an ADL node at the specified index in this ADL list node.
@@ -417,7 +425,7 @@ dx_adl_node* dx_adl_node_list_get(dx_adl_node* self, dx_size index);
 /// @failure This function has set the the error variable. In particular, the following error codes are set:
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a index is greater than or equal to the length of this ADL list node
-/// - #DX_INVALID_OPERATION this node is not of node type #dx_adl_node_type_list.
+/// - #DX_INVALID_OPERATION this node is not of node kind #dx_adl_node_kind_list.
 dx_size dx_adl_node_list_get_size(dx_adl_node* self);
 
 /// @brief Get the string value of this ADL node.
@@ -425,7 +433,7 @@ dx_size dx_adl_node_list_get_size(dx_adl_node* self);
 /// @return The string value on success. The null pointer on failure.
 /// @failure This function has set the the error variable. In particular, the following error codes are set:
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
-/// - #DX_INVALID_OPERATION this node is not of node type #dx_adl_node_type_string.
+/// - #DX_INVALID_OPERATION this node is not of node kind #dx_adl_node_kind_string.
 dx_string* dx_adl_node_get_string(dx_adl_node const* self);
 
 /// @brief Set the string value of this ADL node.
@@ -435,7 +443,7 @@ dx_string* dx_adl_node_get_string(dx_adl_node const* self);
 /// @failure This function has set the the error variable. In particular, the following error codes are set:
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a string is a null pointer
-/// - #DX_INVALID_OPERATION this node is not of node type #dx_adl_node_type_string.
+/// - #DX_INVALID_OPERATION this node is not of node kind #dx_adl_node_kind_string.
 /// @undefined The string is not well-formatted.
 int dx_adl_node_set_string(dx_adl_node* self, dx_string* string);
 
@@ -444,7 +452,7 @@ int dx_adl_node_set_string(dx_adl_node* self, dx_string* string);
 /// @return The number value on success. The null pointer on failure.
 /// @failure This function has set the the error variable. In particular, the following error codes are set:
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
-/// - #DX_INVALID_OPERATION this node is not of node type #dx_adl_node_type_number.
+/// - #DX_INVALID_OPERATION this node is not of node kind #dx_adl_node_kind_number.
 dx_string* dx_adl_node_get_number(dx_adl_node const* self);
 
 /// @brief Set the number value of this ADL node.
@@ -454,14 +462,15 @@ dx_string* dx_adl_node_get_number(dx_adl_node const* self);
 /// @failure This function has set the the error variable. In particular, the following error codes are set:
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a number is a null pointer
-/// - #DX_INVALID_OPERATION this node is not of node type #dx_adl_node_type_number.
+/// - #DX_INVALID_OPERATION this node is not of node kind #dx_adl_node_kind_number.
 /// @undefined The string is not well-formatted.
 int dx_adl_node_set_number(dx_adl_node* self, dx_string* number);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /// @brief A parser used for parsing programs of the language "2023-06-01".
-typedef struct dx_adl_parser dx_adl_parser;
+DX_DECLARE_OBJECT_TYPE("dx.adl.parser", dx_adl_parser, dx_object)
+
 static inline dx_adl_parser* DX_ADL_PARSER(void* p) {
   return (dx_adl_parser*)p;
 }
@@ -501,16 +510,16 @@ int dx_adl_parser_set(dx_adl_parser* self, char const* p, size_t l);
 
 /// @brief Get if the current word is of the specified word type.
 /// @param self A pointer to this parser.
-/// @param word_type The word type.
+/// @param word_kind The word type.
 /// @return @a true if the current word is of the specified word type. @a false if it is not. @a false is also returned on failure.
 /// @failure This function has set the the error variable.
-bool dx_adl_parser_is_word_type(dx_adl_parser const* self, dx_adl_word_type word_type);
+bool dx_adl_parser_is_word_kind(dx_adl_parser const* self, dx_adl_word_kind word_kind);
 
 /// @brief Get the word type of the current word.
 /// @param self A pointer to this parser.
-/// @return The word type. This may be #dx_adl_word_type_error. #dx_adl_word_type_error is also returned on failure.
+/// @return The word type. This may be #dx_adl_word_kind_error. #dx_adl_word_kind_error is also returned on failure.
 /// @failure This function has set the the error variable.
-dx_adl_word_type dx_adl_parser_get_word_type(dx_adl_parser const* self);
+dx_adl_word_kind dx_adl_parser_get_word_kind(dx_adl_parser const* self);
 
 /// @brief Run this parser.
 /// @param self A pointer to this parser.

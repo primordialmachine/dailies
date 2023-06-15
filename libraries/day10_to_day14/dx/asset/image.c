@@ -5,6 +5,8 @@
 // string
 #include <string.h>
 
+DX_DEFINE_OBJECT_TYPE("dx.asset.image", dx_asset_image, dx_object)
+
 typedef struct EXTEND2 {
   dx_size width;
   dx_size height;

@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 
-set(name "dailies.day10today14")
+set(name "dailies.day10_to_day14")
 
 
 set(${name}.dx.inlays "")
@@ -19,6 +19,12 @@ list(APPEND ${name}.dx.headers "dx/configuration.h")
 # master include file and master source file.
 list(APPEND ${name}.dx.sources "dx/core.c")
 list(APPEND ${name}.dx.headers "dx/core.h")
+
+# "val" folder.
+list(APPEND ${name}.dx.sources "dx/val/cbinding.c" "dx/val/vbinding.c")
+list(APPEND ${name}.dx.headers "dx/val/cbinding.h" "dx/val/vbinding.h")
+list(APPEND ${name}.dx.sources "dx/val/program_text.c" "dx/val/command.c" "dx/val/program.c" "dx/val/context.c" "dx/val/buffer.c")
+list(APPEND ${name}.dx.headers "dx/val/program_text.h" "dx/val/command.h" "dx/val/program.h" "dx/val/context.h" "dx/val/buffer.h")
 
 # "core" folder.
 list(APPEND ${name}.dx.sources "dx/core/core.c" "dx/core/os.c" "dx/core/string.c")
@@ -51,6 +57,12 @@ list(APPEND ${name}.dx.sources "dx/core/hapticals.c")
 list(APPEND ${name}.dx.headers "dx/core/hapticals.h")
 list(APPEND ${name}.dx.inlays "dx/core/keyboard_keys.i")
 list(APPEND ${name}.dx.inlays "dx/core/mouse_buttons.i")
+
+list(APPEND ${name}.dx.sources "dx/core/object.c")
+list(APPEND ${name}.dx.headers "dx/core/object.h")
+
+list(APPEND ${name}.dx.sources "dx/core/msgs.c")
+list(APPEND ${name}.dx.headers "dx/core/msgs.h")
 
 # "asset" folder.
 list(APPEND ${name}.dx.sources "dx/asset/mesh.c" "dx/asset/mesh_instance.c" "dx/asset/mesh/generators.c")
@@ -127,24 +139,8 @@ project(${name})
 
 add_library(${name} ${${name}.sources} ${${name}.headers} ${${name}.readmes} ${${name}.inlays} ${${name}.asms})
 
-if(MSVC)
-  # Treat certain warnings as errors.
-
-  # 'function' : different 'const' qualifiers
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4090")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4090")
-  # 'function' incompatible types - from 'xxx' to 'yyy'
-  #target_compile_options(${name} PRIVATE "/we4133")
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4133")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4133")
-  # 'xxx': too many actual parameters
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4020")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4020")
-  # 'xxx' undefined; assuming extern returning int
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4013")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4013")
-
-endif()
+# See ${CMAKE_SOURCE_DIR_DIR}/CMakeLibrary.cmake for more information.
+dx_configure_warnings(${name})
 
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(${name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

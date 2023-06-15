@@ -2,6 +2,7 @@
 #define DX_ADL_SEMANTICAL_STATE_H_INCLUDED
 
 #include "dx/asset/palette.h"
+#include "dx/asset/scene.h"
 #include "dx/adl/syntactical.h"
 
 /// @brief The state maintained while iterating over the ADL nodes in the semantical analyses stage.
@@ -16,6 +17,8 @@ struct dx_adl_semantical_state {
   dx_asset_palette* palette;
   /// @brief Map from names (dx_string) to ADL syntax tree nodes (dx_adl_node).
   dx_pointer_hashmap named_nodes;
+  /// @brief The scene object that is being built.
+  dx_asset_scene* scene;
 };
 
 int dx_adl_semantical_state_construct(dx_adl_semantical_state* self);

@@ -25,10 +25,6 @@ list(APPEND ${name}.dx.headers "dx/scenes/mesh_viewer_scene.h")
 list(APPEND ${name}.dx.sources "dx/application.c" "dx/configuration.c" "dx/scene.c")
 list(APPEND ${name}.dx.headers "dx/application.h" "dx/configuration.h" "dx/scene.h")
 
-# DX visuals abstraction layer (VAL).
-list(APPEND ${name}.dx.sources "dx/program_text.c" "dx/command.c" "dx/program.c" "dx/context.c" "dx/cbinding.c" "dx/vbinding.c" "dx/buffer.c")
-list(APPEND ${name}.dx.headers "dx/program_text.h" "dx/command.h" "dx/program.h" "dx/context.h" "dx/cbinding.h" "dx/vbinding.h" "dx/buffer.h")
-
 # DX VAL OpenGL backend.
 set(${name}.dx.gl.inlays "")
 set(${name}.dx.gl.sources "")
@@ -95,26 +91,10 @@ project(${name})
 
 add_executable(${name} ${${name}.sources} ${${name}.headers} ${${name}.readmes} ${${name}.inlays} ${${name}.asms})
 
-target_link_libraries(${name} dailies.day10today14)
+target_link_libraries(${name} dailies.day10_to_day14)
 
-if(MSVC)
-  # Treat certain warnings as errors.
-
-  # 'function' : different 'const' qualifiers
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4090")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4090")
-  # 'function' incompatible types - from 'xxx' to 'yyy'
-  #target_compile_options(${name} PRIVATE "/we4133")
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4133")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4133")
-  # 'xxx': too many actual parameters
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4020")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4020")
-  # 'xxx' undefined; assuming extern returning int
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4013")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4013")
-
-endif()
+# See ${CMAKE_SOURCE_DIR_DIR}/CMakeLibrary.cmake for more information.
+dx_configure_warnings(${name})
 
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
                                            ${CMAKE_CURRENT_SOURCE_DIR}/external/opengl/includes)

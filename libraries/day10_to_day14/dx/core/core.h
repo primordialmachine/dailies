@@ -472,63 +472,6 @@ dx_reference_counter dx_reference_counter_decrement(dx_reference_counter* refere
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-/// @brief
-/// The base of non-POD objects.
-typedef struct dx_object dx_object;
-
-/// @brief
-/// Unconditionally cast a <code>void</code> pointer into a <code>dx_object</code> pointer.
-/// @param p The <code>void</code> pointer.
-/// @return The <code>dx_object</code> pointer.
-static inline dx_object* DX_OBJECT(void *p) {
-  return (dx_object*)p;
-}
-
-struct dx_object {
-  /// @brief The reference count of the object.
-  dx_reference_counter reference_count;
-  /// @brief A pointer to the destructor of the object or a null pointer.
-  void (*destruct)(dx_object* object);
-#if _DEBUG && 1 == DX_OBJECT_WITH_MAGIC_BYTES
-  char magic_bytes[4];
-#endif
-};
-
-void DX_DEBUG_CHECK_MAGIC_BYTES(void* p);
-
-/// @brief
-/// Allocate a dx_object.
-/// @param size
-/// The size, in Bytes, of the object. Must be greater than or equal to <code>sizeof(dx_object)</code>.
-/// @return
-/// A pointer to the object on success. A null pointer on failure.
-/// @post
-/// On success, a pointer to dx_object object is returned.
-/// The object is initialized such that <code>dx_object::destructor</code> is assigned a null pointer and <code>dx_object::reference_count</code> is assigned @a 1.
-dx_object* dx_object_alloc(size_t size);
-
-/// @brief
-/// Increment the reference count of a dx_object object by @a 1.
-/// @param object
-/// A pointer to the dx_object object.
-void dx_object_reference(dx_object *object);
-
-/// @brief
-/// Increment the reference count of a dx_object object by @a 1.
-/// @param object
-/// A pointer to the dx_object object.
-void dx_object_unreference(dx_object* object);
-
-static inline void DX_REFERENCE(void *p) {
-  dx_object_reference(DX_OBJECT(p));
-}
-
-static inline void DX_UNREFERENCE(void *p) {
-  dx_object_unreference(DX_OBJECT(p));
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
 // @brief Write an utf-8 string to standard output.
 // @warning There is no guarantee that the log message is written.
 // @param p A pointer to an array of @a n Bytes.
@@ -539,109 +482,6 @@ static inline void DX_UNREFERENCE(void *p) {
 // @pre
 // - utf8 us supported by standard output
 void dx_log(char const *p, size_t n);
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-#define DX_MSG_TYPE_UNDETERMINED (0)
-
-#define DX_MSG_TYPE_EMIT (1)
-
-#define DX_MSG_TYPE_QUIT (2)
-
-/// @brief Messages related to the canvas.
-#define DX_MSG_TYPE_CANVAS (3)
-
-#define DX_MSG_TYPE_INPUT (4)
-
-// The opaque type of a message.
-typedef struct dx_msg dx_msg;
-
-static inline dx_msg* DX_MSG(void *p) {
-  return (dx_msg*)p;
-}
-
-uint32_t dx_msg_get_flags(dx_msg const* msg);
-
-int dx_msg_construct(dx_msg* msg);
-
-/// @brief Destruct this message.
-/// @param msg A pointer to this message.
-void dx_msg_destruct(dx_msg* msg);
-
-struct dx_msg {
-  dx_object _parent;
-  uint32_t flags;
-};
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-// The opaque type of an "emit" message.
-typedef struct dx_emit_msg dx_emit_msg;
-
-static inline dx_emit_msg* DX_EMIT_MSG(void *p) {
-  return (dx_emit_msg*)p;
-}
-
-int dx_emit_msg_construct(dx_emit_msg* emit_msg, char const *p, size_t n);
-
-void dx_emit_msg_destruct(dx_emit_msg* emit_msg);
-
-// Create an "emit" message.
-// @param p Pointer to an utf-8 string of @a n Bytes.
-// @param n the length of the utf-8 string in Bytes pointed to by @a p.
-// @return A pointer to the message on success. The null pointer on failure.
-dx_emit_msg* dx_emit_msg_create(char const *p, size_t n);
-
-int dx_emit_msg_get(dx_emit_msg* emit_msg, char const** p, size_t* n);
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-// The opaque type of an "quit" message.
-typedef struct dx_quit_msg dx_quit_msg;
-
-static inline dx_quit_msg* DX_QUIT_MSG(void *p) {
-  return (dx_quit_msg*)p;
-}
-
-int dx_quit_msg_construct(dx_quit_msg* quit_msg);
-
-void dx_quit_msg_destruct(dx_quit_msg* emit_msg);
-
-// Create a "quit" message
-// @return pointer to the message on success. null pointer on failure
-dx_quit_msg* dx_quit_msg_create();
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-// The opaque type of a message queue.
-typedef struct dx_msg_queue dx_msg_queue;
-
-// Push a message on the message queue.
-// @post
-// On success:
-// The message was added to the queue and the queue acquired a reference to the message.
-// @return @a 0 on success. A non-zero value on failure.
-int dx_msg_queue_push(dx_msg_queue* msg_queue, dx_msg* msg);
-
-// Pop a message from the message queue.
-// @post
-// On success:
-// <code>*msg</code> was assigned a pointer to the message if the queue is not empty.
-// The reference acquired to the message when it was added to the message queue was transferred to the caller.
-// It was assigned the null pointer otherwise.
-// On failure:
-// <code>msg</code> is not dereferenced.
-// @return
-// @a 0 on success. A non-zero value on failure
-int dx_msg_queue_pop(dx_msg_queue* msg_queue, dx_msg** msg);
-
-// Create a message queue.
-// @return pointer to the message queue on success. null pointer on failure.
-dx_msg_queue *dx_msg_queue_create();
-
-// Destroy a message queue.
-// The message queue relinquishes all references to messages contained in the queue.
-void dx_msg_queue_destroy(dx_msg_queue *msg_queue);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -756,7 +596,7 @@ dx_size dx_hash_sz(dx_size x);
 /// @param x The first hash value.
 /// @param y The second hash value.
 /// @return The combination of the first hash value and the second hash value.
-dx_size_dx_combine_hash(dx_size x, dx_size y);
+dx_size dx_combine_hash(dx_size x, dx_size y);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

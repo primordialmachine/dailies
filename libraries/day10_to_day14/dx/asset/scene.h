@@ -4,7 +4,7 @@
 #include "dx/core.h"
 
 /// @brief A scene asset.
-typedef struct dx_asset_scene dx_asset_scene;
+DX_DECLARE_OBJECT_TYPE("dx.asset.scene", dx_asset_scene, dx_object)
 
 static inline dx_asset_scene* DX_ASSET_SCENE(void* p) {
     return (dx_asset_scene*)p;

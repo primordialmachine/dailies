@@ -27,7 +27,7 @@ static dx_scene* g_scenes[2] = { NULL, NULL };
 
 static int on_msg(dx_msg* msg);
 
-static int on_render(dx_context* context, int canvas_width, int canvas_height);
+static int on_render_scene(dx_context* context, float delta_seconds, int canvas_width, int canvas_height);
 
 static int run();
 
@@ -191,14 +191,19 @@ static int run() {
 
 static int startup() {
   dx_log("enter: startup\n", sizeof("enter: startup\n"));
+  if (dx_rti_initialize()) {
+    return 1;
+  }
   g_msg_queue = dx_msg_queue_create();
   if (!g_msg_queue) {
+    dx_rti_unintialize();
     dx_log("leave: startup\n", sizeof("leave: startup\n"));
     return 1;
   }
   if (dx_application_startup(g_msg_queue)) {
     dx_msg_queue_destroy(g_msg_queue);
     g_msg_queue = NULL;
+    dx_rti_unintialize();
     dx_log("leave: startup\n", sizeof("leave: startup\n"));
     return 1;
   }
@@ -206,6 +211,7 @@ static int startup() {
     dx_application_shutdown();
     dx_msg_queue_destroy(g_msg_queue);
     g_msg_queue = NULL;
+    dx_rti_unintialize();
     dx_log("leave: startup\n", sizeof("leave: startup\n"));
     return 1;
   }
@@ -219,6 +225,7 @@ static int shutdown() {
   dx_application_shutdown();
   dx_msg_queue_destroy(g_msg_queue);
   g_msg_queue = NULL;
+  dx_rti_unintialize();
   dx_log("leave: shutdown\n", sizeof("leave: shutdown\n"));
   return 0;
 }

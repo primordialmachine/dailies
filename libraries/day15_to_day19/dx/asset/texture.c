@@ -1,5 +1,7 @@
 #include "dx/asset/texture.h"
 
+DX_DEFINE_OBJECT_TYPE("dx.asset.texture", dx_asset_texture, dx_object)
+
 int dx_asset_texture_construct(dx_asset_texture* self, dx_asset_image* image) {
   if (!self || !image) {
     dx_set_error(DX_INVALID_ARGUMENT);

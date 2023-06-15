@@ -30,12 +30,6 @@ list(APPEND ${name}.dx.headers "dx/scenes/mesh_viewer_scene.h")
 list(APPEND ${name}.dx.sources "dx/scenes/create_assets.c")
 list(APPEND ${name}.dx.headers "dx/scenes/create_assets.h")
 
-# DX visuals abstraction layer (VAL).
-list(APPEND ${name}.dx.sources "dx/texture.c" "dx/material.c" "dx/mesh.c" "dx/mesh_instance.c")
-list(APPEND ${name}.dx.headers "dx/texture.h" "dx/material.h" "dx/mesh.h" "dx/mesh_instance.h")
-list(APPEND ${name}.dx.sources "dx/program_text.c" "dx/command.c" "dx/program.c" "dx/context.c" "dx/cbinding.c" "dx/vbinding.c" "dx/buffer.c")
-list(APPEND ${name}.dx.headers "dx/program_text.h" "dx/command.h" "dx/program.h" "dx/context.h" "dx/cbinding.h" "dx/vbinding.h" "dx/buffer.h")
-
 # DX VAL OpenGL backend.
 set(${name}.dx.gl.inlays "")
 set(${name}.dx.gl.sources "")
@@ -82,29 +76,13 @@ add_custom_command(TARGET ${name} POST_BUILD
                    ${CMAKE_CURRENT_BINARY_DIR}/../tif-writer/$<CONFIG>/tif-writer.dll $<TARGET_FILE_DIR:${name}>
                    COMMAND_EXPAND_LISTS)
 
-if(MSVC)
-  # Treat certain warnings as errors.
-
-  # 'function' : different 'const' qualifiers
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4090")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4090")
-  # 'function' incompatible types - from 'xxx' to 'yyy'
-  #target_compile_options(${name} PRIVATE "/we4133")
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4133")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4133")
-  # 'xxx': too many actual parameters
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4020")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4020")
-  # 'xxx' undefined; assuming extern returning int
-  set_source_files_properties(${${name}.sources} PROPERTIES COMPILE_OPTIONS "/we4013")
-  set_source_files_properties(${${name}.headers} PROPERTIES COMPILE_OPTIONS "/we4013")
-
-endif()
+# See ${CMAKE_SOURCE_DIR_DIR}/CMakeLibrary.cmake for more information.
+dx_configure_warnings(${name})
 
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
                                            ${CMAKE_CURRENT_SOURCE_DIR}/external/opengl/includes)
 
-target_link_libraries(${name} dailies.day15today19)
+target_link_libraries(${name} dailies.day15_to_day19)
 
 find_package(Doxygen)
 

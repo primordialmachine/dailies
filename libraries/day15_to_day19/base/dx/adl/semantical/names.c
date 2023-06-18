@@ -2,11 +2,9 @@
 
 // strlen
 #include <string.h>
-// malloc, free
-#include <malloc.h>
 
 int dx_adl_semantical_names_construct(dx_adl_semantical_names* self) {
-  self->names = (dx_string**)malloc(sizeof(dx_string*)*(DX_SEMANTICAL_NAMES_NUMBER_OF_NAMES));
+  self->names = (dx_string**)dx_memory_allocate(sizeof(dx_string*)*(DX_SEMANTICAL_NAMES_NUMBER_OF_NAMES));
   if (!self->names) {
     goto ERROR;
   }
@@ -30,7 +28,7 @@ ERROR:
     }
   }
   if (self->names) {
-    free(self->names);
+    dx_memory_deallocate(self->names);
     self->names = NULL;
   }
   return 1;
@@ -43,7 +41,7 @@ void dx_adl_semantical_names_destruct(dx_adl_semantical_names* self) {
     self->names[i] = NULL;
   }
   if (self->names) {
-    free(self->names);
+    dx_memory_deallocate(self->names);
     self->names = NULL;
   }
 }

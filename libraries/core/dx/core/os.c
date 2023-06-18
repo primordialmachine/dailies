@@ -2,9 +2,7 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-// malloc, realloc, free
-#include <malloc.h>
-
+#include "dx/core/memory.h"
 #include "dx/core/safe_add_nx.h"
 
 // SYSTEM_INFO, GetSystemInfo
@@ -40,15 +38,14 @@ dx_string* dx_os_get_executable_path() {
     return NULL;
   }
   size_t n = MAX_PATH;
-  char *p = malloc(n);
+  char *p = dx_memory_allocate(n);
   if (!p) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return NULL;
   }
   do {
     DWORD m = GetModuleFileNameA(module, p, n);
     if (m == 0) {
-      free(p);
+      dx_memory_deallocate(p);
       p = NULL;
       dx_set_error(DX_ENVIRONMENT_FAILED);
       return NULL;
@@ -64,14 +61,14 @@ dx_string* dx_os_get_executable_path() {
         n_new = SIZE_MAX;
       }
       if (n_new == n) {
-        free(p);
+        dx_memory_deallocate(p);
         p = NULL;
         dx_set_error(DX_ALLOCATION_FAILED);
         return NULL;
       }
-      char* p_new = realloc(p, n_new);
+      char* p_new = dx_memory_reallocate(p, n_new);
       if (!p_new) {
-        free(p);
+        dx_memory_deallocate(p);
         p = NULL;
         dx_set_error(DX_ALLOCATION_FAILED);
         return NULL;
@@ -80,7 +77,7 @@ dx_string* dx_os_get_executable_path() {
       n = n_new;
     } else {
       dx_string* s = dx_string_create(p, m);
-      free(p);
+      dx_memory_deallocate(p);
       return s;
     }
   } while (true);

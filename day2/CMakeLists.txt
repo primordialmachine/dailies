@@ -23,6 +23,8 @@ dx_configure_warnings(${name})
 
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
+target_link_libraries(${name} dailies.core)
+
 find_package(Doxygen)
 
 if (DOXYGEN_FOUND)

@@ -9,8 +9,8 @@ set(name "dailies.day9")
 
 
 # DX sources.
-set(${name}.dx.sources "dx/application.c" "dx/configuration.c" "dx/configuration.c" "dx/core.c" "dx/context.c")
-set(${name}.dx.headers "dx/application.h" "dx/configuration.h" "dx/configuration.h" "dx/core.h" "dx/context.h")
+set(${name}.dx.sources "dx/application.c" "dx/context.c")
+set(${name}.dx.headers "dx/application.h" "dx/context.h")
 
 # DX OpenGL backend sources.
 set(${name}.dx.gl.sources "dx/gl/context.c" "dx/gl/wgl/context.c" "dx/gl/program.c" "dx/gl/wgl/wm.c")
@@ -37,6 +37,8 @@ dx_configure_warnings(${name})
 
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
                                            ${CMAKE_CURRENT_SOURCE_DIR}/external/opengl/includes)
+
+target_link_libraries(${name} dailies.core)
 
 find_package(Doxygen)
 

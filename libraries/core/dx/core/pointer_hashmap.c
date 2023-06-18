@@ -1,8 +1,6 @@
 #include "dx/core/pointer_hashmap.h"
 
-// malloc, free
-#include <malloc.h>
-
+#include "dx/core/memory.h"
 #include "dx/core/safe_mul_nx.h"
 #include "dx/core/next_power_of_two.h"
 
@@ -174,9 +172,8 @@ static _dx_impl_node** _dx_impl_allocate_bucket_array(size_t n) {
     dx_set_error(DX_ALLOCATION_FAILED);
     return NULL;
   }
-  _dx_impl_bucket* buckets = malloc(n_bytes > 0 ? n_bytes : sizeof(_dx_impl_bucket));
+  _dx_impl_bucket* buckets = dx_memory_allocate(n_bytes);
   if (!buckets) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return NULL;
   }
   for (dx_size i = 0; i < n; ++i) {
@@ -207,7 +204,7 @@ static int _dx_impl_set_capacity(_dx_impl* self, dx_size new_capacity) {
       new_buckets[new_hash_index] = node;
     }
   }
-  free(old_buckets);
+  dx_memory_deallocate(old_buckets);
   self->capacity = new_capacity;
   self->buckets = new_buckets;
   return 0;
@@ -250,7 +247,7 @@ static inline void _dx_impl_uninitialize(_dx_impl* self) {
   DX_DEBUG_ASSERT(NULL != self);
   _dx_impl_clear(self);
   DX_DEBUG_ASSERT(NULL != self->buckets);
-  free(self->buckets);
+  dx_memory_deallocate(self->buckets);
   self->buckets = NULL;
 }
 
@@ -270,7 +267,7 @@ static inline int _dx_impl_clear(_dx_impl* self) {
       if (self->key_removed_callback) {
         self->key_removed_callback(&node->key);
       }
-      free(node);
+      dx_memory_deallocate(node);
     }
   }
   self->size = 0;
@@ -314,9 +311,8 @@ static inline int _dx_impl_set(_dx_impl* self, dx_pointer_hashmap_key key, dx_po
     }
     node->value = value;
   } else {
-    node = malloc(sizeof(_dx_impl_node));
+    node = dx_memory_allocate(sizeof(_dx_impl_node));
     if (!node) {
-      dx_set_error(DX_ALLOCATION_FAILED);
       return 1;
     }
     if (self->key_added_callback) {
@@ -377,7 +373,7 @@ static inline int _dx_impl_remove(_dx_impl* self, dx_pointer_hashmap_key key) {
         if (self->key_removed_callback) {
           self->key_removed_callback(&current->key);
         }
-        free(current);
+        dx_memory_deallocate(current);
         return 0;
       }
     }
@@ -421,13 +417,12 @@ int dx_pointer_hashmap_initialize(dx_pointer_hashmap* self, DX_POINTER_HASHMAP_C
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  self->pimpl = malloc(sizeof(_dx_impl));
+  self->pimpl = dx_memory_allocate(sizeof(_dx_impl));
   if (!self->pimpl) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
   if (_dx_impl_initialize(_DX_IMPL(self->pimpl), configuration)) {
-    free(self->pimpl);
+    dx_memory_deallocate(self->pimpl);
     self->pimpl = NULL;
     return 1;
   }
@@ -438,7 +433,7 @@ void dx_pointer_hashmap_uninitialize(dx_pointer_hashmap* self) {
   DX_DEBUG_ASSERT(NULL != self);
   DX_DEBUG_ASSERT(NULL != self->pimpl);
   _dx_impl_uninitialize(_DX_IMPL(self->pimpl));
-  free(self->pimpl);
+  dx_memory_deallocate(self->pimpl);
   self->pimpl = NULL;
 }
 
@@ -536,9 +531,8 @@ int dx_pointer_hashmap_iterator_initialize(dx_pointer_hashmap_iterator* self, dx
     dx_set_error(DX_INVALID_ARGUMENT);
     return 0;
   }
-  _dx_impl_iterator* pimpl = malloc(sizeof(_dx_impl_iterator));
+  _dx_impl_iterator* pimpl = dx_memory_allocate(sizeof(_dx_impl_iterator));
   if (!pimpl) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
   pimpl->target = _DX_IMPL(target->pimpl);
@@ -552,7 +546,7 @@ int dx_pointer_hashmap_iterator_initialize(dx_pointer_hashmap_iterator* self, dx
 
 void dx_pointer_hashmap_iterator_uninitialize(dx_pointer_hashmap_iterator* self) {
   _dx_impl_iterator* pimpl = _DX_IMPL_ITERATOR(self->pimpl);
-  free(pimpl);  
+  dx_memory_deallocate(pimpl);
 }
 
 int dx_pointer_hashmap_iterator_next(dx_pointer_hashmap_iterator* self) {

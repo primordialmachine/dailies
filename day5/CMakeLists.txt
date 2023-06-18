@@ -9,8 +9,8 @@ set(name "dailies.day5")
 
 
 # DX sources.
-set(${name}.dx.sources "dx/core.c")
-set(${name}.dx.headers "dx/core.h")
+set(${name}.dx.sources "")
+set(${name}.dx.headers "")
 
 set(${name}.sources "main.c" ${${name}.dx.sources})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.sources})
@@ -29,6 +29,8 @@ add_executable(${name} ${${name}.sources} ${${name}.headers} ${${name}.readmes})
 dx_configure_warnings(${name})
 
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(${name} dailies.core)
 
 find_package(Doxygen)
 

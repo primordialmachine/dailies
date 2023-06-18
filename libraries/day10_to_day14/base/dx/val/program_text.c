@@ -1,7 +1,5 @@
 #include "dx/val/program_text.h"
 
-// free
-#include <malloc.h>
 
 int dx_program_text_construct_from_file(dx_program_text* program_text, dx_program_text_type type, dx_string* path) {
   if (dx_string_contains_symbol(path, '\0')) {
@@ -26,7 +24,7 @@ int dx_program_text_construct_from_file(dx_program_text* program_text, dx_progra
   DX_UNREFERENCE(path1);
   path1 = NULL;
   program_text->program_text = dx_string_create(bytes, number_of_bytes);
-  free(bytes);
+  dx_memory_deallocate(bytes);
   if (!program_text->program_text) {
     return 1;
   }

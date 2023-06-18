@@ -5,9 +5,6 @@
 // fwrite
 #include <stdio.h>
 
-// malloc, free
-#include <malloc.h>
-
 // isnan, fabsf, fabs
 #include <math.h>
 

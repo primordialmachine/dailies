@@ -2,10 +2,6 @@
 
 #include "dx/adl/syntactical.h"
 #include "dx/asset/palette.h"
-// malloc, free
-#include <malloc.h>
-// memset
-#include <memory.h>
 // strlen
 #include <string.h>
 
@@ -163,13 +159,13 @@ static int _parse_translation(DX_MAT4* target, dx_adl_node* node, dx_adl_semanti
 }
 
 static DX_MAT4* dx_adl_parse_translation(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names) {
-  DX_MAT4* target = malloc(sizeof(DX_MAT4));
+  DX_MAT4* target = dx_memory_allocate(sizeof(DX_MAT4));
   if (!target) {
     return NULL;
   }
   memset(target, 0, sizeof(DX_MAT4));
   if (_parse_translation(target, node, state, names)) {
-    free(target);
+    dx_memory_deallocate(target);
     target = NULL;
     return NULL;
   }
@@ -271,14 +267,14 @@ END:
 }
 
 static DX_ASSET_SOLID_BRUSH* _parse_solid_brush(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names) {
-  DX_ASSET_SOLID_BRUSH* brush = malloc(sizeof(DX_ASSET_SOLID_BRUSH));
+  DX_ASSET_SOLID_BRUSH* brush = dx_memory_allocate(sizeof(DX_ASSET_SOLID_BRUSH));
   if (!brush) {
     return NULL;
   }
   memset(brush, 0, sizeof(DX_ASSET_SOLID_BRUSH));
   brush->_parent.flags = DX_ASSET_BRUSH_FLAGS_SOLID;
   if (_parse_solid_brush_1(brush, node, state, names)) {
-    free(brush);
+    dx_memory_deallocate(brush);
     brush = NULL;
     return NULL;
   }
@@ -286,14 +282,14 @@ static DX_ASSET_SOLID_BRUSH* _parse_solid_brush(dx_adl_node* node, dx_adl_semant
 }
 
 static DX_ASSET_CHECKERBOARD_BRUSH* _parse_checkerboard_brush(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names) {
-  DX_ASSET_CHECKERBOARD_BRUSH* brush = malloc(sizeof(DX_ASSET_CHECKERBOARD_BRUSH));
+  DX_ASSET_CHECKERBOARD_BRUSH* brush = dx_memory_allocate(sizeof(DX_ASSET_CHECKERBOARD_BRUSH));
   if (!brush) {
     return NULL;
   }
   memset(brush, 0, sizeof(DX_ASSET_CHECKERBOARD_BRUSH));
   brush->_parent.flags = DX_ASSET_BRUSH_FLAGS_CHECKBERBOARD;
   if (_parse_checkerboard_brush_1(brush, node, state, names)) {
-    free(brush);
+    dx_memory_deallocate(brush);
     brush = NULL;
     return NULL;
   }
@@ -362,7 +358,7 @@ static dx_asset_image* _parse_image(dx_adl_node* node, dx_adl_semantical_state* 
   }
   // color
   {
-    color = malloc(sizeof(DX_RGB_U8));
+    color = dx_memory_allocate(sizeof(DX_RGB_U8));
     if (!color) {
       goto END;
     }
@@ -396,11 +392,11 @@ static dx_asset_image* _parse_image(dx_adl_node* node, dx_adl_semantical_state* 
   }
 END:
   if (brush) {
-    free(brush);
+    dx_memory_deallocate(brush);
     brush = NULL;
   }
   if (color) {
-    free(color);
+    dx_memory_deallocate(color);
     color = NULL;
   }
   return image;
@@ -679,7 +675,7 @@ END:
     mesh = NULL;
   }
   if (transformation) {
-    free(transformation);
+    dx_memory_deallocate(transformation);
     transformation = NULL;
   }
   return mesh_instance;

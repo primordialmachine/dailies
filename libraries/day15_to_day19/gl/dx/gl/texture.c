@@ -1,7 +1,5 @@
 #include "dx/gl/texture.h"
 
-// malloc, free
-#include <malloc.h>
 #include "dx/asset/image.h"
 
 static int dx_gl_texture_set_data(dx_gl_texture* self, dx_asset_texture* texture) {

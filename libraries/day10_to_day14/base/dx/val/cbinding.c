@@ -1,7 +1,5 @@
 #include "dx/val/cbinding.h"
 
-// malloc, free
-#include <malloc.h>
 // strcmp
 #include <string.h>
 
@@ -43,16 +41,15 @@ static void _destroy_impl(void* pimpl);
 static _entry* get_or_create_impl(_map* map, bool create, char const* name);
 
 static void* _create_impl() {
-  _map* map = malloc(sizeof(_map));
+  _map* map = dx_memory_allocate(sizeof(_map));
   if (!map) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return NULL;
   }
   map->size = 0;
   map->capacity = 8;
-  map->buckets = malloc(sizeof(_entry) * map->capacity);
+  map->buckets = dx_memory_allocate(sizeof(_entry) * map->capacity);
   if (!map->buckets) {
-    free(map);
+    dx_memory_deallocate(map);
     map = NULL;
     return NULL;
   }
@@ -68,15 +65,15 @@ static void _destroy_impl(void* pimpl) {
     while (map->buckets[i]) {
       _entry* entry = map->buckets[i];
       map->buckets[i] = entry->next;
-      free(entry->name);
+      dx_memory_deallocate(entry->name);
       entry->name = NULL;
-      free(entry);
+      dx_memory_deallocate(entry);
       map->size--;
     }
   }
-  free(map->buckets);
+  dx_memory_deallocate(map->buckets);
   map->buckets = NULL;
-  free(map);
+  dx_memory_deallocate(map);
 }
 
 static _entry* get_or_create_impl(_map* map, bool create, char const* name) {
@@ -93,16 +90,15 @@ static _entry* get_or_create_impl(_map* map, bool create, char const* name) {
   if (!create) {
     return NULL;
   }
-  _entry* entry = malloc(sizeof(_entry));
+  _entry* entry = dx_memory_allocate(sizeof(_entry));
   if (!entry) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return NULL;
   }
   entry->hv = hv;
   entry->name = _strdup(name);
   if (!entry->name) {
     dx_set_error(DX_ALLOCATION_FAILED);
-    free(entry);
+    dx_memory_deallocate(entry);
     entry = NULL;
     return NULL;
   }

@@ -1,7 +1,6 @@
 #include "dx/gl/wgl/wm.h"
 
-// malloc, free
-#include <malloc.h>
+#include "dx/core.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -560,7 +559,7 @@ int dx_gl_wgl_application_construct(dx_gl_wgl_application* application, dx_msg_q
   application->instance_handle = GetModuleHandle(NULL);
   if (!application->instance_handle) {
     dx_set_error(DX_ENVIRONMENT_FAILED);
-    free(application->class_name);
+    dx_memory_deallocate(application->class_name);
     application->class_name = NULL;
     dx_log("unable to acquire module handle\n", sizeof("unable to acquire module handle\n"));
     return 1;
@@ -584,7 +583,7 @@ int dx_gl_wgl_application_construct(dx_gl_wgl_application* application, dx_msg_q
   if (!application->class_handle) {
     dx_set_error(DX_ENVIRONMENT_FAILED);
     application->instance_handle = 0;
-    free(application->class_name);
+    dx_memory_deallocate(application->class_name);
     application->class_name = NULL;
     dx_log("unable to register window class\n", sizeof("unable to register window class\n"));
     return 1;
@@ -604,7 +603,7 @@ void dx_gl_wgl_application_destruct(dx_gl_wgl_application* application) {
     application->instance_handle = 0;
   }
   if (application->class_name) {
-    free(application->class_name);
+    dx_memory_deallocate(application->class_name);
     application->class_name = NULL;
   }
   dx_application_destruct(DX_APPLICATION(application));
@@ -665,13 +664,14 @@ static void dx_gl_wgl_close_window_internal(dx_gl_wgl_window* window) {
     DestroyWindow(window->wnd);
     window->wnd = NULL;
   }
+  dx_memory_deallocate(window);
 }
 
 static int dx_gl_wgl_open_window_internal(dx_gl_wgl_window** window, dx_gl_wgl_window* existing, int (*init_wgl)(dx_gl_wgl_window*, dx_gl_wgl_window*)) {
   if (!g_application) {
     return 1;
   }
-  dx_gl_wgl_window* window1 = malloc(sizeof(dx_gl_wgl_window));
+  dx_gl_wgl_window* window1 = dx_memory_allocate(sizeof(dx_gl_wgl_window));
   if (!window1) {
     dx_log("allocation failed\n", sizeof("allocation failed\n"));
     return 1;
@@ -690,7 +690,7 @@ static int dx_gl_wgl_open_window_internal(dx_gl_wgl_window** window, dx_gl_wgl_w
                                 NULL);
   if (!window1->wnd) {
     dx_log("unable to create window\n", sizeof("unable to create window\n"));
-    free(window1);
+    dx_memory_deallocate(window1);
     window1 = NULL;
     return 1;
   }
@@ -699,7 +699,7 @@ static int dx_gl_wgl_open_window_internal(dx_gl_wgl_window** window, dx_gl_wgl_w
     dx_log("unable to create drawing context\n", sizeof("unable to create drawing context\n"));
     DestroyWindow(window1->wnd);
     window1->wnd = NULL;
-    free(window1);
+    dx_memory_deallocate(window1);
     window1 = NULL;
     return 1;
   }
@@ -710,7 +710,7 @@ static int dx_gl_wgl_open_window_internal(dx_gl_wgl_window** window, dx_gl_wgl_w
       window1->dc = NULL;
       DestroyWindow(window1->wnd);
       window1->wnd = NULL;
-      free(window1);
+      dx_memory_deallocate(window1);
       window1 = NULL;
       return 1;
     }

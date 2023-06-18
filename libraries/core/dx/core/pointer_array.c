@@ -1,12 +1,7 @@
 // Copyright (c) 2018-2023 Michael Heilmann
 #include "dx/core/pointer_array.h"
 
-// malloc, realloc, free
-#include <malloc.h>
-
-// memmove
-#include <memory.h>
-
+#include "dx/core/memory.h"
 #include "dx/core/safe_add_nx.h"
 #include "dx/core/safe_mul_nx.h"
 #include "dx/core/next_power_of_two.h"
@@ -72,9 +67,8 @@ dx_pointer_array_initialize
     dx_set_error(DX_ALLOCATION_FAILED);
     return 1;  
   }
-  void **elements = malloc(initial_capacity_bytes > 0 ? initial_capacity_bytes : 1);
+  void **elements = dx_memory_allocate(initial_capacity_bytes);
   if (!elements) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
  self->size = 0;
@@ -92,7 +86,7 @@ dx_pointer_array_uninitialize
   )
 {
   dx_pointer_array_clear(self);
-  free(self->elements);
+  dx_memory_deallocate(self->elements);
   self->elements = NULL;
   self->capacity = 0;
 }
@@ -122,9 +116,8 @@ dx_pointer_array_increase_capacity
     dx_set_error(DX_ALLOCATION_FAILED);
     return 1;  
   }
-  dx_pointer_array_element *new_elements = realloc(self->elements, new_capacity_bytes > 0 ? new_capacity_bytes : 1);
+  dx_pointer_array_element *new_elements = dx_memory_reallocate(self->elements, new_capacity_bytes);
   if (!new_elements) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return 1;    
   }
   self->capacity = new_capacity;
@@ -202,9 +195,9 @@ dx_pointer_array_insert
     self->added_callback(&pointer);
   }
   if (index != self->size) {
-    memmove(self->elements + index + 1,
-            self->elements + index + 0,
-            (self->size - index) * sizeof(dx_pointer_array_element));
+    dx_memory_move(self->elements + index + 1,
+                   self->elements + index + 0,
+                   (self->size - index) * sizeof(dx_pointer_array_element));
   }
   self->elements[index] = pointer;
   self->size++;

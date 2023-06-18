@@ -1,6 +1,5 @@
 #include "dx/val/command.h"
 
-#include <malloc.h>
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -116,9 +115,8 @@ void dx_command_destruct(dx_command* command) {
 int dx_command_list_construct(dx_command_list* command_list) {
   command_list->size = 0;
   command_list->capacity = 32;
-  command_list->elements = malloc(sizeof(dx_command*) * command_list->capacity);
+  command_list->elements = dx_memory_allocate(sizeof(dx_command*) * command_list->capacity);
   if (!command_list->elements) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     dx_log("allocation failed", sizeof("allocation failed"));
     return 1;
   }
@@ -131,7 +129,7 @@ void dx_command_list_destruct(dx_command_list* command_list) {
     DX_UNREFERENCE(element);
     element = NULL;
   }
-  free(command_list->elements);
+  dx_memory_deallocate(command_list->elements);
   command_list->elements = NULL;
 }
 
@@ -190,9 +188,8 @@ int dx_command_list_append(dx_command_list* command_list, dx_command* command) {
     if (dx_compute_new_allocated_capacity(command_list->capacity, 1, SIZE_MAX / sizeof(dx_command*), &new_capacity)) {
       return 1;
     }
-    dx_command** new_elements = realloc(command_list->elements, sizeof(dx_command*) * new_capacity);
+    dx_command** new_elements = dx_memory_reallocate(command_list->elements, sizeof(dx_command*) * new_capacity);
     if (!new_elements) {
-      dx_set_error(DX_ALLOCATION_FAILED);
       return 1;
     }
     command_list->capacity = new_capacity;

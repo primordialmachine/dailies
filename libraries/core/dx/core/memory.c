@@ -33,7 +33,7 @@ int dx_memory_zero(void* p, dx_size n) {
   return 0;
 }
 
-void* dx_allocate(dx_size n) {
+void* dx_memory_allocate(dx_size n) {
   void* p = malloc(n > 0 ? n : 1);
   if (!p) {
     dx_set_error(DX_ALLOCATION_FAILED);
@@ -42,7 +42,7 @@ void* dx_allocate(dx_size n) {
   return p;
 }
 
-void* dx_reallocate(void* p, dx_size n) {
+void* dx_memory_reallocate(void* p, dx_size n) {
   if (!p) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return NULL;
@@ -55,8 +55,16 @@ void* dx_reallocate(void* p, dx_size n) {
   return q;
 }
 
-void dx_deallocate(void* p) {
+void dx_memory_deallocate(void* p) {
   if (p) {
     free(p);
   }
+}
+
+int dx_memory_compare(void const* p, void const* q, dx_size n) {
+  if (!p || !q) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 0;
+  }
+  return !memcmp(p, q, n);
 }

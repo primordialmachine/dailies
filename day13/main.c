@@ -215,8 +215,18 @@ static int run() {
     } while (true);
     dx_gl_wgl_enter_frame();
     int canvas_width, canvas_height;
-    dx_gl_wgl_get_canvas_size(&canvas_width, &canvas_height);
-    on_render_scene(ctx, ((float)delta)/1000.f, canvas_width, canvas_height);
+    if (dx_gl_wgl_get_canvas_size(&canvas_width, &canvas_height)) {
+      dx_gl_wgl_leave_frame();
+      on_shutdown_scene(ctx);
+      dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
+      return 1;
+    }
+    if (on_render_scene(ctx, ((float)delta)/1000.f, canvas_width, canvas_height)) {
+      dx_gl_wgl_leave_frame();
+      on_shutdown_scene(ctx);
+      dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
+      return 1;
+    }
     dx_gl_wgl_leave_frame();
   }
   on_shutdown_scene(ctx);

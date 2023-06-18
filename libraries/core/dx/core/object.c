@@ -1,11 +1,6 @@
 #include "dx/core/object.h"
 
-// malloc, free
-#include <malloc.h>
-
-// memcmp
-#include <string.h>
-
+#include "dx/core/memory.h"
 #include "dx/core/pointer_hashmap.h"
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -20,13 +15,12 @@ struct _dx_rti_type_name {
 };
 
 static _dx_rti_type_name* _dx_rti_type_name_create(char const* bytes, dx_size number_of_bytes) {
-  _dx_rti_type_name* self = malloc(sizeof(_dx_rti_type_name) + number_of_bytes);
+  _dx_rti_type_name* self = dx_memory_allocate(sizeof(_dx_rti_type_name) + number_of_bytes);
   if (!self) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return NULL;
   }
   self->hash_value = dx_hash_bytes(bytes, number_of_bytes);
-  memcpy(self->bytes, bytes, number_of_bytes);
+  dx_memory_copy(self->bytes, bytes, number_of_bytes);
   self->number_of_bytes = number_of_bytes;
   self->reference_count = 1;
   return self;
@@ -69,7 +63,7 @@ static bool _dx_rti_type_name_compare_keys_callback(_dx_rti_type_name** a, _dx_r
   if (*a == *b) {
     return true;
   } else if ((*a)->number_of_bytes == (*b)->number_of_bytes) {
-    return !memcmp((*a)->bytes, (*b)->bytes, (*a)->number_of_bytes);
+    return !dx_memory_compare((*a)->bytes, (*b)->bytes, (*a)->number_of_bytes);
   }
   return false;
 }
@@ -80,7 +74,7 @@ static void _dx_rti_type_name_reference(_dx_rti_type_name* a) {
 
 static void _dx_rti_type_name_unreference(_dx_rti_type_name* a) {
   if (0 == dx_reference_counter_decrement(&a->reference_count)) {
-    free(a);
+    dx_memory_deallocate(a);
   }
 }
 
@@ -109,7 +103,7 @@ static void _dx_rti_type_unreference(_dx_rti_type* a) {
     }
     DX_UNREFERENCE(a->name);
     a->name = NULL;
-    free(a);
+    dx_memory_deallocate(a);
   }
 }
 
@@ -134,13 +128,12 @@ int dx_rti_initialize() {
    .value_added_callback = (void(*)(dx_pointer_hashmap_value*)) &_dx_rti_type_reference_callback,
    .value_removed_callback = (void(*)(dx_pointer_hashmap_value*)) &_dx_rti_type_unreference_callback,
   };
-  g_types = malloc(sizeof(dx_pointer_hashmap));
+  g_types = dx_memory_allocate(sizeof(dx_pointer_hashmap));
   if (!g_types) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
   if (dx_pointer_hashmap_initialize(g_types, &configuration)) {
-    free(g_types);
+    dx_memory_deallocate(g_types);
     g_types = NULL;
     return 1;
   }
@@ -149,7 +142,7 @@ int dx_rti_initialize() {
 
 void dx_rti_unintialize() {
   dx_pointer_hashmap_uninitialize(g_types);
-  free(g_types);
+  dx_memory_deallocate(g_types);
   g_types = NULL;
 }
 
@@ -180,9 +173,8 @@ dx_rti_type* dx_get_or_create_fundamental(char const* p, size_t n, void (*on_typ
     name = NULL;
     return NULL;
   }
-  type = malloc(sizeof(_dx_rti_type));
+  type = dx_memory_allocate(sizeof(_dx_rti_type));
   if (!type) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return NULL;
   }
   type->on_type_destroyed = NULL;
@@ -194,7 +186,7 @@ dx_rti_type* dx_get_or_create_fundamental(char const* p, size_t n, void (*on_typ
   if (dx_pointer_hashmap_set(g_types, name, type)) {
     _dx_rti_type_name_unreference(type->name);
     type->name = NULL;
-    free(type);
+    dx_memory_deallocate(type);
     type = NULL;
     return NULL;
   }
@@ -216,9 +208,8 @@ dx_rti_type* dx_rti_get_or_create_enumeration(char const* p, size_t n, void (*on
     name = NULL;
     return NULL;
   }
-  type = malloc(sizeof(_dx_rti_type));
+  type = dx_memory_allocate(sizeof(_dx_rti_type));
   if (!type) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return NULL;
   }
   type->on_type_destroyed = NULL;
@@ -229,7 +220,7 @@ dx_rti_type* dx_rti_get_or_create_enumeration(char const* p, size_t n, void (*on
   if (dx_pointer_hashmap_set(g_types, name, type)) {
     _dx_rti_type_name_unreference(type->name);
     type->name = NULL;
-    free(type);
+    dx_memory_deallocate(type);
     type = NULL;
     return NULL;
   }
@@ -251,9 +242,8 @@ dx_rti_type* dx_rti_get_or_create_object(char const* p, size_t n, void (*on_type
     name = NULL;
     return NULL;
   }
-  type = malloc(sizeof(_dx_rti_type));
+  type = dx_memory_allocate(sizeof(_dx_rti_type));
   if (!type) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return NULL;
   }
   type->on_type_destroyed = NULL;
@@ -274,7 +264,7 @@ dx_rti_type* dx_rti_get_or_create_object(char const* p, size_t n, void (*on_type
     }
     _dx_rti_type_name_unreference(type->name);
     type->name = NULL;
-    free(type);
+    dx_memory_deallocate(type);
     type = NULL;
     return NULL;
   }
@@ -312,9 +302,8 @@ dx_object* dx_object_alloc(size_t size) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return NULL;
   }
-  dx_object* object = malloc(size);
+  dx_object* object = dx_memory_allocate(size);
   if (!object) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return NULL;
   }
   object->reference_count = 1;
@@ -339,7 +328,7 @@ void dx_object_unreference(dx_object* object) {
     if (object->destruct) {
       object->destruct(object);
     }
-    free(object);
+    dx_memory_deallocate(object);
     object = NULL;
   }
 }

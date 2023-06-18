@@ -5,8 +5,6 @@
 #include "dx/adl/semantical.h"
 // strlen
 #include <string.h>
-// malloc, free
-#include <malloc.h>
 
 static dx_adl_parser* _create_parser() {
   dx_adl_diagnostics* diagnostics = dx_adl_diagnostics_create();

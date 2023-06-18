@@ -1,7 +1,5 @@
 #include "dx/scenes/mesh_viewer_scene.h"
 
-// malloc, free
-#include <malloc.h>
 // _strdup
 #include <string.h>
 // sinf
@@ -400,7 +398,7 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const *name
 
 void dx_mesh_viewer_scene_destruct(dx_mesh_viewer_scene* scene) {
   if (scene->name) {
-    free(scene->name);
+    dx_memory_deallocate(scene->name);
     scene->name = NULL;
   }
   dx_scene_destruct(DX_SCENE(scene));

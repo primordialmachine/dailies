@@ -2,10 +2,7 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-// malloc, free
-#include <malloc.h>
-// memcpy
-#include <memory.h>
+#include "dx/core/memory.h"
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -56,14 +53,13 @@ int dx_emit_msg_construct(dx_emit_msg* emit_msg, char const* p, size_t n) {
     TRACE("leave: dx_emit_msg_construct\n");
     return 1;
   }
-  emit_msg->p = malloc(n > 0 ? n : 1);
+  emit_msg->p = dx_memory_allocate(n);
   if (!emit_msg->p) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     dx_msg_destruct(DX_MSG(emit_msg));
     TRACE("leave: dx_emit_msg_construct\n");
     return 1;
   }
-  memcpy(emit_msg->p, p, n);
+  dx_memory_copy(emit_msg->p, p, n);
   emit_msg->n = n;
   DX_MSG(emit_msg)->flags = DX_MSG_TYPE_EMIT;
   DX_OBJECT(emit_msg)->destruct = (void (*)(dx_object*)) & dx_emit_msg_destruct;
@@ -73,7 +69,7 @@ int dx_emit_msg_construct(dx_emit_msg* emit_msg, char const* p, size_t n) {
 
 void dx_emit_msg_destruct(dx_emit_msg* emit_msg) {
   TRACE("enter: dx_emit_msg_destruct\n");
-  free(emit_msg->p);
+  dx_memory_deallocate(emit_msg->p);
   emit_msg->p = NULL;
   dx_msg_destruct(DX_MSG(emit_msg));
   TRACE("leave: dx_emit_msg_destruct\n");
@@ -205,22 +201,20 @@ int dx_msg_queue_pop(dx_msg_queue* msg_queue, dx_msg** msg) {
 
 dx_msg_queue* dx_msg_queue_create() {
   TRACE("enter: dx_msg_queue_create\n");
-  dx_msg_queue* msg_queue = malloc(sizeof(dx_msg_queue));
+  dx_msg_queue* msg_queue = dx_memory_allocate(sizeof(dx_msg_queue));
   if (!msg_queue) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     dx_log("allocation failed\n", sizeof("allocation failed\n"));
     TRACE("leave: dx_msg_queue_create\n");
     return NULL;
   }
   msg_queue->size = 0;
-  msg_queue->capacity = 16;
+  msg_queue->capacity = 1024;
   msg_queue->write = 0;
   msg_queue->read = 0;
-  msg_queue->elements = malloc(sizeof(dx_msg*) * 16);
+  msg_queue->elements = dx_memory_allocate(sizeof(dx_msg*) * 1024);
   if (!msg_queue->elements) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     dx_log("allocation failed\n", sizeof("allocation failed\n"));
-    free(msg_queue);
+    dx_memory_deallocate(msg_queue);
     msg_queue = NULL;
     TRACE("leave: dx_msg_queue_create (failure)\n");
     return NULL;
@@ -236,10 +230,10 @@ void dx_msg_queue_destroy(dx_msg_queue* msg_queue) {
       dx_msg* msg = msg_queue->elements[--msg_queue->size];
       DX_UNREFERENCE(msg);
     }
-    free(msg_queue->elements);
+    dx_memory_deallocate(msg_queue->elements);
     msg_queue->elements = NULL;
   }
-  free(msg_queue);
+  dx_memory_deallocate(msg_queue);
   msg_queue = NULL;
   TRACE("leave: dx_msg_queue_destroy\n");
 }

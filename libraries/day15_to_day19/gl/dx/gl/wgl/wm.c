@@ -20,31 +20,31 @@
 /// Must be defined to either @a 1 or @a 0.
 /// - @a 1: quit message emission is traced.
 /// - @a 0: quit message emission is not traced.
-#define DX_QUIT_MSG_TRACE (1)
+#define DX_QUIT_MSG_TRACE (0)
 
 /// @brief
 /// Must be defined to either @a 1 or @a 0.
 /// - @a 1: keyboard key message emission is traced.
 /// - @a 0: keyboard key message emission is not traced.
-#define DX_KEYBOARD_KEY_MSG_TRACE (1)
+#define DX_KEYBOARD_KEY_MSG_TRACE (0)
 
 /// @brief
 /// Must be defined to either @a 1 or @a 0.
 /// - @a 1: mouse button message emission is traced.
 /// - @a 0: mouse button message emission is not traced.
-#define DX_MOUSE_BUTTON_MSG_TRACE (1)
+#define DX_MOUSE_BUTTON_MSG_TRACE (0)
 
 /// @brief
 /// Must be defined to either @a 1 or @a 0.
 /// - @a 1: mouse pointer message emission is traced.
 /// - @a 0: mouse pointer message emission is not traced.
-#define DX_MOUSE_POINTER_MSG_TRACE (1)
+#define DX_MOUSE_POINTER_MSG_TRACE (0)
 
 /// @brief
 /// Must be defined to either @a 1 or @a 0.
 /// - @a 1: canvas message emission is traced.
 /// - @a 0: canvas message emission is not traced.
-#define DX_CANVAS_MSG_TRACE (1)
+#define DX_CANVAS_MSG_TRACE (0)
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -103,7 +103,8 @@ static LRESULT CALLBACK window_procedure(HWND wnd, UINT msg, WPARAM wparam, LPAR
   #define ENTER(FUNCTION_NAME) dx_log("enter `", sizeof("enter `") - 1); dx_log(FUNCTION_NAME, strlen(FUNCTION_NAME)); dx_log("`\n", sizeof("`\n") - 1);
   #define LEAVE(FUNCTION_NAME) dx_log("leave `", sizeof("leave `") - 1); dx_log(FUNCTION_NAME, strlen(FUNCTION_NAME)); dx_log("`\n", sizeof("`\n") - 1);
 #else
-  #define TRACE
+  #define ENTER(FUNCTION_NAME)
+  #define LEAVE(FUNCTION_NAME)
 #endif
 
 static int emit_quit_msg() {
@@ -135,7 +136,8 @@ static int emit_quit_msg() {
   #define ENTER(FUNCTION_NAME) dx_log("enter `", sizeof("enter `") - 1); dx_log(FUNCTION_NAME, strlen(FUNCTION_NAME)); dx_log("`\n", sizeof("`\n") - 1);
   #define LEAVE(FUNCTION_NAME) dx_log("leave `", sizeof("leave `") - 1); dx_log(FUNCTION_NAME, strlen(FUNCTION_NAME)); dx_log("`\n", sizeof("`\n") - 1);
 #else
-  #define TRACE
+  #define ENTER(FUNCTION_NAME)
+  #define LEAVE(FUNCTION_NAME)
 #endif
 
 static int emit_keyboard_key_pressed_msg(dx_keyboard_key key) {
@@ -231,7 +233,8 @@ static int emit_keyboard_key_released_msg(dx_keyboard_key key) {
   #define ENTER(FUNCTION_NAME) dx_log("enter `", sizeof("enter `") - 1); dx_log(FUNCTION_NAME, strlen(FUNCTION_NAME)); dx_log("`\n", sizeof("`\n") - 1);
   #define LEAVE(FUNCTION_NAME) dx_log("leave `", sizeof("leave `") - 1); dx_log(FUNCTION_NAME, strlen(FUNCTION_NAME)); dx_log("`\n", sizeof("`\n") - 1);
 #else
-  #define TRACE
+  #define ENTER(FUNCTION_NAME)
+  #define LEAVE(FUNCTION_NAME)
 #endif
 
 static int emit_mouse_button_pressed_msg(dx_mouse_button button, dx_f32 x, dx_f32 y) {
@@ -327,7 +330,8 @@ static int emit_mouse_button_released_msg(dx_mouse_button button, dx_f32 x, dx_f
   #define ENTER(FUNCTION_NAME) dx_log("enter `", sizeof("enter `") - 1); dx_log(FUNCTION_NAME, strlen(FUNCTION_NAME)); dx_log("`\n", sizeof("`\n") - 1);
   #define LEAVE(FUNCTION_NAME) dx_log("leave `", sizeof("leave `") - 1); dx_log(FUNCTION_NAME, strlen(FUNCTION_NAME)); dx_log("`\n", sizeof("`\n") - 1);
 #else
-  #define TRACE
+  #define ENTER(FUNCTION_NAME)
+  #define LEAVE(FUNCTION_NAME)
 #endif
 
 static int emit_mouse_pointer_moved_msg(dx_f32 x, dx_f32 y) {
@@ -381,7 +385,8 @@ static int emit_mouse_pointer_moved_msg(dx_f32 x, dx_f32 y) {
   #define ENTER(FUNCTION_NAME) dx_log("enter `", sizeof("enter `") - 1); dx_log(FUNCTION_NAME, strlen(FUNCTION_NAME)); dx_log("`\n", sizeof("`\n") - 1);
   #define LEAVE(FUNCTION_NAME) dx_log("leave `", sizeof("leave `") - 1); dx_log(FUNCTION_NAME, strlen(FUNCTION_NAME)); dx_log("`\n", sizeof("`\n") - 1);
 #else
-  #define TRACE
+  #define ENTER(FUNCTION_NAME)
+  #define LEAVE(FUNCTION_NAME)
 #endif
 
 static int emit_canvas_size_changed_msg(dx_f32 width, dx_f32 height) {
@@ -880,7 +885,8 @@ int dx_gl_wgl_update_wm() {
       DispatchMessage(&msg);  
     }
   }
-  return 0;
+  // If an error is pending, then this function fails.
+  return DX_NO_ERROR != dx_get_error();
 }
 
 int dx_gl_wgl_get_canvas_size(int* w, int* h) {

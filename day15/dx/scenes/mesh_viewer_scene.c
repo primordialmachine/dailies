@@ -1,7 +1,5 @@
 #include "dx/scenes/mesh_viewer_scene.h"
 
-// malloc, free
-#include <malloc.h>
 // _strdup
 #include <string.h>
 // sinf
@@ -143,23 +141,23 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
       char* p;
       size_t n;
       if (dx_get_file_contents("./assets/triangle.adl", &p, &n)) {
-        free(p);
+        dx_memory_deallocate(p);
         p = NULL;
         return 1;
       }
       scene->asset_scene = _create_scene_from_text(p, n);
-      free(p);
+      dx_memory_deallocate(p);
       p = NULL;
     } else if (!strcmp(scene->name, "quadriliteral")) {
       char* p;
       size_t n;
       if (dx_get_file_contents("./assets/quadriliteral.adl", &p, &n)) {
-        free(p);
+        dx_memory_deallocate(p);
         p = NULL;
         return 1;
       }
       scene->asset_scene = _create_scene_from_text(p, n);
-      free(p);
+      dx_memory_deallocate(p);
       p = NULL;
     }
   }
@@ -280,7 +278,7 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const* name
 
 void dx_mesh_viewer_scene_destruct(dx_mesh_viewer_scene* scene) {
   if (scene->name) {
-    free(scene->name);
+    dx_memory_deallocate(scene->name);
     scene->name = NULL;
   }
   dx_scene_destruct(DX_SCENE(scene));

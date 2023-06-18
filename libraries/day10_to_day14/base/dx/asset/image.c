@@ -1,7 +1,5 @@
 #include "dx/asset/image.h"
 
-// malloc, free
-#include <malloc.h>
 // string
 #include <string.h>
 
@@ -93,7 +91,7 @@ int dx_asset_image_construct(dx_asset_image* self,
   if (overflow) {
     return 1;
   }
-  self->pixels = malloc(number_of_bytes);
+  self->pixels = dx_memory_allocate(number_of_bytes);
   if (!self->pixels) {
     return 1;
   }
@@ -105,7 +103,7 @@ int dx_asset_image_construct(dx_asset_image* self,
     fill_rgb_u8(self->pixels, fill_offset, fill_size, image_size, color);
   } break;
   default: {
-    free(self->pixels);
+    dx_memory_deallocate(self->pixels);
     self->pixels = NULL;
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -116,7 +114,7 @@ int dx_asset_image_construct(dx_asset_image* self,
 }
 
 void dx_asset_image_destruct(dx_asset_image* self) {
-  free(self->pixels);
+  dx_memory_deallocate(self->pixels);
   self->pixels = NULL;
 }
 

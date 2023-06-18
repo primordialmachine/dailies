@@ -2,8 +2,6 @@
 
 #include "dx/asset/mesh/generators.h"
 
-// malloc, realloc, free
-#include <malloc.h>
 // memcpy
 #include <string.h>
 
@@ -26,21 +24,19 @@ static int resize_vertex_arrays(dx_asset_mesh* self, bool shrink, size_t number_
   // - the number of vertices in the mesh is smaller than the required number of vertices or
   // - the number of vertices in the mesh is greater than the deisred number of vertices and shrinking is desired
 
-  DX_VEC3* xyz = malloc(number_of_vertices * sizeof(DX_VEC3) != 0 ? number_of_vertices * sizeof(DX_VEC3) : 1);
+  DX_VEC3* xyz = dx_memory_allocate(number_of_vertices * sizeof(DX_VEC3));
   if (!xyz) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
-  memcpy(xyz, self->vertices.xyz, dx_min_sz(self->number_of_vertices, number_of_vertices) * sizeof(DX_VEC3));
+  dx_memory_copy(xyz, self->vertices.xyz, dx_min_sz(self->number_of_vertices, number_of_vertices) * sizeof(DX_VEC3));
 
-  DX_VEC4* ambient_rgba = malloc(number_of_vertices * sizeof(DX_VEC4) != 0 ? number_of_vertices * sizeof(DX_VEC4) : 1);
+  DX_VEC4* ambient_rgba = dx_memory_allocate(number_of_vertices * sizeof(DX_VEC4));
   if (!ambient_rgba) {
-    free(xyz);
+    dx_memory_deallocate(xyz);
     xyz = NULL;
-    dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
-  memcpy(ambient_rgba, self->vertices.ambient_rgba, dx_min_sz(self->number_of_vertices, number_of_vertices) * sizeof(DX_VEC4));
+  dx_memory_copy(ambient_rgba, self->vertices.ambient_rgba, dx_min_sz(self->number_of_vertices, number_of_vertices) * sizeof(DX_VEC4));
 
   self->vertices.xyz = xyz;
   self->vertices.ambient_rgba = ambient_rgba;
@@ -51,11 +47,11 @@ static int resize_vertex_arrays(dx_asset_mesh* self, bool shrink, size_t number_
 
 static void dx_asset_mesh_destruct(dx_asset_mesh* self) {
   if (self->vertices.ambient_rgba) {
-    free(self->vertices.ambient_rgba);
+    dx_memory_deallocate(self->vertices.ambient_rgba);
     self->vertices.ambient_rgba = NULL;
   }
   if (self->vertices.xyz) {
-    free(self->vertices.xyz);
+    dx_memory_deallocate(self->vertices.xyz);
     self->vertices.xyz = NULL;
   }
 }
@@ -66,16 +62,14 @@ static int dx_asset_mesh_construct(dx_asset_mesh* self, dx_string* specifier) {
     return 1;
   }
   // "default" mesh
-  self->vertices.xyz = malloc(1);
+  self->vertices.xyz = dx_memory_allocate(0);
   if (!self->vertices.xyz) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
 
-  self->vertices.ambient_rgba = malloc(1);
+  self->vertices.ambient_rgba = dx_memory_allocate(0);
   if (!self->vertices.ambient_rgba) {
-    dx_set_error(DX_ALLOCATION_FAILED);
-    free(self->vertices.xyz);
+    dx_memory_deallocate(self->vertices.xyz);
     self->vertices.xyz = NULL;
     return 1;
   }
@@ -101,17 +95,17 @@ SELECT_GENERATOR(triangle)
   
   if (!generator) {
     dx_set_error(DX_INVALID_ARGUMENT);
-    free(self->vertices.ambient_rgba);
+    dx_memory_deallocate(self->vertices.ambient_rgba);
     self->vertices.ambient_rgba = NULL;
-    free(self->vertices.xyz);
+    dx_memory_deallocate(self->vertices.xyz);
     self->vertices.xyz = NULL;
     return 1;
   }
 
   if ((*generator)(self)) {
-    free(self->vertices.ambient_rgba);
+    dx_memory_deallocate(self->vertices.ambient_rgba);
     self->vertices.ambient_rgba = NULL;
-    free(self->vertices.xyz);
+    dx_memory_deallocate(self->vertices.xyz);
     self->vertices.xyz = NULL;
     return 1;
   }
@@ -135,9 +129,8 @@ dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier) {
 int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, void** bytes, size_t* number_of_bytes) {
   switch (vertex_format) {
   case DX_VERTEX_FORMAT_POSITION: {
-    void* p = malloc(self->number_of_vertices * sizeof(DX_VEC3));
+    void* p = dx_memory_allocate(self->number_of_vertices * sizeof(DX_VEC3));
     if (!p) {
-      dx_set_error(DX_ALLOCATION_FAILED);
       return 1;
     }
     char* q = (char*)p;
@@ -150,9 +143,8 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
     return 0;
   } break;
   case DX_VERTEX_FORMAT_COLOR: {
-    void* p = malloc(self->number_of_vertices * sizeof(DX_VEC4));
+    void* p = dx_memory_allocate(self->number_of_vertices * sizeof(DX_VEC4));
     if (!p) {
-      dx_set_error(DX_ALLOCATION_FAILED);
       return 1;
     }
     char* q = (char*)p;
@@ -165,9 +157,8 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
     return 0;
   } break;
   case DX_VERTEX_FORMAT_POSITION_COLOR: {
-    void* p = malloc(self->number_of_vertices * (sizeof(DX_VEC3) + sizeof(DX_VEC4)));
+    void* p = dx_memory_allocate(self->number_of_vertices * (sizeof(DX_VEC3) + sizeof(DX_VEC4)));
     if (!p) {
-      dx_set_error(DX_ALLOCATION_FAILED);
       return 1;
     }
     char* q = (char*)p;

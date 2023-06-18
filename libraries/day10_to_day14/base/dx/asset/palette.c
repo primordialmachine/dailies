@@ -1,7 +1,5 @@
 #include "dx/asset/palette.h"
 
-#include <malloc.h>
-
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 DX_DEFINE_OBJECT_TYPE("dx.asset.palette_entry", dx_asset_palette_entry, dx_object)

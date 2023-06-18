@@ -1,18 +1,14 @@
 #include "dx/core/byte_array.h"
 
-// malloc, free
-#include <malloc.h>
-// memcpy
-#include <memory.h>
+#include "dx/core/memory.h"
 
 int dx_byte_array_initialize(dx_byte_array* byte_array) {
   if (!byte_array) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  byte_array->elements = malloc(1);
+  byte_array->elements = dx_memory_allocate(0);
   if (!byte_array->elements) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
   byte_array->size = 0;
@@ -21,23 +17,21 @@ int dx_byte_array_initialize(dx_byte_array* byte_array) {
 }
 
 void dx_byte_array_uninitialize(dx_byte_array* byte_array) {
-  free(byte_array->elements);
+  dx_memory_deallocate(byte_array->elements);
   byte_array->elements = NULL;
 }
 
 int dx_byte_array_steal(dx_byte_array* byte_array, char **bytes, dx_size *number_of_bytes) {
   if (byte_array->size < byte_array->capacity) {
-    char *new_elements = realloc(byte_array->elements, byte_array->size);
+    char *new_elements = dx_memory_reallocate(byte_array->elements, byte_array->size);
     if (!new_elements) {
-      dx_set_error(DX_ALLOCATION_FAILED);
       return 1;
     }
     byte_array->elements = new_elements;
     byte_array->capacity = byte_array->size;
   }
-  char *new_elements = malloc(1);
+  char *new_elements = dx_memory_allocate(0);
   if (!new_elements) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
   *bytes = byte_array->elements;
@@ -69,9 +63,8 @@ int dx_byte_array_increase_capacity(dx_byte_array* self, dx_size additional) {
   if (new < best_new) {
     new = best_new;
   }
-  char* new_elements = realloc(self->elements, new);
+  char* new_elements = dx_memory_reallocate(self->elements, new);
   if (!new_elements) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
   self->elements = new_elements;
@@ -109,9 +102,9 @@ int dx_byte_array_insert(dx_byte_array* self, dx_size index, char const* bytes, 
     return 1;
   }
   if (index < self->size) {
-    memmove(self->elements + index + number_of_bytes, self->elements + index, number_of_bytes);
+    dx_memory_move(self->elements + index + number_of_bytes, self->elements + index, number_of_bytes);
   }
-  memcpy(self->elements + index, bytes, number_of_bytes);
+  dx_memory_copy(self->elements + index, bytes, number_of_bytes);
   self->size += number_of_bytes;
   return 0;
 }

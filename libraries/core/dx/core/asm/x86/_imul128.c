@@ -1,6 +1,6 @@
-#include "dx/asm/x86/_imul128.h"
+#include "dx/core/asm/x86/_imul128.h"
 
-#include "dx/asm/x86/_umul128.h"
+#include "dx/core/asm/x86/_umul128.h"
 
 // _imul128 using _umul128
 int64_t _dx_imul128(int64_t x, int64_t y, int64_t* z) {

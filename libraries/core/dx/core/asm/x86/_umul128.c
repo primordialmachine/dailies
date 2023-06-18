@@ -1,4 +1,4 @@
-#include "dx/asm/x86/_umul128.h"
+#include "dx/core/asm/x86/_umul128.h"
 
 #if !defined(_M_IX86)
   #error("environment not supported")

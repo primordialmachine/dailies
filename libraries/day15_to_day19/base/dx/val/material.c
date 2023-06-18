@@ -3,16 +3,18 @@
 #include "dx/val/texture.h"
 
 static int add_to_backend(dx_material* self) {
-  dx_texture* ambient_texture = dx_context_create_texture(self->context);
-  if (!ambient_texture) {
-    return 1;
+  if (self->asset_material->ambient_texture) {
+    dx_texture* ambient_texture = dx_context_create_texture(self->context);
+    if (!ambient_texture) {
+      return 1;
+    }
+    if (dx_texture_set_data(ambient_texture, self->asset_material->ambient_texture)) {
+      DX_UNREFERENCE(ambient_texture);
+      ambient_texture = NULL;
+      return 1;
+    }
+    self->ambient_texture = ambient_texture;
   }
-  if (dx_texture_set_data(ambient_texture, self->asset_material->ambient_texture)) {
-    DX_UNREFERENCE(ambient_texture);
-    ambient_texture = NULL;
-    return 1;
-  }
-  self->ambient_texture = ambient_texture;
   return 0;
 }
 

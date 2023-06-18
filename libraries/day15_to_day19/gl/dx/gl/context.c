@@ -8,8 +8,13 @@
 #include "dx/val/command.h"
 
 static int bind_texture(dx_gl_context* ctx, size_t unit, dx_gl_texture* texture) {
-  ctx->glActiveTexture(GL_TEXTURE0 + unit);
-  ctx->glBindTexture(GL_TEXTURE_2D, texture->id);
+  if (texture) {
+    ctx->glActiveTexture(GL_TEXTURE0 + unit);
+    ctx->glBindTexture(GL_TEXTURE_2D, texture->id);
+  } else {
+    ctx->glActiveTexture(GL_TEXTURE0 + unit);
+    ctx->glBindTexture(GL_TEXTURE_2D, 0);
+  }
   return 0;
 }
 

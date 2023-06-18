@@ -61,8 +61,7 @@ add_custom_command(TARGET ${name} POST_BUILD
 # See ${CMAKE_SOURCE_DIR_DIR}/CMakeLibrary.cmake for more information.
 dx_configure_warnings(${name})
 
-target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-                                           ${CMAKE_CURRENT_SOURCE_DIR}/external/opengl/includes)
+target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(${name} dailies.day15_to_day19)
 target_link_libraries(${name} dailies.day15_to_day19.gl)
@@ -70,24 +69,24 @@ target_link_libraries(${name} dailies.day15_to_day19.gl)
 find_package(Doxygen)
 
 if (DOXYGEN_FOUND)
-	# Copy the doxygen configuration file to the out of source build directory.
-	# Also adjust the copied configuration file.
-	set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
-	set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+  # Copy the doxygen configuration file to the out of source build directory.
+  # Also adjust the copied configuration file.
+  set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
+  set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
-	configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+  configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
 
-	add_custom_command(
-	  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp
-	  DEPENDS ${doxyfile} ${${name}.sources} ${${name}.headers} ${${name}.readmes} ${${name}.inlays} ${${name}.asms}
-	  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	  COMMAND "doxygen" ${DOXYGEN_OUT}
-	  COMMAND cmake -E touch ${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp
-	  COMMENT "generating API documentation with Doxygen"
-	  VERBATIM)
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp
+    DEPENDS ${doxyfile} ${${name}.sources} ${${name}.headers} ${${name}.readmes} ${${name}.inlays} ${${name}.asms}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND "doxygen" ${DOXYGEN_OUT}
+    COMMAND cmake -E touch ${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp
+    COMMENT "generating API documentation with Doxygen"
+    VERBATIM)
 
-	add_custom_target(${name}.documentation ALL
-					  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp)
+  add_custom_target(${name}.documentation ALL
+            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp)
 endif (DOXYGEN_FOUND)
 
 # Copy the assets to the current binary directory.

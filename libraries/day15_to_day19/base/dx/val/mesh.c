@@ -232,8 +232,10 @@ static int add_to_backend(dx_mesh* self) {
     flags |= DX_PROGRAM_WITH_VERTEX_AMBIENT_RGBA;
   } break;
   case DX_VERTEX_FORMAT_POSITION_TEXTURE: {
-    flags |= DX_PROGRAM_WITH_VERTEX_AMBIENT_UV;
-    flags |= DX_PROGRAM_WITH_AMBIENT_TEXTURE;
+   flags |= DX_PROGRAM_WITH_VERTEX_AMBIENT_UV;
+   if (self->material->asset_material->ambient_texture) {
+      flags |= DX_PROGRAM_WITH_AMBIENT_TEXTURE;
+    }
   } break;
   default: {
     DX_UNREFERENCE(self->vbinding);

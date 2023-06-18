@@ -42,7 +42,8 @@ add_library(${name} ${${name}.sources} ${${name}.headers} ${${name}.readmes} ${$
 dx_configure_warnings(${name})
 
 # OpenGL-specific header files.
-target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+# TODO: Do not defined as "PUBLIC". Define as "PRIVATE.
+target_include_directories(${name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
                                            ${CMAKE_CURRENT_SOURCE_DIR}/external/opengl/includes)
 
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

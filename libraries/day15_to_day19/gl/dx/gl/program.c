@@ -3,8 +3,14 @@
 // INT_MAX
 #include <limits.h>
 
+// malloc, free
+#include <malloc.h>
+
 #include "dx/val/cbinding.h"
 #include "dx/gl/context.h"
+
+/// @brief Defined and equal to @a 1, then do not display shader logs to the user.
+#define DX_GL_PROGRAM_WITH_LOG_EMISSION_DISABLED (1)
 
 // Create a fragment program or vertex program.
 static int
@@ -14,6 +20,13 @@ create_shader
     dx_gl_context* ctx,
     GLenum type,
     dx_string* program_text
+  );
+
+static int
+emit_log
+  (
+    dx_gl_context* ctx,
+    GLuint id
   );
 
 static int dx_gl_program_bind(dx_gl_program* program, dx_cbinding* cbinding);
@@ -78,11 +91,36 @@ create_shader
     } else {
       dx_log("failed to compile fragment program\n", sizeof("failed to compile fragment program\n"));
     }
+    emit_log(ctx, id1);
     ctx->glDeleteShader(id1);
     id1 = 0;
     return 1;
   }
   *id = id1;
+  return 0;
+}
+
+static int
+emit_log
+  (
+    dx_gl_context* ctx,
+    GLuint id
+  )
+{
+#if defined(DX_GL_PROGRAM_WITH_LOG_EMISSION_DISABLED) && 1 == DX_GL_PROGRAM_WITH_LOG_EMISSION_DISABLED
+  // Do not display shader logs to the user.
+#else
+  GLint l; // including the zero terminator
+  ctx->glGetShaderiv(id, GL_INFO_LOG_LENGTH, &l);
+  char* p = malloc(sizeof(char) * l);
+  if (!p) {
+    dx_set_error(DX_ALLOCATION_FAILED);
+    return 1;
+  }
+  ctx->glGetShaderInfoLog(id, l, NULL, p);
+  dx_log(p, strlen(p));
+  free(p);
+#endif
   return 0;
 }
 

@@ -8,43 +8,50 @@ cmake_minimum_required(VERSION 3.20)
 set(name "dailies.day15_to_day19")
 
 
-set(${name}.dx.inlays "")
-set(${name}.dx.sources "")
-set(${name}.dx.headers "")
-set(${name}.dx.readmes "")
+set(${name}.inlays "")
+set(${name}.sources "")
+set(${name}.headers "")
+set(${name}.readmes "")
+
+# "README.md"
+list(APPEND ${name}.readmes "README.md")
+
+# "dx/application.(c|h)"
+list(APPEND ${name}.sources "dx/application.c")
+list(APPEND ${name}.headers "dx/application.h")
 
 # "val" folder.
-list(APPEND ${name}.dx.sources "dx/val/texture.c" "dx/val/material.c" "dx/val/mesh.c" "dx/val/mesh_instance.c")
-list(APPEND ${name}.dx.headers "dx/val/texture.h" "dx/val/material.h" "dx/val/mesh.h" "dx/val/mesh_instance.h")
-list(APPEND ${name}.dx.sources "dx/val/program_text.c" "dx/val/command.c" "dx/val/program.c" "dx/val/context.c" "dx/val/cbinding.c" "dx/val/vbinding.c" "dx/val/buffer.c")
-list(APPEND ${name}.dx.headers "dx/val/program_text.h" "dx/val/command.h" "dx/val/program.h" "dx/val/context.h" "dx/val/cbinding.h" "dx/val/vbinding.h" "dx/val/buffer.h")
+list(APPEND ${name}.sources "dx/val/texture.c" "dx/val/material.c" "dx/val/mesh.c" "dx/val/mesh_instance.c")
+list(APPEND ${name}.headers "dx/val/texture.h" "dx/val/material.h" "dx/val/mesh.h" "dx/val/mesh_instance.h")
+list(APPEND ${name}.sources "dx/val/program_text.c" "dx/val/command.c" "dx/val/program.c" "dx/val/context.c" "dx/val/cbinding.c" "dx/val/vbinding.c" "dx/val/buffer.c")
+list(APPEND ${name}.headers "dx/val/program_text.h" "dx/val/command.h" "dx/val/program.h" "dx/val/context.h" "dx/val/cbinding.h" "dx/val/vbinding.h" "dx/val/buffer.h")
 
 # "asset" folder.
-list(APPEND ${name}.dx.sources "dx/asset/mesh.c" "dx/asset/mesh_instance.c" "dx/asset/mesh/generators.c")
-list(APPEND ${name}.dx.headers "dx/asset/mesh.h" "dx/asset/mesh_instance.h" "dx/asset/mesh/generators.h")
+list(APPEND ${name}.sources "dx/asset/mesh.c" "dx/asset/mesh_instance.c" "dx/asset/mesh/generators.c")
+list(APPEND ${name}.headers "dx/asset/mesh.h" "dx/asset/mesh_instance.h" "dx/asset/mesh/generators.h")
 
-list(APPEND ${name}.dx.sources "dx/asset/scene.c")
-list(APPEND ${name}.dx.headers "dx/asset/scene.h")
+list(APPEND ${name}.sources "dx/asset/scene.c")
+list(APPEND ${name}.headers "dx/asset/scene.h")
 
-list(APPEND ${name}.dx.sources "dx/asset/texture.c" "dx/asset/material.c")
-list(APPEND ${name}.dx.headers "dx/asset/texture.h" "dx/asset/material.h")
+list(APPEND ${name}.sources "dx/asset/texture.c" "dx/asset/material.c")
+list(APPEND ${name}.headers "dx/asset/texture.h" "dx/asset/material.h")
 
-list(APPEND ${name}.dx.sources "dx/asset/image.c" "dx/asset/palette.c" "dx/asset/brushes.c" "dx/asset/color.c")
-list(APPEND ${name}.dx.headers "dx/asset/image.h" "dx/asset/palette.h" "dx/asset/brushes.h" "dx/asset/color.h")
+list(APPEND ${name}.sources "dx/asset/image.c" "dx/asset/palette.c" "dx/asset/brushes.c" "dx/asset/color.c")
+list(APPEND ${name}.headers "dx/asset/image.h" "dx/asset/palette.h" "dx/asset/brushes.h" "dx/asset/color.h")
 
 # "adl" folder.
-list(APPEND ${name}.dx.sources "dx/adl/syntactical.c")
-list(APPEND ${name}.dx.headers "dx/adl/syntactical.h")
+list(APPEND ${name}.sources "dx/adl/syntactical.c")
+list(APPEND ${name}.headers "dx/adl/syntactical.h")
 
-list(APPEND ${name}.dx.sources "dx/adl/diagnostics.c")
-list(APPEND ${name}.dx.headers "dx/adl/diagnostics.h")
+list(APPEND ${name}.sources "dx/adl/diagnostics.c")
+list(APPEND ${name}.headers "dx/adl/diagnostics.h")
 
-list(APPEND ${name}.dx.sources "dx/adl/semantical.c")
-list(APPEND ${name}.dx.headers "dx/adl/semantical.h")
-list(APPEND ${name}.dx.sources "dx/adl/semantical/state.c")
-list(APPEND ${name}.dx.headers "dx/adl/semantical/state.h")
-list(APPEND ${name}.dx.sources "dx/adl/semantical/names.c")
-list(APPEND ${name}.dx.headers "dx/adl/semantical/names.h")
+list(APPEND ${name}.sources "dx/adl/semantical.c")
+list(APPEND ${name}.headers "dx/adl/semantical.h")
+list(APPEND ${name}.sources "dx/adl/semantical/state.c")
+list(APPEND ${name}.headers "dx/adl/semantical/state.h")
+list(APPEND ${name}.sources "dx/adl/semantical/names.c")
+list(APPEND ${name}.headers "dx/adl/semantical/names.h")
 
 # Small utility function to find files by expression and append them to the specified list.
 function(add_files file_list expression)
@@ -52,17 +59,12 @@ function(add_files file_list expression)
   set(${file_list} ${${file_list}} ${temporary} PARENT_SCOPE)
 endfunction()
 
-
-set(${name}.sources ${${name}.dx.sources} ${${name}.dx.gl.sources})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.sources})
 
-set(${name}.headers ${${name}.dx.headers} ${${name}.dx.gl.headers})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.headers})
 
-set(${name}.readmes "README.md")
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.readmes})
 
-set(${name}.asms ${${name}.dx.asms})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.asms})
 
 project(${name})

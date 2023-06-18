@@ -9,34 +9,21 @@ set(name "dailies.day13")
 
 
 # DX sources.
-set(${name}.dx.inlays "")
-set(${name}.dx.sources "")
-set(${name}.dx.headers "")
-set(${name}.dx.readmes "")
-set(${name}.dx.asms "")
+set(${name}.inlays "")
+set(${name}.sources "")
+set(${name}.headers "")
+set(${name}.readmes "")
+set(${name}.asms "")
 
-list(APPEND ${name}.dx.sources "main.c")
-list(APPEND ${name}.dx.readmes "README.md")
+list(APPEND ${name}.sources "main.c")
+list(APPEND ${name}.readmes "README.md")
 
 # DX scenes sources.
-list(APPEND ${name}.dx.sources "dx/scenes/mesh_viewer_scene.c")
-list(APPEND ${name}.dx.headers "dx/scenes/mesh_viewer_scene.h")
+list(APPEND ${name}.sources "dx/scenes/mesh_viewer_scene.c")
+list(APPEND ${name}.headers "dx/scenes/mesh_viewer_scene.h")
 
-list(APPEND ${name}.dx.sources "dx/application.c" "dx/configuration.c" "dx/scene.c")
-list(APPEND ${name}.dx.headers "dx/application.h" "dx/configuration.h" "dx/scene.h")
-
-# DX VAL OpenGL backend.
-set(${name}.dx.gl.inlays "")
-set(${name}.dx.gl.sources "")
-set(${name}.dx.gl.headers "")
-set(${name}.dx.gl.readmes "")
-set(${name}.dx.gl.asms "")
-
-list(APPEND ${name}.dx.gl.sources "dx/gl/context.c" "dx/gl/wgl/context.c" "dx/gl/program.c" "dx/gl/buffer.c" "dx/gl/binding.c" "dx/gl/wgl/wm.c")
-list(APPEND ${name}.dx.gl.headers "dx/gl/context.h" "dx/gl/wgl/context.h" "dx/gl/program.h" "dx/gl/buffer.h" "dx/gl/binding.h" "dx/gl/wgl/wm.h" )
-
-# Assembler sources.
-enable_language(ASM_MASM) # Enable ASM provided by MASM.
+list(APPEND ${name}.sources "dx/scene.c")
+list(APPEND ${name}.headers "dx/scene.h")
 
 # Small utility function to find files by expression and append them to the specified list.
 function(add_files file_list expression)
@@ -44,47 +31,10 @@ function(add_files file_list expression)
   set(${file_list} ${${file_list}} ${temporary} PARENT_SCOPE)
 endfunction()
 
-# The target architecture determines which implementation to compile.
-if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-  message( STATUS "detected x64 target architecture" )
-  set( infix "x64" )
-elseif( CMAKE_SIZEOF_VOID_P EQUAL 4 )
-  message( STATUS "detected x86 target architecture" )
-  set( infix "x86" )
-else()
-  message( FATAL_ERROR "unable to detect architecture" )
-endif()
-#
-add_files( ${name}.dx.inlays "dx/asm/${infix}/_umul*.i")
-add_files( ${name}.dx.sources "dx/asm/${infix}/_umul*.c" )
-add_files( ${name}.dx.headers "dx/asm/${infix}/_umul*.h" )
-add_files( ${name}.dx.asms "dx/asm/${infix}/_umul*.asm" )
-#
-add_files( ${name}.dx.inlays "dx/asm/${infix}/_imul*.i")
-add_files( ${name}.dx.sources "dx/asm/${infix}/_imul*.c" )
-add_files( ${name}.dx.headers "dx/asm/${infix}/_imul*.h" )
-add_files( ${name}.dx.asms "dx/asm/${infix}/_imul*.asm" )
-if( CMAKE_SIZEOF_VOID_P EQUAL 4 )
-  set_source_files_properties(
-      ${${name}.dx.asms}
-      PROPERTIES
-      COMPILE_FLAGS "/safeseh"
-  )
-endif()
-
-set(${name}.sources ${${name}.dx.sources} ${${name}.dx.gl.sources})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.sources})
-
-set(${name}.headers ${${name}.dx.headers} ${${name}.dx.gl.headers})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.headers})
-
-set(${name}.readmes ${${name}.dx.readmes} ${${name}.dx.gl.readmes})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.readmes})
-
-set(${name}.inlays ${${name}.dx.inlays} ${${name}.dx.gl.inlays} "dx/gl/functions.i")
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.inlays})
-
-set(${name}.asms ${${name}.dx.asms} ${${name}.dx.gl.asms})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.asms})
 
 project(${name})
@@ -92,6 +42,7 @@ project(${name})
 add_executable(${name} ${${name}.sources} ${${name}.headers} ${${name}.readmes} ${${name}.inlays} ${${name}.asms})
 
 target_link_libraries(${name} dailies.day10_to_day14)
+target_link_libraries(${name} dailies.day10_to_day14.gl)
 
 # See ${CMAKE_SOURCE_DIR_DIR}/CMakeLibrary.cmake for more information.
 dx_configure_warnings(${name})

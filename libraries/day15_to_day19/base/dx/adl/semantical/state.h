@@ -13,8 +13,6 @@ static inline dx_adl_semantical_state* DX_ADL_SEMANTICAL_STATE(void* p) {
 
 struct dx_adl_semantical_state {
   dx_object _parent;
-  /// @brief The palette for resolving color names.
-  dx_asset_palette* palette;
   /// @brief Map from names (dx_string) to ADL syntax tree nodes (dx_adl_node).
   dx_pointer_hashmap named_nodes;
   /// @brief The scene object that is being built.

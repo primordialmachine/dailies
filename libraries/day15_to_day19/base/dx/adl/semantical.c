@@ -182,7 +182,7 @@ static int _parse_solid_brush_1(DX_ASSET_SOLID_BRUSH* target, dx_adl_node* node,
   if (!node) {
     goto END;
   }
-  if (_parse_rgb_u8(node, "color", state->palette, &target->color)) {
+  if (_parse_rgb_u8(node, "color", state->scene->palette, &target->color)) {
     goto END;
   }
 END:
@@ -254,11 +254,11 @@ static int _parse_checkerboard_brush_1(DX_ASSET_CHECKERBOARD_BRUSH* target, dx_a
       goto END;
     }
     // checkerColors.first
-    if (_parse_rgb_u8(checker_colors_node, "first", state->palette, &target->checker_colors.first)) {
+    if (_parse_rgb_u8(checker_colors_node, "first", state->scene->palette, &target->checker_colors.first)) {
       goto END;
     }
     // checkerColors.second
-    if (_parse_rgb_u8(checker_colors_node, "second", state->palette, &target->checker_colors.second)) {
+    if (_parse_rgb_u8(checker_colors_node, "second", state->scene->palette, &target->checker_colors.second)) {
       goto END;
     }
   }
@@ -366,7 +366,7 @@ static dx_asset_image* _parse_image(dx_adl_node* node, dx_adl_semantical_state* 
     if (!color) {
       goto END;
     }
-    if (_parse_rgb_u8(node, "color", state->palette, color)) {
+    if (_parse_rgb_u8(node, "color", state->scene->palette, color)) {
       goto END;
     }
   }

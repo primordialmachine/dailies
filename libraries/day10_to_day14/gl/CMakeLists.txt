@@ -5,25 +5,21 @@
 cmake_minimum_required(VERSION 3.20)
 
 
-set(name "dailies.day12")
+set(name "dailies.day10_to_day14.gl")
 
 
-# DX sources.
 set(${name}.inlays "")
 set(${name}.sources "")
 set(${name}.headers "")
 set(${name}.readmes "")
-set(${name}.asms "")
 
-list(APPEND ${name}.sources "main.c")
+# "README.md"
 list(APPEND ${name}.readmes "README.md")
 
-# DX scenes sources.
-list(APPEND ${name}.sources "dx/scenes/mesh_viewer_scene.c")
-list(APPEND ${name}.headers "dx/scenes/mesh_viewer_scene.h")
-
-list(APPEND ${name}.sources "dx/scene.c")
-list(APPEND ${name}.headers "dx/scene.h")
+# "VAL OpenGL backend"
+list(APPEND ${name}.sources "dx/gl/context.c" "dx/gl/wgl/context.c" "dx/gl/program.c" "dx/gl/buffer.c" "dx/gl/binding.c" "dx/gl/wgl/wm.c")
+list(APPEND ${name}.headers "dx/gl/context.h" "dx/gl/wgl/context.h" "dx/gl/program.h" "dx/gl/buffer.h" "dx/gl/binding.h" "dx/gl/wgl/wm.h" )
+list(APPEND ${name}.inlays "dx/gl/functions.i")
 
 # Small utility function to find files by expression and append them to the specified list.
 function(add_files file_list expression)
@@ -34,21 +30,23 @@ endfunction()
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.sources})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.headers})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.readmes})
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.inlays})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.asms})
 
 project(${name})
 
-add_executable(${name} ${${name}.sources} ${${name}.headers} ${${name}.readmes} ${${name}.inlays} ${${name}.asms})
-
-target_link_libraries(${name} dailies.day10_to_day14)
-target_link_libraries(${name} dailies.day10_to_day14.gl)
+add_library(${name} ${${name}.sources} ${${name}.headers} ${${name}.readmes} ${${name}.inlays} ${${name}.asms})
 
 # See ${CMAKE_SOURCE_DIR_DIR}/CMakeLibrary.cmake for more information.
 dx_configure_warnings(${name})
 
+# OpenGL-specific header files.
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
                                            ${CMAKE_CURRENT_SOURCE_DIR}/external/opengl/includes)
+
+target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(${name} "dailies.day10_to_day14")
 
 find_package(Doxygen)
 
@@ -72,15 +70,3 @@ if (DOXYGEN_FOUND)
 	add_custom_target(${name}.documentation ALL
 					  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp)
 endif (DOXYGEN_FOUND)
-
-# Copy the assets to the current binary directory.
-file(GLOB_RECURSE files_to_copy RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/assets" "${CMAKE_CURRENT_SOURCE_DIR}/assets/*.*" )
-
-foreach (file_to_copy ${files_to_copy})
-  add_custom_command(
-    TARGET ${name} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/assets/${file_to_copy}"
-                                                  "${CMAKE_CURRENT_BINARY_DIR}/assets/${file_to_copy}"
-    COMMAND_EXPAND_LISTS
-  )
-endforeach()

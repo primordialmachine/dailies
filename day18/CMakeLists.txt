@@ -9,35 +9,26 @@ set(name "dailies.day18")
 
 
 # One list for inlays files, one list for source files, one list for headers, one list for readmes.
-set(${name}.dx.inlays "")
-set(${name}.dx.sources "")
-set(${name}.dx.headers "")
-set(${name}.dx.readmes "")
+set(${name}.inlays "")
+set(${name}.sources "")
+set(${name}.headers "")
+set(${name}.readmes "")
 
 # "README.md".
-set(${name}.dx.readmes "README.md")
+set(${name}.readmes "README.md")
 
 # "main.c".
-list(APPEND ${name}.dx.sources "main.c")
+list(APPEND ${name}.sources "main.c")
 
-# "dx/application.(c|h)" & "dx/scene.(c|h)".
-list(APPEND ${name}.dx.sources "dx/application.c" "dx/scene.c")
-list(APPEND ${name}.dx.headers "dx/application.h" "dx/scene.h")
+# "dx/scene.(c|h)".
+list(APPEND ${name}.sources "dx/scene.c")
+list(APPEND ${name}.headers "dx/scene.h")
 
 # "dx/scenes/*".
-list(APPEND ${name}.dx.sources "dx/scenes/mesh_viewer_scene.c")
-list(APPEND ${name}.dx.headers "dx/scenes/mesh_viewer_scene.h")
-list(APPEND ${name}.dx.sources "dx/scenes/create_assets.c")
-list(APPEND ${name}.dx.headers "dx/scenes/create_assets.h")
-
-# DX VAL OpenGL backend.
-set(${name}.dx.gl.inlays "")
-set(${name}.dx.gl.sources "")
-set(${name}.dx.gl.headers "")
-set(${name}.dx.gl.readmes "")
-list(APPEND ${name}.dx.gl.sources "dx/gl/context.c" "dx/gl/wgl/context.c" "dx/gl/texture.c" "dx/gl/program.c" "dx/gl/buffer.c" "dx/gl/binding.c" "dx/gl/wgl/wm.c")
-list(APPEND ${name}.dx.gl.headers "dx/gl/context.h" "dx/gl/wgl/context.h" "dx/gl/texture.h" "dx/gl/program.h" "dx/gl/buffer.h" "dx/gl/binding.h" "dx/gl/wgl/wm.h" )
-list(APPEND ${name}.dx.gl.inlays "dx/gl/functions.i")
+list(APPEND ${name}.sources "dx/scenes/mesh_viewer_scene.c")
+list(APPEND ${name}.headers "dx/scenes/mesh_viewer_scene.h")
+list(APPEND ${name}.sources "dx/scenes/create_assets.c")
+list(APPEND ${name}.headers "dx/scenes/create_assets.h")
 
 # The target architecture determines which implementation to compile.
 if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
@@ -50,19 +41,10 @@ else()
   message( FATAL_ERROR "unable to detect architecture" )
 endif()
 
-set(${name}.sources ${${name}.dx.sources} ${${name}.dx.gl.sources})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.sources})
-
-set(${name}.headers ${${name}.dx.headers} ${${name}.dx.gl.headers})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.headers})
-
-set(${name}.readmes ${${name}.dx.readmes} ${${name}.dx.gl.readmes})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.readmes})
-
-set(${name}.inlays ${${name}.dx.inlays} ${${name}.dx.gl.inlays})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.inlays})
-
-set(${name}.asms ${${name}.dx.asms})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.asms})
 
 project(${name})
@@ -83,6 +65,7 @@ target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
                                            ${CMAKE_CURRENT_SOURCE_DIR}/external/opengl/includes)
 
 target_link_libraries(${name} dailies.day15_to_day19)
+target_link_libraries(${name} dailies.day15_to_day19.gl)
 
 find_package(Doxygen)
 

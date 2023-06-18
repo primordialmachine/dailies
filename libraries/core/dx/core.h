@@ -28,6 +28,7 @@
 #include "dx/core/file_system.h"
 #include "dx/core/hapticals.h"
 #include "dx/core/math.h"
+#include "dx/core/memory.h"
 #include "dx/core/msgs.h"
 #include "dx/core/next_power_of_two.h"
 #include "dx/core/object.h"

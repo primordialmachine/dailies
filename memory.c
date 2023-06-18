@@ -14,46 +14,6 @@ static inline bool is_overflow(size_t n, size_t m)
 }
 
 bool
-g_memory_copy
-  (
-    void* p,
-    const void* q,
-    size_t n
-  )
-{
-  if (!p)
-  {
-    G_RAISE_ARGUMENT_NULL_ERROR(p);
-    return false;
-  }
-  if (!q)
-  {
-    G_RAISE_ARGUMENT_NULL_ERROR(q);
-    return false;
-  }
-  memcpy(p, q, n);
-  return true;
-}
-
-bool
-g_memory_zero
-  (
-    void* p,
-    size_t n
-  )
-{
-#if defined(_DEBUG)
-  if (!p)
-  {
-    G_RAISE_ARGUMENT_NULL_ERROR(p);
-    return false;
-  }
-#endif
-  memset(p, 0, n);
-  return true;
-}
-
-bool
 g_memory_zero_array
   (
     void* p,
@@ -76,44 +36,6 @@ g_memory_zero_array
   size_t k = n * m;
   memset(p, 0, k);
   return true;
-}
-
-void*
-g_memory_allocate
-  (
-    size_t n
-  )
-{
-  void *p = malloc(n > 0 ? n : 1);
-  if (!p)
-  {
-    G_ERROR(G_FAILURE, "allocation of %zu Bytes failed\n", n);
-    return NULL;
-  }
-  return p;
-}
-
-void*
-g_memory_reallocate
-  (
-    void *p,
-    size_t n
-  )
-{
-#if defined(_DEBUG)
-  if (!p)
-  {
-    G_RAISE_ARGUMENT_NULL_ERROR(p);
-    return NULL;
-  }
-#endif
-  void *q = realloc(p, n > 0 ? n : 1);
-  if (!q)
-  {
-    G_ERROR(G_FAILURE, "reallocation to %zu Bytes failed\n", n);
-    return NULL;
-  }
-  return q;
 }
 
 void*
@@ -168,18 +90,6 @@ g_memory_reallocate_array
     return NULL;
   }
   return q;
-}
-
-void
-g_memory_deallocate
-  (
-    void* p
-  )
-{
-  if (p != NULL)
-  {
-    free(p);
-  }
 }
 
 int

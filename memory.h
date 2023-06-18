@@ -4,24 +4,6 @@
 
 #include "last-men-standing/compiler.h"
 
-/// @warning The memory blocks denoted by <code>(p,n)</code> and <code>(q,n)</code> must not overlap.
-/// @return @a true on success, @a false on failure. 
-bool
-g_memory_copy
-  (
-    void* p,
-    const void* q,
-    size_t n
-  );
-
-/// @return @a true on success, @a false on failure. 
-bool
-g_memory_zero
-  (
-    void* p,
-    size_t n
-  );
-
 /// @return @a true on success, @a false on failure. 
 bool
 g_memory_zero_array
@@ -31,23 +13,6 @@ g_memory_zero_array
     size_t m
   );
 
-/// @return A pointer to the memory block on success, a null pointer on failure.
-void*
-g_memory_allocate
-  (
-    size_t n
-  );
-
-/// @brief Reallocate a memory block previously allocated by calls to g_memory_allocate or g_memory_allocate_array.
-/// @param p A pointer to a memory block.
-/// @param n The number of Bytes to reallocate the memory block to. 
-/// @return A pointer to the reallocated memory block on success, a null pointer on failure.
-void*
-g_memory_reallocate
-  (
-    void* p,
-    size_t n
-  );
 
 /// @brief Allocate an array.
 /// @param n The element size.
@@ -70,14 +35,6 @@ g_memory_reallocate_array
     void* p,
     size_t n,
     size_t m
-  );
-
-/// @brief Deallocate a memory block.
-/// @param p A pointer to the memory block.
-void
-g_memory_deallocate
-  (
-    void *p
   );
 
 /// @brief Compare prefixes two memory blocks of the same size.

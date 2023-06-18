@@ -274,7 +274,7 @@ int dx_adl_scanner_construct(dx_adl_scanner* self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  if (dx_byte_array_construct(&self->text)) {
+  if (dx_byte_array_initialize(&self->text)) {
     return 1;
   }
   self->start = &EMPTY[0];
@@ -342,7 +342,7 @@ static int dx_adl_scanner_skip_nls_and_ws(dx_adl_scanner* self) {
 }
 
 void dx_adl_scanner_destruct(dx_adl_scanner* self) {
-  dx_byte_array_destruct(&self->text);
+  dx_byte_array_uninitialize(&self->text);
 }
 
 dx_adl_scanner* dx_adl_scanner_create() {

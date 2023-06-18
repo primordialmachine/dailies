@@ -4,7 +4,7 @@
 #include "dx/val/context.h"
 typedef struct dx_cbinding dx_cbinding;
 
-typedef struct dx_program dx_program;
+DX_DECLARE_OBJECT_TYPE("dx.program", dx_program, dx_object)
 
 static inline dx_program* DX_PROGRAM(void* p) {
   return (dx_program*)p;

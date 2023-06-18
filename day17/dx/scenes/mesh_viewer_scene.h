@@ -9,7 +9,8 @@
 #include "dx/asset/scene.h"
 
 /// A scene for viewing a mesh.
-typedef struct dx_mesh_viewer_scene dx_mesh_viewer_scene;
+DX_DECLARE_OBJECT_TYPE("dx.mesh_viewer_scene", dx_mesh_viewer_scene, dx_scene)
+
 static inline dx_mesh_viewer_scene* DX_MESH_VIEWER_SCENE(void *p) {
   return (dx_mesh_viewer_scene*)p;
 }

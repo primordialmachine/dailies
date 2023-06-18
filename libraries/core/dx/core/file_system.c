@@ -11,7 +11,7 @@
 
 int dx_get_file_contents(char const *path, char **bytes, size_t *number_of_bytes) {
   dx_byte_array byte_array;
-  if (dx_byte_array_construct(&byte_array)) {
+  if (dx_byte_array_initialize(&byte_array)) {
     return 1;
   }
   HANDLE file = CreateFile(path,
@@ -22,7 +22,7 @@ int dx_get_file_contents(char const *path, char **bytes, size_t *number_of_bytes
                            FILE_ATTRIBUTE_NORMAL,
                            0);
   if (INVALID_HANDLE_VALUE == file) {
-    dx_byte_array_destruct(&byte_array);
+    dx_byte_array_uninitialize(&byte_array);
     return 1;
   }
   while (true) {
@@ -32,7 +32,7 @@ int dx_get_file_contents(char const *path, char **bytes, size_t *number_of_bytes
     if (!result) {
       CloseHandle(file);
       file = INVALID_HANDLE_VALUE;
-      dx_byte_array_destruct(&byte_array);
+      dx_byte_array_uninitialize(&byte_array);
       return 1;
     }
     // eof
@@ -44,17 +44,17 @@ int dx_get_file_contents(char const *path, char **bytes, size_t *number_of_bytes
     if (dx_byte_array_append(&byte_array, temporary, received)) {
       CloseHandle(file);
       file = INVALID_HANDLE_VALUE;
-      dx_byte_array_destruct(&byte_array);
+      dx_byte_array_uninitialize(&byte_array);
       return 1;
     }
   }
   
   char *bytes_1; size_t number_of_bytes_1;
   if (dx_byte_array_steal(&byte_array, &bytes_1, &number_of_bytes_1)) {
-    dx_byte_array_destruct(&byte_array);
+    dx_byte_array_uninitialize(&byte_array);
     return 1;
   }
-  dx_byte_array_destruct(&byte_array);
+  dx_byte_array_uninitialize(&byte_array);
   *bytes = bytes_1;
   *number_of_bytes = number_of_bytes_1;
   

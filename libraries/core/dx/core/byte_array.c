@@ -5,7 +5,7 @@
 // memcpy
 #include <memory.h>
 
-int dx_byte_array_construct(dx_byte_array* byte_array) {
+int dx_byte_array_initialize(dx_byte_array* byte_array) {
   if (!byte_array) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -20,7 +20,7 @@ int dx_byte_array_construct(dx_byte_array* byte_array) {
   return 0;
 }
 
-void dx_byte_array_destruct(dx_byte_array* byte_array) {
+void dx_byte_array_uninitialize(dx_byte_array* byte_array) {
   free(byte_array->elements);
   byte_array->elements = NULL;
 }

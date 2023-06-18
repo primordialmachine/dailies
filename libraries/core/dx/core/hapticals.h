@@ -30,13 +30,15 @@
 
 /// @ingroup core-hapticals
 /// @brief Enumeration of keyboard keys.
-typedef enum dx_keyboard_key {
+DX_DECLARE_ENUMERATION_TYPE("dx.keyboard_key", dx_keyboard_key)
+
+enum dx_keyboard_key {
   #define ALIAS(aliased,alias) dx_keyboard_key_##alias = dx_keyboard_key_##aliased,
   #define DEFINE(name,value,description) dx_keyboard_key_##name = value,
   #include "dx/core/keyboard_keys.i"
   #undef DEFINE
   #undef ALIAS
-} dx_keyboard_key;
+};
 
 /// @ingroup core-hapticals
 /// @brief Return a human-readable, static constant C string describing a keyboard key.
@@ -48,13 +50,15 @@ char const* dx_keyboard_key_to_string(dx_keyboard_key self);
 
 /// @ingroup core-hapticals
 /// @brief Enumeration of mouse buttons.
-typedef enum dx_mouse_button {
-#define ALIAS(aliased,alias) dx_mouse_button_##alias = dx_mouse_button_##aliased,
-#define DEFINE(name,value,description) dx_mouse_button_##name = value,
-#include "dx/core/mouse_buttons.i"
-#undef DEFINE
-#undef ALIAS
-} dx_mouse_button;
+DX_DECLARE_ENUMERATION_TYPE("dx.mouse_button", dx_mouse_button)
+
+enum dx_mouse_button {
+  #define ALIAS(aliased,alias) dx_mouse_button_##alias = dx_mouse_button_##aliased,
+  #define DEFINE(name,value,description) dx_mouse_button_##name = value,
+  #include "dx/core/mouse_buttons.i"
+  #undef DEFINE
+  #undef ALIAS
+};
 
 /// @ingroup core-hapticals
 /// @brief Return a human-readable, static constant C string describing a mouse button.
@@ -64,13 +68,16 @@ char const* dx_mouse_button_to_string(dx_mouse_button self);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-#define DX_INPUT_MSG_TYPE_KEYBOARD_KEY (1)
+DX_DECLARE_ENUMERATION_TYPE("dx.input_msg_kind", dx_input_msg_kind)
 
-#define DX_INPUT_MSG_TYPE_MOUSE_BUTTON (2)
+enum dx_input_msg_kind {
+  DX_INPUT_MSG_KIND_KEYBOARD_KEY = 1,
+  DX_INPUT_MSG_KIND_MOUSE_BUTTON,
+  DX_INPUT_MSG_KIND_MOUSE_POINTER,
+};
 
-#define DX_INPUT_MSG_TYPE_MOUSE_POINTER (3)
+DX_DECLARE_OBJECT_TYPE("dx.input_msg", dx_input_msg, dx_msg)
 
-typedef struct dx_input_msg dx_input_msg;
 static inline dx_input_msg* DX_INPUT_MSG(void* p) {
   return (dx_input_msg*)p;
 }
@@ -78,18 +85,18 @@ static inline dx_input_msg* DX_INPUT_MSG(void* p) {
 /// @brief Construct this "input" message.
 /// @param self A pointer to this "input" message object.
 /// @param type The type of this input message.
-/// Must be one of #DX_INPUT_MSG_TYPE_KEYBOARD_KEY, #DX_INPUT_MSG_TYPE_MOUSE_BUTTON, or #DX_INPUT_MSG_TYPE_MOUSE_POINTER.
+/// Must be one of #DX_INPUT_MSG_KIND_KEYBOARD_KEY, #DX_INPUT_MSG_KIND_MOUSE_BUTTON, or #DX_INPUT_MSG_KIND_MOUSE_POINTER.
 /// @return The zero value on success. A non-zero value on failure.
 /// @failure This function has set the error variable.
-int dx_input_msg_construct(dx_input_msg* self, int type);
+int dx_input_msg_construct(dx_input_msg* self, dx_input_msg_kind kind);
 
 void dx_input_msg_destruct(dx_input_msg* self);
 
-int dx_input_msg_get_type(dx_input_msg* self);
+dx_input_msg_kind dx_input_msg_get_kind(dx_input_msg* self);
 
 struct dx_input_msg {
   dx_msg _parent;
-  int type;
+  dx_input_msg_kind kind;
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -98,8 +105,8 @@ struct dx_input_msg {
 
 #define DX_KEYBOARD_KEY_ACTION_RELEASED (2)
 
-/// @brief The opaque type of a "keyboard key" message
-typedef struct dx_keyboard_key_msg dx_keyboard_key_msg;
+/// @brief The opaque type of a "keyboard key" message.
+DX_DECLARE_OBJECT_TYPE("dx.keyboard_key_msg", dx_keyboard_key_msg, dx_input_msg)
 
 static inline dx_keyboard_key_msg* DX_KEYBOARD_KEY_MSG(void* p) {
   return (dx_keyboard_key_msg*)p;
@@ -131,8 +138,8 @@ dx_keyboard_key_msg* dx_keyboard_key_msg_create(uint8_t action, dx_keyboard_key 
 
 #define DX_MOUSE_BUTTON_ACTION_RELEASED (2)
 
-/// @brief The opaque type of a "mouse button" message
-typedef struct dx_mouse_button_msg dx_mouse_button_msg;
+/// @brief The opaque type of a "mouse button" message.
+DX_DECLARE_OBJECT_TYPE("dx.mouse_button_msg", dx_mouse_button_msg, dx_input_msg)
 
 static inline dx_mouse_button_msg* DX_MOUSE_BUTTON_MSG(void* p) {
   return (dx_mouse_button_msg*)p;
@@ -168,8 +175,8 @@ dx_mouse_button_msg* dx_mouse_button_msg_create(uint8_t action, dx_mouse_button 
 #define DX_MOUSE_POINTER_ACTION_ENTERED (2)
 #define DX_MOUSE_POINTER_ACTION_EXITED (3)
 
-/// @brief The opaque type of a "mouse pointer" message
-typedef struct dx_mouse_pointer_msg dx_mouse_pointer_msg;
+/// @brief The opaque type of a "mouse pointer" message.
+DX_DECLARE_OBJECT_TYPE("dx.mouse_pointer_msg", dx_mouse_pointer_msg, dx_input_msg)
 
 static inline dx_mouse_pointer_msg* DX_MOUSE_POINTER_MSG(void* p) {
   return (dx_mouse_pointer_msg*)p;

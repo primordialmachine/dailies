@@ -60,19 +60,19 @@ create_shader
   GLuint id1 = ctx->glCreateShader(type);
   {
     dx_byte_array byte_array;
-    if (dx_byte_array_construct(&byte_array)) {
+    if (dx_byte_array_initialize(&byte_array)) {
       ctx->glDeleteShader(id1);
       id1 = 0;
       return 1;
     }
     if (dx_byte_array_append(&byte_array, "#version 330 core\n", sizeof("#version 330 core\n") - 1)) {
-      dx_byte_array_destruct(&byte_array);
+      dx_byte_array_uninitialize(&byte_array);
       ctx->glDeleteShader(id1);
       id1 = 0;
       return 1;
     }
     if (dx_byte_array_append(&byte_array, program_text->bytes, program_text->number_of_bytes)) {
-      dx_byte_array_destruct(&byte_array);
+      dx_byte_array_uninitialize(&byte_array);
       ctx->glDeleteShader(id1);
       id1 = 0;
       return 1;
@@ -80,7 +80,7 @@ create_shader
     GLint const m[] = { (GLint)byte_array.size };
     GLchar const *q[] = { byte_array.elements };
     ctx->glShaderSource(id1, 1, q, m);
-    dx_byte_array_destruct(&byte_array);
+    dx_byte_array_uninitialize(&byte_array);
   }
   ctx->glCompileShader(id1);
   GLint success;

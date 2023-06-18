@@ -14,14 +14,14 @@ dx_string* dx_string_printfv(dx_string* format, va_list arguments) {
   char const* current = format->bytes;
   char const* end = format->bytes + format->number_of_bytes;
   dx_byte_array byte_array;
-  if (dx_byte_array_construct(&byte_array)) {
+  if (dx_byte_array_initialize(&byte_array)) {
     return NULL;
   }
   while (current != end) {
     if (*current == '%') {
       // We encountered a format symbol. Store all the bytes up to and excluding the format symbol in the buffer.
       if (dx_byte_array_append(&byte_array, start, current - start)) {
-        dx_byte_array_destruct(&byte_array);
+        dx_byte_array_uninitialize(&byte_array);
         return NULL;
       }
       // Skip the format symbol.
@@ -29,7 +29,7 @@ dx_string* dx_string_printfv(dx_string* format, va_list arguments) {
       if (current == end) {
         // Expected: Format symbol with format specifier. Received: End of string.
         dx_set_error(DX_INVALID_ARGUMENT);
-        dx_byte_array_destruct(&byte_array);
+        dx_byte_array_uninitialize(&byte_array);
         return NULL;
       }
       switch (*current) {
@@ -37,18 +37,18 @@ dx_string* dx_string_printfv(dx_string* format, va_list arguments) {
         dx_string* argument = va_arg(arguments, dx_string*);
         if (!argument) {
           dx_set_error(DX_INVALID_ARGUMENT);
-          dx_byte_array_destruct(&byte_array);
+          dx_byte_array_uninitialize(&byte_array);
           return NULL;
         }
         if (dx_byte_array_append(&byte_array, argument->bytes, argument->number_of_bytes)) {
-          dx_byte_array_destruct(&byte_array);
+          dx_byte_array_uninitialize(&byte_array);
           return NULL;
         }
       } break;
       default: {
         // Expected: Format specifier. Received: Unknown format specifier prefix.
         dx_set_error(DX_INVALID_ARGUMENT);
-        dx_byte_array_destruct(&byte_array);
+        dx_byte_array_uninitialize(&byte_array);
         return NULL;
       } break;
       };
@@ -61,12 +61,12 @@ dx_string* dx_string_printfv(dx_string* format, va_list arguments) {
   }
   if (start != current) {
     if (dx_byte_array_append(&byte_array, start, current - start)) {
-      dx_byte_array_destruct(&byte_array);
+      dx_byte_array_uninitialize(&byte_array);
       return NULL;
     }
   }
   dx_string *string = dx_string_create(byte_array.elements, byte_array.size);
-  dx_byte_array_destruct(&byte_array);
+  dx_byte_array_uninitialize(&byte_array);
   return string;
 }
 
@@ -289,7 +289,7 @@ int dx_str_to_u64(char const* p, size_t l, uint64_t* v) {
       dx_set_error(DX_CONVERSION_FAILED);
       return 1;
     }
-    uint64_t w = *p - '0';
+    uint64_t w = (*p) - '0';
     // safe add
     u = dx_add_u64(u, w, &overflow);
     if (overflow) {

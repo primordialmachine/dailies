@@ -46,13 +46,12 @@ dx_bool dx_rti_type_is_object(dx_rti_type* type);
 /// In particular, the following error codes are returned:
 /// - #DX_ALLOCATION_FAILED an allocation failed
 /// - #DX_EXISTS a type of the same name already exists
-dx_rti_type* dx_get_or_create_fundamental(char const *p, size_t n, void(*on_type_destroyed)(), dx_size value_size);
+dx_rti_type* dx_rti_get_or_create_fundamental(char const *p, size_t n, void(*on_type_destroyed)(), dx_size value_size);
 
-#define DX_DECLARE_ENUMERATION_TYPE(NAME, C_NAME) \
+#define DX_DECLARE_FUNDAMENTAL_TYPE(NAME, C_NAME) \
   dx_rti_type* C_NAME##_get_type(); \
-  typedef enum C_NAME C_NAME;
 
-#define DX_DEFINE_ENUMERATION_TYPE(NAME, C_NAME, C_PARENT_NAME) \
+#define DX_DEFINE_FUNDAMENTAL_TYPE(NAME, C_NAME) \
   static dx_rti_type* C_NAME##_type = NULL; \
 \
   static void C_NAME##_on_type_destroyed() { \
@@ -78,11 +77,11 @@ dx_rti_type* dx_get_or_create_fundamental(char const *p, size_t n, void(*on_type
 /// - #DX_EXISTS a type of the same name already exists
 dx_rti_type* dx_rti_get_or_create_enumeration(char const* p, size_t n, void(*on_type_destroyed)());
 
-#define DX_DECLARE_FUNDAMENTAL_TYPE(NAME, C_NAME, C_PARENT_NAME) \
+#define DX_DECLARE_ENUMERATION_TYPE(NAME, C_NAME) \
   dx_rti_type* C_NAME##_get_type(); \
-  typedef struct C_NAME C_NAME;
+  typedef enum C_NAME C_NAME;
 
-#define DX_DEFINE_FUNDAMENTAL_TYPE(NAME, C_NAME, C_PARENT_NAME) \
+#define DX_DEFINE_ENUMERATION_TYPE(NAME, C_NAME) \
   static dx_rti_type* C_NAME##_type = NULL; \
 \
   static void C_NAME##_on_type_destroyed() { \
@@ -116,8 +115,8 @@ dx_rti_type* dx_rti_get_or_create_object(char const* p, size_t n, void (*on_type
 #define DX_DEFINE_OBJECT_TYPE(NAME, C_NAME, C_PARENT_NAME) \
   static dx_rti_type* C_NAME##_type = NULL; \
 \
-  /*To be defined by the developer.*/ \
-  static void C_NAME##_destruct(C_NAME* self); \
+  /** @todo Should be static. To be defined by the developer.*/ \
+  void C_NAME##_destruct(C_NAME* self); \
 \
   static void C_NAME##_on_type_destroyed() { \
     C_NAME##_type = NULL; \

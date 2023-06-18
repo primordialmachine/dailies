@@ -23,11 +23,11 @@ typedef struct dx_byte_array {
 /// @failure This function has set the error variable.
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_ALLOCATION_FAILED an allocation failed
-int dx_byte_array_construct(dx_byte_array* self);
+int dx_byte_array_initialize(dx_byte_array* self);
 
 /// @brief Uninitialize this dx_byte_array object.
 /// @param self A pointer to this dx_byte_array object.
-void dx_byte_array_destruct(dx_byte_array* self);
+void dx_byte_array_uninitialize(dx_byte_array* self);
 
 /// @brief "steal" the backing Byte array from this dx_byte_array object.
 /// @param bytes A pointer to a <code>char</code> variable.

@@ -3,7 +3,7 @@
 
 #include "dx/val/context.h"
 
-typedef struct dx_buffer dx_buffer;
+DX_DECLARE_OBJECT_TYPE("dx.buffer", dx_buffer, dx_object)
 
 static inline dx_buffer* DX_BUFFER(void* p) {
   return (dx_buffer*)p;

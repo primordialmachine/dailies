@@ -81,7 +81,7 @@ static int on_msg(dx_msg* msg) {
   } break;
   case DX_MSG_TYPE_INPUT: {
     dx_input_msg* input_msg = DX_INPUT_MSG(msg);
-    if (DX_INPUT_MSG_TYPE_KEYBOARD_KEY == dx_input_msg_get_type(input_msg)) {
+    if (DX_INPUT_MSG_KIND_KEYBOARD_KEY == dx_input_msg_get_kind(input_msg)) {
       dx_keyboard_key_msg* keyboard_key_msg = DX_KEYBOARD_KEY_MSG(input_msg);
       if (DX_KEYBOARD_KEY_ACTION_RELEASED == dx_keyboard_key_msg_get_action(keyboard_key_msg) && dx_keyboard_key_return == dx_keyboard_key_msg_get_key(keyboard_key_msg)) {
         g_scene_index = (g_scene_index + 1) % 2;

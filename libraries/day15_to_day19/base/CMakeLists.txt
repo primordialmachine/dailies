@@ -29,6 +29,8 @@ list(APPEND ${name}.headers "dx/val/program_text.h" "dx/val/command.h" "dx/val/p
 # "asset" folder.
 list(APPEND ${name}.sources "dx/asset/mesh.c" "dx/asset/mesh_instance.c" "dx/asset/mesh/generators.c")
 list(APPEND ${name}.headers "dx/asset/mesh.h" "dx/asset/mesh_instance.h" "dx/asset/mesh/generators.h")
+list(APPEND ${name}.sources "dx/asset/mesh_operations.c")
+list(APPEND ${name}.headers "dx/asset/mesh_operations.h")
 
 list(APPEND ${name}.sources "dx/asset/scene.c")
 list(APPEND ${name}.headers "dx/asset/scene.h")

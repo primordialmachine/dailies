@@ -19,7 +19,8 @@
 /// 4) dx_scene_shutdown is called for the Scene by the SEE.
 /// Go to 5.
 /// 5) the Scene is destroyed by the Scene.
-typedef struct dx_scene dx_scene;
+DX_DECLARE_OBJECT_TYPE("dx.scene", dx_scene, dx_object)
+
 static inline dx_scene* DX_SCENE(void *p) {
   return (dx_scene*)p;
 }

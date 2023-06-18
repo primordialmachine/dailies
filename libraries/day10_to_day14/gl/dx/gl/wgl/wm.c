@@ -405,7 +405,7 @@ static int emit_canvas_size_changed_msg(dx_f32 width, dx_f32 height) {
 
 static int emit_canvas_activated_msg() {
   ENTER(__func__);
-  dx_msg* msg = DX_MSG(dx_canvas_msg_create(dx_canvas_msg_type_activated));
+  dx_msg* msg = DX_MSG(dx_canvas_msg_create(dx_canvas_msg_kind_activated));
   if (!msg) {
     LEAVE(__func__);
     return 1;
@@ -424,7 +424,7 @@ static int emit_canvas_activated_msg() {
 
 static int emit_canvas_deactivated_msg() {
   ENTER(__func__);
-  dx_msg* msg = DX_MSG(dx_canvas_msg_create(dx_canvas_msg_type_deactivated));
+  dx_msg* msg = DX_MSG(dx_canvas_msg_create(dx_canvas_msg_kind_deactivated));
   if (!msg) {
     LEAVE(__func__);
     return 1;

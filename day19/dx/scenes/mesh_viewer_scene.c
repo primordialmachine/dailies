@@ -14,6 +14,8 @@
 #include "dx/scenes/create_assets.h"
 #include "dx/adl/syntactical.h"
 
+DX_DEFINE_OBJECT_TYPE("dx.mesh_viewer_scene", dx_mesh_viewer_scene, dx_scene)
+
 static int mesh_instance_on_startup(dx_mesh_viewer_scene* self, dx_context* context, dx_asset_scene* asset_scene) {
   if (dx_object_array_initialize(&self->mesh_instances, 2)) {
     return 1;
@@ -267,7 +269,6 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const* name
   }
   scene->name = _strdup(name);
   if (!scene->name) {
-    dx_scene_destruct(DX_SCENE(scene));
     return 1;
   }
   dx_mat4_set_identity(&scene->projection_matrix);

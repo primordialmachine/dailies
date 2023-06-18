@@ -3,7 +3,8 @@
 
 #include "dx/core.h"
 
-typedef struct dx_adl_diagnostics dx_adl_diagnostics;
+DX_DECLARE_OBJECT_TYPE("dx.adl.diagnostics", dx_adl_diagnostics, dx_object)
+
 static inline dx_adl_diagnostics* DX_ADL_DIAGNOSTICS(void* p) {
   return (dx_adl_diagnostics*)p;
 }

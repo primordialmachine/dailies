@@ -47,11 +47,11 @@ char const* dx_mouse_button_to_string(dx_mouse_button self) {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-int dx_input_msg_construct(dx_input_msg* self, int type) {
+int dx_input_msg_construct(dx_input_msg* self, dx_input_msg_kind kind) {
   if (dx_msg_construct(DX_MSG(self))) {
     return 1;
   }
-  self->type = type;
+  self->kind = kind;
   DX_MSG(self)->flags = DX_MSG_TYPE_INPUT;
   DX_OBJECT(self)->destruct = (void (*)(dx_object*)) & dx_input_msg_destruct;
   return 0;
@@ -61,8 +61,8 @@ void dx_input_msg_destruct(dx_input_msg* self) {
   dx_msg_destruct(DX_MSG(self));
 }
 
-int dx_input_msg_get_type(dx_input_msg* self) {
-  return self->type;
+dx_input_msg_kind dx_input_msg_get_kind(dx_input_msg* self) {
+  return self->kind;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -75,7 +75,7 @@ struct dx_keyboard_key_msg {
 };
 
 int dx_keyboard_key_msg_construct(dx_keyboard_key_msg* self, uint8_t action, dx_keyboard_key key, uint8_t modifiers) {
-  if (dx_input_msg_construct(DX_INPUT_MSG(self), DX_INPUT_MSG_TYPE_KEYBOARD_KEY)) {
+  if (dx_input_msg_construct(DX_INPUT_MSG(self), DX_INPUT_MSG_KIND_KEYBOARD_KEY)) {
     return 1;
   }
   self->action = action;
@@ -121,7 +121,7 @@ struct dx_mouse_button_msg {
 };
 
 int dx_mouse_button_msg_construct(dx_mouse_button_msg* self, uint8_t action, dx_mouse_button button, uint8_t modifiers, dx_f32 x, dx_f32 y) {
-  if (dx_input_msg_construct(DX_INPUT_MSG(self), DX_INPUT_MSG_TYPE_MOUSE_BUTTON)) {
+  if (dx_input_msg_construct(DX_INPUT_MSG(self), DX_INPUT_MSG_KIND_MOUSE_BUTTON)) {
     return 1;
   }
   self->action = action;
@@ -168,7 +168,7 @@ struct dx_mouse_pointer_msg {
 };
 
 int dx_mouse_pointer_msg_construct(dx_mouse_pointer_msg* self, uint8_t action, uint8_t modifiers, dx_f32 x, dx_f32 y) {
-  if (dx_input_msg_construct(DX_INPUT_MSG(self), DX_INPUT_MSG_TYPE_MOUSE_POINTER)) {
+  if (dx_input_msg_construct(DX_INPUT_MSG(self), DX_INPUT_MSG_KIND_MOUSE_POINTER)) {
     return 1;
   }
   self->action = action;

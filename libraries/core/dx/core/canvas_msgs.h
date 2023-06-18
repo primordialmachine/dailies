@@ -5,31 +5,35 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-typedef enum dx_canvas_msg_type {
-  dx_canvas_msg_type_activated,
-  dx_canvas_msg_type_deactivated,
-  dx_canvas_msg_type_size_changed,
-} dx_canvas_msg_type;
+DX_DECLARE_ENUMERATION_TYPE("dx.canvas_msg_kind", dx_canvas_msg_kind)
 
-typedef struct dx_canvas_msg dx_canvas_msg;
+enum dx_canvas_msg_kind {
+  dx_canvas_msg_kind_activated,
+  dx_canvas_msg_kind_deactivated,
+  dx_canvas_msg_kind_size_changed,
+};
+
+DX_DECLARE_OBJECT_TYPE("dx.canvas_msg", dx_canvas_msg, dx_msg)
+
 static inline dx_canvas_msg* DX_CANVAS_MSG(void* p) {
   return (dx_canvas_msg*)p;
 }
 
 struct dx_canvas_msg {
   dx_msg _parent;
-  uint8_t type;
+  uint8_t kind;
 };
 
-int dx_canvas_msg_construct(dx_canvas_msg* self, dx_canvas_msg_type type);
+int dx_canvas_msg_construct(dx_canvas_msg* self, dx_canvas_msg_kind kind);
 
 void dx_canvas_msg_destruct(dx_canvas_msg* self);
 
-dx_canvas_msg* dx_canvas_msg_create(dx_canvas_msg_type type);
+dx_canvas_msg* dx_canvas_msg_create(dx_canvas_msg_kind kind);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-typedef struct dx_canvas_size_changed_msg dx_canvas_size_changed_msg;
+DX_DECLARE_OBJECT_TYPE("dx.canvas_size_changed_msg", dx_canvas_size_changed_msg, dx_canvas_msg)
+
 static inline dx_canvas_size_changed_msg* DX_CANVAS_SIZE_CHANGED_MSG(void* p) {
   return (dx_canvas_size_changed_msg*)p;
 }

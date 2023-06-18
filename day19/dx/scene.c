@@ -2,6 +2,8 @@
 
 #include <malloc.h>
 
+DX_DEFINE_OBJECT_TYPE("dx.scene", dx_scene, dx_object)
+
 int dx_scene_construct(dx_scene* scene) {
   scene->startup = NULL;
   scene->render = NULL;

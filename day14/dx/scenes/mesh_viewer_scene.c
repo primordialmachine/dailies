@@ -379,7 +379,6 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const *name
   }
   scene->name = _strdup(name);
   if (!scene->name) {
-    dx_scene_destruct(DX_SCENE(scene));
     return 1;
   }
   scene->on_mesh_loaded = on_mesh_loaded;

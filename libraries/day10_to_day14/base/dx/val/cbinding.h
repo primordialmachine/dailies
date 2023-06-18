@@ -3,7 +3,8 @@
 
 #include "dx/core.h"
 
-typedef struct dx_cbinding dx_cbinding;
+DX_DECLARE_OBJECT_TYPE("dx.cbinding", dx_cbinding, dx_object)
+
 static inline dx_cbinding* DX_CBINDING(void* p) {
   return (dx_cbinding*)p;
 }

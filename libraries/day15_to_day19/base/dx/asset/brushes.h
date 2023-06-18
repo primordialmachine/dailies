@@ -1,7 +1,7 @@
-#if !defined(DX_ASSET_BRUSHEs_H_INCLUDED)
+#if !defined(DX_ASSET_BRUSHES_H_INCLUDED)
 #define DX_ASSET_BRUSHES_H_INCLUDED
 
-#include "dx/core.h"
+#include "dx/asset/color.h"
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -29,10 +29,11 @@ static inline dx_asset_solid_brush* DX_ASSET_SOLID_BRUSH(void* p) {
 
 struct dx_asset_solid_brush {
   dx_asset_brush _parent;
+  dx_asset_color* color;
   
 };
 
-int dx_asset_solid_brush_construct(dx_asset_solid_brush* self);
+int dx_asset_solid_brush_construct(dx_asset_solid_brush* self, dx_asset_color* color);
 
 void dx_asset_solid_brush_destruct(dx_asset_solid_brush* self);
 

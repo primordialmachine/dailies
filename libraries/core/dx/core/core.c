@@ -17,7 +17,7 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static dx_error g_error = DX_NO_ERROR;
+DX_THREAD_LOCAL() dx_error g_error = DX_NO_ERROR;
 
 dx_error dx_get_error() {
   return g_error;
@@ -63,6 +63,45 @@ void dx_log(char const *p, size_t n) {
     return;
    }
   }
+}
+
+
+void dx_log_i64(dx_i64 value) {
+  fprintf(stdout, "%"PRIi64, value);
+}
+
+void dx_log_i32(dx_i32 value) {
+  fprintf(stdout, "%"PRIi32, value);
+}
+
+void dx_log_i16(dx_i16 value) {
+  fprintf(stdout, "%"PRIi16, value);
+}
+
+void dx_log_i8(dx_i8 value) {
+  fprintf(stdout, "%"PRIi8, value);
+}
+
+
+void dx_log_n64(dx_n64 value) {
+  fprintf(stdout, "%"PRIu64, value);
+}
+
+void dx_log_n32(dx_n32 value) {
+  fprintf(stdout, "%"PRIu32, value);
+}
+
+void dx_log_n16(dx_n16 value) {
+  fprintf(stdout, "%"PRIu16, value);
+}
+
+void dx_log_n8(dx_n8 value) {
+  fprintf(stdout, "%"PRIu8, value);
+}
+
+
+void dx_log_p(void const* p) {
+  fprintf(stdout, "%p", p);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -116,7 +155,7 @@ dx_size dx_hash_pointer(void const* p) {
 }
 
 dx_size dx_hash_bool(dx_bool x) {
-  return x ? 1231 : 1237; // These are arbitrary prime number as e.g. used in Boolean.getHashCode in Java. 
+  return x ? 1231 : 1237; // These are arbitrary prime number as e.g. used in Boolean.getHashCode in Java.
 }
 
 dx_size dx_hash_bytes(void const* p, dx_size n) {
@@ -130,13 +169,13 @@ dx_size dx_hash_bytes(void const* p, dx_size n) {
 
 dx_size dx_hash_f32(dx_f32 x) {
   switch (fpclassify(x)) {
-    case FP_INFINITE: { 
+    case FP_INFINITE: {
       return x > 0.0f ? -1 : -2;
     }
     case FP_NAN: {
       return (size_t)-3;
     }
-    case FP_ZERO: { 
+    case FP_ZERO: {
       return 0;
     }
     case FP_NORMAL:
@@ -151,13 +190,13 @@ dx_size dx_hash_f32(dx_f32 x) {
 
 dx_size dx_hash_f64(dx_f64 x) {
   switch (fpclassify(x)) {
-    case FP_INFINITE: { 
+    case FP_INFINITE: {
       return x > 0.0 ? -1 : -2;
     }
     case FP_NAN: {
       return (size_t)-3;
     }
-    case FP_ZERO: { 
+    case FP_ZERO: {
       return 0;
     }
     case FP_NORMAL:

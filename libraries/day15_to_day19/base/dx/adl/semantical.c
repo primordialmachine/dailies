@@ -2,6 +2,7 @@
 
 #include "dx/adl/syntactical.h"
 #include "dx/asset/palette.h"
+#include "dx/adl/semantical/read.h"
 // strlen
 #include <string.h>
 
@@ -18,13 +19,8 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, size_t index)
 
 static dx_string* _parse_type(dx_adl_node* node, dx_adl_semantical_names* names);
 
-static int _parse_n8(dx_adl_node* node, dx_string* name, dx_n8* target);
-static int _parse_sz(dx_adl_node* node, dx_string* name, dx_size* target);
-static int _parse_f32(dx_adl_node* node, dx_string* name, dx_f32* target);
-static int _parse_f64(dx_adl_node* node, dx_string* name, dx_f64* target);
-
 /// @param palette A pointer to a palette or the null pointer.
-static int _parse_rgb_u8(dx_adl_node* node, char const* name, dx_asset_palette* palette, DX_RGB_U8* target);
+static int _parse_rgb_u8(dx_adl_node* node, char const* name, dx_adl_semantical_state* state, dx_adl_semantical_names* names, DX_RGB_U8* target);
 
 static dx_string* _parse_type(dx_adl_node* node, dx_adl_semantical_names* names) {
   dx_string* key = NAME(type_key);
@@ -37,51 +33,29 @@ static dx_string* _parse_type(dx_adl_node* node, dx_adl_semantical_names* names)
   return type;
 }
 
-static int _parse_n8(dx_adl_node* node, dx_string* name, dx_n8* target) {
-  dx_adl_node* child_node = dx_adl_node_map_get(node, name);
-  if (!child_node || child_node->kind != dx_adl_node_kind_number) {
+static int _parse_color_reference(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names, DX_RGB_U8* target) {
+  dx_string* expected_type = NAME(color_reference_type);
+  dx_string* received_type = _parse_type(node, names);
+  if (!received_type) {
     return 1;
   }
-  if (dx_convert_utf8bytes_to_n8(child_node->number->bytes, child_node->number->number_of_bytes, target)) {
+  if (!dx_string_is_equal_to(received_type, expected_type)) {
+    dx_set_error(DX_SEMANTICAL_ERROR);
     return 1;
   }
+  dx_string* value = dx_adl_semantical_read_string(node, NAME(reference_key), names);
+  if (!value) {
+    return 1;
+  }
+  dx_asset_palette_entry* palette_entry = dx_asset_palette_get(state->scene->palette, value);
+  if (!palette_entry) {
+    return 1;
+  }
+  (*target) = palette_entry->value;
   return 0;
 }
 
-static int _parse_sz(dx_adl_node* node, dx_string* name, dx_size* target) {
-  dx_adl_node* child_node = dx_adl_node_map_get(node, name);
-  if (!child_node || child_node->kind != dx_adl_node_kind_number) {
-    return 1;
-  }
-  if (dx_convert_utf8bytes_to_sz(child_node->number->bytes, child_node->number->number_of_bytes, target)) {
-    return 1;
-  }
-  return 0;
-}
-
-static int _parse_f32(dx_adl_node* node, dx_string* name, dx_f32* target) {
-  dx_adl_node* child_node = dx_adl_node_map_get(node, name);
-  if (!child_node || child_node->kind != dx_adl_node_kind_number) {
-    return 1;
-  }
-  if (dx_convert_utf8bytes_to_f32(child_node->number->bytes, child_node->number->number_of_bytes, target)) {
-    return 1;
-  }
-  return 0;
-}
-
-static int _parse_f64(dx_adl_node* node, dx_string* name, dx_f64* target) {
-  dx_adl_node* child_node = dx_adl_node_map_get(node, name);
-  if (!child_node || child_node->kind != dx_adl_node_kind_number) {
-    return 1;
-  }
-  if (dx_convert_utf8bytes_to_f64(child_node->number->bytes, child_node->number->number_of_bytes, target)) {
-    return 1;
-  }
-  return 0;
-}
-
-static int _parse_rgb_u8(dx_adl_node* node, char const* name, dx_asset_palette* palette, DX_RGB_U8* target) {
+static int _parse_rgb_u8(dx_adl_node* node, char const* name, dx_adl_semantical_state* state, dx_adl_semantical_names* names, DX_RGB_U8* target) {
   dx_string* name1 = dx_string_create(name, strlen(name));
   if (!name1) {
     return 1;
@@ -89,15 +63,7 @@ static int _parse_rgb_u8(dx_adl_node* node, char const* name, dx_asset_palette* 
   dx_adl_node* child_node = dx_adl_node_map_get(node, name1);
   DX_UNREFERENCE(name1);
   name1 = NULL;
-  if (!child_node || child_node->kind != dx_adl_node_kind_string) {
-    return 1;
-  }
-  dx_asset_palette_entry* palette_entry = palette ? dx_asset_palette_get(palette, child_node->string) : NULL;
-  if (!palette_entry) {
-    return 1;
-  }
-  (*target) = palette_entry->value;
-  return 0;
+  return _parse_color_reference(child_node, state, names, target);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -145,13 +111,13 @@ static int _parse_translation(DX_MAT4* target, dx_adl_node* node, dx_adl_semanti
     return 1;
   }
   dx_f32 x, y, z;
-  if (_parse_f32(node, NAME(x_key), &x)) {
+  if (dx_adl_semantical_read_f32(node, NAME(x_key), &x)) {
     return 1;
   }
-  if (_parse_f32(node, NAME(y_key), &y)) {
+  if (dx_adl_semantical_read_f32(node, NAME(y_key), &y)) {
     return 1;
   }
-  if (_parse_f32(node, NAME(z_key), &z)) {
+  if (dx_adl_semantical_read_f32(node, NAME(z_key), &z)) {
     return 1;
   }
   dx_mat4_set_translate(target, x, y, z);
@@ -178,7 +144,7 @@ static int _parse_solid_brush_1(DX_ASSET_SOLID_BRUSH* target, dx_adl_node* node,
   if (!node) {
     goto END;
   }
-  if (_parse_rgb_u8(node, "color", state->scene->palette, &target->color)) {
+  if (_parse_rgb_u8(node, "color", state, names, &target->color)) {
     goto END;
   }
 END:
@@ -204,11 +170,11 @@ static int _parse_checkerboard_brush_1(DX_ASSET_CHECKERBOARD_BRUSH* target, dx_a
       goto END;
     }
     // numberOfCheckers.horizontal
-    if (_parse_sz(number_of_checkers_node, NAME(horizontal_key), &target->number_of_checkers.horizontal)) {
+    if (dx_adl_semantical_read_sz(number_of_checkers_node, NAME(horizontal_key), &target->number_of_checkers.horizontal)) {
       goto END;
     }
     // numberOfCheckers.vertical
-    if (_parse_sz(number_of_checkers_node, NAME(vertical_key), &target->number_of_checkers.vertical)) {
+    if (dx_adl_semantical_read_sz(number_of_checkers_node, NAME(vertical_key), &target->number_of_checkers.vertical)) {
       goto END;
     }
   }
@@ -226,11 +192,11 @@ static int _parse_checkerboard_brush_1(DX_ASSET_CHECKERBOARD_BRUSH* target, dx_a
       goto END;
     }
     // checkerSize.horizontal
-    if (_parse_sz(checker_size_node, NAME(horizontal_key), &target->checker_size.horizontal)) {
+    if (dx_adl_semantical_read_sz(checker_size_node, NAME(horizontal_key), &target->checker_size.horizontal)) {
       goto END;
     }
     // checkerSize.vertical
-    if (_parse_sz(checker_size_node, NAME(vertical_key), &target->checker_size.vertical)) {
+    if (dx_adl_semantical_read_sz(checker_size_node, NAME(vertical_key), &target->checker_size.vertical)) {
       goto END;
     }
   }
@@ -250,11 +216,11 @@ static int _parse_checkerboard_brush_1(DX_ASSET_CHECKERBOARD_BRUSH* target, dx_a
       goto END;
     }
     // checkerColors.first
-    if (_parse_rgb_u8(checker_colors_node, "first", state->scene->palette, &target->checker_colors.first)) {
+    if (_parse_rgb_u8(checker_colors_node, "first", state, names, &target->checker_colors.first)) {
       goto END;
     }
     // checkerColors.second
-    if (_parse_rgb_u8(checker_colors_node, "second", state->scene->palette, &target->checker_colors.second)) {
+    if (_parse_rgb_u8(checker_colors_node, "second", state, names, &target->checker_colors.second)) {
       goto END;
     }
   }
@@ -349,11 +315,11 @@ static dx_asset_image* _parse_image(dx_adl_node* node, dx_adl_semantical_state* 
   DX_RGB_U8* color = NULL;
   DX_ASSET_BRUSH* brush = NULL;
   // width
-  if (_parse_sz(node, NAME(width_key), &width)) {
+  if (dx_adl_semantical_read_sz(node, NAME(width_key), &width)) {
     goto END;
   }
   // height
-  if (_parse_sz(node, NAME(height_key), &height)) {
+  if (dx_adl_semantical_read_sz(node, NAME(height_key), &height)) {
     goto END;
   }
   // color
@@ -362,7 +328,7 @@ static dx_asset_image* _parse_image(dx_adl_node* node, dx_adl_semantical_state* 
     if (!color) {
       goto END;
     }
-    if (_parse_rgb_u8(node, "color", state->scene->palette, color)) {
+    if (_parse_rgb_u8(node, "color", state, names, color)) {
       goto END;
     }
   }

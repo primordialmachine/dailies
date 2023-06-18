@@ -1,0 +1,28 @@
+/*  phpBB3 Style Sheet
+    --------------------------------------------------------------
+	Style name:			prosilver (the default phpBB 3.3.x style)
+	Based on style:
+	Original author:	Tom Beddard ( http://www.subblue.com/ )
+	Modified by:		phpBB Limited ( https://www.phpbb.com/ )
+    --------------------------------------------------------------
+*/
+
+@import url("../../prosilver/theme/normalize.css?hash=48eb3f89");
+@import url("../../prosilver/theme/base.css?hash=7c5543be");
+@import url("../../prosilver/theme/utilities.css?hash=d8f72c42");
+@import url("../../prosilver/theme/common.css?hash=a9741ba1");
+@import url("../../prosilver/theme/links.css?hash=18286e16");
+@import url("../../prosilver/theme/content.css?hash=be57a41d");
+@import url("../../prosilver/theme/buttons.css?hash=56f0d25f");
+@import url("../../prosilver/theme/cp.css?hash=50d868ab");
+@import url("../../prosilver/theme/forms.css?hash=b64464fb");
+@import url("../../prosilver/theme/icons.css?hash=64da33ce");
+@import url("../../prosilver/theme/colours.css?hash=fcb2f289");
+@import url("../../prosilver/theme/responsive.css?hash=87b53e08");
+
+.site_logo {
+  display: inline-block;
+  height: 48px;
+  width: 8px;
+  background-image: none;
+}

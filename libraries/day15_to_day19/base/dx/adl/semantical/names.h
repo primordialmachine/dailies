@@ -1,7 +1,7 @@
 #if !defined(DX_ADL_SEMANTICAL_NAMES_COLOR_H_INCLUDED)
 #define DX_ADL_SEMANTICAL_NAMES_COLOR_H_INCLUDED
 
-#include "dx/adl/semantical/state.h"
+#include "dx/core.h"
 
 typedef enum dx_semantical_name_index {
 #define DEFINE(NAME, NUMBER, STRING) dx_semantical_name_index_##NAME = NUMBER,

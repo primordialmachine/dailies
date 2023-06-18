@@ -54,6 +54,8 @@ list(APPEND ${name}.sources "dx/adl/semantical/state.c")
 list(APPEND ${name}.headers "dx/adl/semantical/state.h")
 list(APPEND ${name}.sources "dx/adl/semantical/names.c")
 list(APPEND ${name}.headers "dx/adl/semantical/names.h")
+list(APPEND ${name}.sources "dx/adl/semantical/read.c")
+list(APPEND ${name}.headers "dx/adl/semantical/read.h")
 
 # Small utility function to find files by expression and append them to the specified list.
 function(add_files file_list expression)

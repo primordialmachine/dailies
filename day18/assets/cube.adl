@@ -18,7 +18,7 @@
               type : 'Image',
               width : 2048,
               height : 2048,
-              color : 'malachite',
+              color : { type : 'ColorReference', reference : 'malachite' },
               brush : {
                 type : 'CheckerboardBrush',
                 numberOfCheckers : {
@@ -30,8 +30,8 @@
                   vertical : 128,
                 },
                 checkerColors : {
-                  first : 'malachite',
-                  second : 'amber',
+                  first : { type : 'ColorReference', reference : 'malachite' },
+                  second : { type : 'ColorReference', reference : 'amber' },
                 },
               },// Image.brush
             },// Texture.image
@@ -56,7 +56,7 @@
               type : 'Image',
               width : 2048,
               height : 2048,
-              color : 'malachite',
+              color : { type : 'ColorReference', reference : 'malachite' },
               brush : {
                 type : 'CheckerboardBrush',
                 numberOfCheckers : {
@@ -68,8 +68,8 @@
                   vertical : 128,
                 },
                 checkerColors : {
-                  first : 'malachite',
-                  second : 'amber',
+                  first : { type : 'ColorReference', reference : 'malachite' },
+                  second : { type : 'ColorReference', reference : 'amber' },
                 },
               },// Image.brush
             },// Texture.image

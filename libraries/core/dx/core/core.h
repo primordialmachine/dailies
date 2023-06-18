@@ -127,16 +127,26 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /// @ingroup core
+/// @brief Variable annotation indicating a thread local storage.
+#if (DX_COMPILER_C == DX_COMPILER_C_GCC || DX_COMPILER_C == DX_COMPILER_C_CLANG) && !defined(DOXYGEN)
+  #define DX_THREAD_LOCAL() __thread  /**< @hideinitializer */
+#elif (DX_COMPILER_C == DX_COMPILER_C_MSVC) && !defined(DOXYGEN)
+  #define DX_THREAD_LOCAL() __declspec(thread) /**< @hideinitializer */
+#else
+  #error("C compiler not supported")
+#endif
+
+/// @ingroup core
 /// @brief Function annotation indicating that a function never returns.
 /// @details
 /// This function annotation indicates that a function never returns.
 /// If it returns, it only returns by raising an exception or by calling `longjmp`.
-#if (DX_COMPILER_C == DX_COMPILER_C_GCC || DX_COMPILER_C == DX_COMPILER_C_CLANG) && defined(DOXYGEN)
+#if (DX_COMPILER_C == DX_COMPILER_C_GCC || DX_COMPILER_C == DX_COMPILER_C_CLANG) && !defined(DOXYGEN)
   #define DX_NO_RETURN() __attribute__ ((noreturn)) /**< @hideinitializer */
 #elif (DX_COMPILER_C == DX_COMPILER_C_MSVC) && !defined(DOXYGEN)
   #define DX_NO_RETURN() __declspec(noreturn) /**< @hideinitializer */
 #else
-  #define DX_NO_RETURN()
+  #error("C compiler not supported")
 #endif
 
 /// @ingroup core
@@ -156,7 +166,7 @@
 ///   /* (X) In the heart with pain, abort execution. */
 /// }
 /// ```
-#if (DX_COMPILER_C == DX_COMPILER_C_GCC || DX_COMPILER_C == DX_COMPILER_C_CLANG) && defined(DOXYGEN)
+#if (DX_COMPILER_C == DX_COMPILER_C_GCC || DX_COMPILER_C == DX_COMPILER_C_CLANG) && !defined(DOXYGEN)
   #define DX_LIKELY(expression) (__builtin_expect((expression) ? 1 : 0, 1)) /**< @hideinitializer */
 #else
   #define DX_LIKELY(expression) (expression) /**< @hideinitializer */
@@ -179,11 +189,17 @@
 ///   /* (A) Foaming with joy, continue execution. */
 /// }
 /// ```
-#if (DX_COMPILER_C == DX_COMPILER_C_GCC || DX_COMPILER_C == DX_COMPILER_C_CLANG) && defined(DOXYGEN)
+#if (DX_COMPILER_C == DX_COMPILER_C_GCC || DX_COMPILER_C == DX_COMPILER_C_CLANG) && !defined(DOXYGEN)
   #define DX_UNLIKELY(expression) (__builtin_expect((expression) ? 1 : 0, 0)) /**< @hideinitializer */
 #else
   #define DX_UNLIKELY(expression) (expression) /**< @hideinitializer */
 #endif
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/// @ingroup core
+/// @brief An alias for the <code>void</code> C type.
+typedef void dx_void;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -472,16 +488,44 @@ dx_reference_counter dx_reference_counter_decrement(dx_reference_counter* refere
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-// @brief Write an utf-8 string to standard output.
-// @warning There is no guarantee that the log message is written.
-// @param p A pointer to an array of @a n Bytes.
-// @param n The length of the array.
-// @pre
-// - @a p does poins to an array of at least @a n Bytes and
-// - the first @a n Bytes of that array are a valid utf-8 string
-// @pre
-// - utf8 us supported by standard output
+/// @brief Write an utf-8 string to standard output.
+/// @warning There is no guarantee that the log message is written.
+/// @param p A pointer to an array of @a n Bytes.
+/// @param n The length of the array.
+/// @pre
+/// - @a p points to an array of at least @a n Bytes and
+/// - the first @a n Bytes of that array are a valid utf-8 string
+/// @pre
+/// - utf8 is supported by standard output
 void dx_log(char const *p, size_t n);
+
+/// @{
+/// @brief Write a number to standard output.
+/// @warning There is no guarantee that the log message is written.
+/// @param value The number.
+
+void dx_log_i64(dx_i64 value);
+
+void dx_log_i32(dx_i32 value);
+
+void dx_log_i16(dx_i16 value);
+
+void dx_log_i8(dx_i8 value);
+
+void dx_log_n64(dx_n64 value);
+
+void dx_log_n32(dx_n32 value);
+
+void dx_log_n16(dx_n16 value);
+
+void dx_log_n8(dx_n8 value);
+
+/// @}
+
+/// @brief Write a pointer to standard output.
+/// @warning There is no guarantee that the log message is written.
+/// @param p The pointer.
+void dx_log_p(void const* p);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

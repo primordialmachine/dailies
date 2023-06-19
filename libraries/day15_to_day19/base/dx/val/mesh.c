@@ -193,7 +193,7 @@ static void remove_material_from_backend(dx_mesh* self) {
 }
 
 static int add_to_backend(dx_mesh* self) {
-  static const DX_VERTEX_FORMAT vertex_format = DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_UV;
+  DX_VERTEX_FORMAT vertex_format = self->asset_mesh->vertex_format;
 
   // create buffer
   self->buffer = dx_context_create_buffer(self->context);

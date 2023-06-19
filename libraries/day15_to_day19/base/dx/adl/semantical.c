@@ -395,18 +395,14 @@ END:
 }
 
 static dx_asset_image* dx_adl_parse_image(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names) {
-  dx_asset_image* image = NULL;
-  dx_string* image_type = NULL;
-  dx_string* type = NULL;
-
-  type = _parse_type(node, names);
-  if (!type) {
+  dx_asset_image* asset = NULL;
+  dx_string* received_type = _parse_type(node, names);
+  if (!received_type) {
     return NULL;
   }
-  image_type = NAME(image_type);
-  if (dx_string_is_equal_to(type, image_type)) {
-    image = _parse_image(node, state, names);
-    if (!image) {
+  if (dx_string_is_equal_to(received_type, NAME(image_type))) {
+    asset = _parse_image(node, state, names);
+    if (!asset) {
       goto END;
     }
   } else {
@@ -414,7 +410,7 @@ static dx_asset_image* dx_adl_parse_image(dx_adl_node* node, dx_adl_semantical_s
     goto END;
   }
 END:
-  return image;
+  return asset;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -475,52 +471,65 @@ END:
 
 static dx_asset_material* _parse_material(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names) {
   dx_asset_material* material = NULL;
-  dx_asset_texture* ambient_texture = NULL;
-  // ambientTexture?
+  dx_asset_material* material1 = dx_asset_material_create();
+  if (!material1) {
+    goto END;
+  }
+  // ambientColor?
   {
-    dx_string* name = dx_string_create("ambientTexture", sizeof("ambientTexture") - 1);
-    if (!name) {
-      goto END;
-    }
+    dx_string* name = NAME(ambient_color_key);
     dx_error old_error = dx_get_error();
     dx_adl_node* child_node = dx_adl_node_map_get(node, name);
-    DX_UNREFERENCE(name);
-    name = NULL;
     if (child_node) {
-      ambient_texture = dx_adl_parse_texture(child_node, state, names);
-      if (!ambient_texture) {
+      DX_RGB_U8 ambient_color_u8;
+      if (_parse_color_instance(child_node, state, names, &ambient_color_u8)) {
+        goto END;
+      }
+      DX_VEC4 ambient_color_f32;
+      ambient_color_f32.e[0] = ((dx_f32)ambient_color_u8.r) / 255.f;
+      ambient_color_f32.e[1] = ((dx_f32)ambient_color_u8.g) / 255.f;
+      ambient_color_f32.e[2] = ((dx_f32)ambient_color_u8.b) / 255.f;
+      ambient_color_f32.e[3] = 1.f;
+      if (dx_asset_material_set_ambient_color(material1, &ambient_color_f32)) {
         goto END;
       }
     } else {
       dx_set_error(old_error);
     }
   }
-  material = dx_asset_material_create();
-  if (!material) {
-    goto END;
+  // ambientTexture?
+  {
+    dx_string* name = NAME(ambient_texture_key);
+    dx_error old_error = dx_get_error();
+    dx_adl_node* child_node = dx_adl_node_map_get(node, name);
+    if (child_node) {
+      dx_asset_texture* ambient_texture = dx_adl_parse_texture(child_node, state, names);
+      if (!ambient_texture) {
+        goto END;
+      }
+      if (dx_asset_material_set_ambient_texture(material1, ambient_texture)) {
+        DX_UNREFERENCE(ambient_texture);
+        ambient_texture = NULL;
+        goto END;
+      }
+      DX_UNREFERENCE(ambient_texture);
+      ambient_texture = NULL;
+    } else {
+      dx_set_error(old_error);
+    }
   }
-  if (dx_asset_material_set_ambient_texture(material, ambient_texture)) {
-    goto END;
-  }
+  material = material1;
 END:
-  if (ambient_texture) {
-    DX_UNREFERENCE(ambient_texture);
-    ambient_texture = NULL;
-  }
   return material;
 }
 
 static dx_asset_material* dx_adl_parse_material(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names) {
   dx_asset_material* asset = NULL;
-  dx_string* expected_type = NULL;
-  dx_string* received_type = NULL;
-
-  received_type = _parse_type(node, names);
+  dx_string* received_type = _parse_type(node, names);
   if (!received_type) {
     return NULL;
   }
-  expected_type = NAME(material_type);
-  if (dx_string_is_equal_to(expected_type, received_type)) {
+  if (dx_string_is_equal_to(received_type, NAME(material_type))) {
     asset = _parse_material(node, state, names);
     if (!asset) {
       goto END;
@@ -596,15 +605,11 @@ END:
 
 static dx_asset_mesh* dx_adl_parse_mesh(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names) {
   dx_asset_mesh* asset = NULL;
-  dx_string* expected_type = NULL;
-  dx_string* received_type = NULL;
-
-  received_type = _parse_type(node, names);
+  dx_string* received_type = _parse_type(node, names);
   if (!received_type) {
     return NULL;
   }
-  expected_type = NAME(mesh_type);
-  if (dx_string_is_equal_to(expected_type, received_type)) {
+  if (dx_string_is_equal_to(received_type, NAME(mesh_type))) {
     asset = _parse_mesh(node, state, names);
     if (!asset) {
       goto END;
@@ -679,18 +684,11 @@ END:
 
 static dx_asset_mesh_instance* dx_adl_parse_mesh_instance(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names) {
   dx_asset_mesh_instance* asset = NULL;
-  dx_string* expected_type = NULL;
-  dx_string* received_type = NULL;
-
-  received_type = _parse_type(node, names);
+  dx_string* received_type = _parse_type(node, names);
   if (!received_type) {
     return NULL;
   }
-  expected_type = dx_string_create("MeshInstance", sizeof("MeshInstance") - 1);
-  if (!expected_type) {
-    goto END;
-  }
-  if (dx_string_is_equal_to(expected_type, received_type)) {
+  if (dx_string_is_equal_to(received_type, NAME(mesh_instance_type))) {
     asset = _parse_mesh_instance(node, state, names);
     if (!asset) {
       goto END;
@@ -700,10 +698,6 @@ static dx_asset_mesh_instance* dx_adl_parse_mesh_instance(dx_adl_node* node, dx_
     goto END;
   }
 END:
-  if (expected_type) {
-    DX_UNREFERENCE(expected_type);
-    expected_type = NULL;
-  }
   return asset;
 }
 

@@ -34,7 +34,7 @@ void main() {
   out_fragment_color = texture(ambient_texture_sampler, fs_fragment_ambient_uv);
 #elif defined(WITH_VERTEX_AMBIENT_RGBA)
   out_fragment_color = fs_vertex_ambient_rgba;
-#elif defined(WITH_MESH_AMBIENT_RGBA
+#elif defined(WITH_MESH_AMBIENT_RGBA)
   out_fragment_color = fs_mesh_ambient_rgba;
 #else
   #error unsupported combination of program configurations

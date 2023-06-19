@@ -58,7 +58,7 @@
               type : 'Image',
               width : 2048,
               height : 2048,
-              color : { type : 'ColorReference', reference : 'malachite' },
+              color : { type : 'ColorInstance', reference : 'malachite' },
               brush : {
                 type : 'CheckerboardBrush',
                 numberOfCheckers : {
@@ -70,8 +70,8 @@
                   vertical : 128,
                 },
                 checkerColors : {
-                  first : { type : 'ColorReference', reference : 'malachite' },
-                  second : { type : 'ColorReference', reference : 'amber' },
+                  first : { type : 'ColorInstance', reference : 'malachite' },
+                  second : { type : 'ColorInstance', reference : 'amber' },
                 },
               },// Image.brush
             },// Texture.image

@@ -12,6 +12,8 @@
 #include "dx/scenes/create_assets.h"
 #include "dx/adl/syntactical.h"
 
+DX_DEFINE_OBJECT_TYPE("dx.mesh_viewer_scene", dx_mesh_viewer_scene, dx_scene)
+
 static int mesh_instance_on_startup(dx_mesh_viewer_scene* self, dx_context* context, dx_asset_scene* asset_scene) {
   if (dx_object_array_initialize(&self->mesh_instances, 2)) {
     return 1;
@@ -161,6 +163,9 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
       p = NULL;
     }
   }
+  if(!scene->asset_scene) {
+    return 1;
+  }
   //
   scene->angle = 0.f;
   if (mesh_instance_on_startup(scene, context, scene->asset_scene)) {
@@ -173,7 +178,7 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
   update_viewer(scene);
   //
   {
-    dx_command* command;
+    dx_command* command = NULL;
     dx_command_list* commands = dx_command_list_create();
     if (!commands) {
       mesh_instance_on_shutdown(scene);

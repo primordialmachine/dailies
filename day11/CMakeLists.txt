@@ -43,9 +43,9 @@ endif()
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.sources})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.headers})
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.readmes})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.inlays})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.asms})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.readmes})
 
 project(${name})
 

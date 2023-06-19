@@ -1,0 +1,20 @@
+{
+  type : 'Scene',
+  meshInstances : [
+    {
+      type : 'MeshInstance',
+      transformation : {
+        type : 'Translation',
+        x : 0, y : 0, z : 0,
+      },
+      mesh : {
+        type : 'Mesh',
+        vertex_format : ['position xyz', 'ambient uv'],
+        generator : 'quadriliteral',
+        material : {
+          type : 'Material',
+        },// Mesh.material
+      },// MeshInstance.mesh
+    },
+  ],
+}

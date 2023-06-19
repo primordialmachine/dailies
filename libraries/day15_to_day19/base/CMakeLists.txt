@@ -54,6 +54,7 @@ list(APPEND ${name}.sources "dx/adl/semantical/state.c")
 list(APPEND ${name}.headers "dx/adl/semantical/state.h")
 list(APPEND ${name}.sources "dx/adl/semantical/names.c")
 list(APPEND ${name}.headers "dx/adl/semantical/names.h")
+list(APPEND ${name}.inlays "dx/adl/semantical/names.i")
 list(APPEND ${name}.sources "dx/adl/semantical/read.c")
 list(APPEND ${name}.headers "dx/adl/semantical/read.h")
 
@@ -66,6 +67,8 @@ endfunction()
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.sources})
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.headers})
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.inlays})
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.readmes})
 

@@ -179,7 +179,7 @@ static int add_mesh_draw_command(dx_command_list* commands,
     mesh = NULL;
     return 1;
   }
-  static DX_VERTEX_FORMAT const vertex_format = DX_VERTEX_FORMAT_POSITION;
+  static DX_VERTEX_FORMAT const vertex_format = DX_VERTEX_FORMAT_POSITION_XYZ;
   dx_vbinding* vbinding = dx_context_create_vbinding(context, vertex_format, buffer);
   DX_UNREFERENCE(buffer);
   buffer = NULL;

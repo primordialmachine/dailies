@@ -109,6 +109,7 @@ SELECT_GENERATOR(triangle)
     self->vertices.xyz = NULL;
     return 1;
   }
+  self->vertex_format = DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_RGBA_AMBIENT_UV;
   DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_asset_mesh_destruct;
   return 0;
 }
@@ -128,7 +129,7 @@ dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier) {
 
 int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, void** bytes, size_t* number_of_bytes) {
   switch (vertex_format) {
-  case DX_VERTEX_FORMAT_POSITION: {
+  case DX_VERTEX_FORMAT_POSITION_XYZ: {
     void* p = dx_memory_allocate(self->number_of_vertices * sizeof(DX_VEC3));
     if (!p) {
       return 1;
@@ -142,7 +143,7 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
     *number_of_bytes = self->number_of_vertices * (sizeof(DX_VEC3));
     return 0;
   } break;
-  case DX_VERTEX_FORMAT_COLOR: {
+  case DX_VERTEX_FORMAT_AMBIENT_RGBA: {
     void* p = dx_memory_allocate(self->number_of_vertices * sizeof(DX_VEC4));
     if (!p) {
       return 1;
@@ -156,7 +157,7 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
     *number_of_bytes = self->number_of_vertices * (sizeof(DX_VEC4));
     return 0;
   } break;
-  case DX_VERTEX_FORMAT_POSITION_COLOR: {
+  case DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_RGBA: {
     void* p = dx_memory_allocate(self->number_of_vertices * (sizeof(DX_VEC3) + sizeof(DX_VEC4)));
     if (!p) {
       return 1;

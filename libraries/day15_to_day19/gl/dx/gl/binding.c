@@ -34,7 +34,7 @@ static int dx_gl_binding_construct(dx_gl_binding* binding, DX_VERTEX_FORMAT vert
   // https://www.khronos.org/opengl/wiki/Vertex_Specification
   ctx->glBindBuffer(GL_ARRAY_BUFFER, buffer->id);
   switch (binding->vertex_format) {
-  case DX_VERTEX_FORMAT_POSITION: {
+  case DX_VERTEX_FORMAT_POSITION_XYZ: {
     size_t stride = 3 * sizeof(float);
     size_t offset = 0;
     
@@ -42,7 +42,7 @@ static int dx_gl_binding_construct(dx_gl_binding* binding, DX_VERTEX_FORMAT vert
     ctx->glEnableVertexAttribArray(0);
     offset += 3 * sizeof(float);
   } break;
-  case DX_VERTEX_FORMAT_POSITION_COLOR: {
+  case DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_RGBA: {
     size_t stride = 3 * sizeof(float) + 4 * sizeof(float);
     size_t offset = 0;
     
@@ -54,7 +54,7 @@ static int dx_gl_binding_construct(dx_gl_binding* binding, DX_VERTEX_FORMAT vert
     ctx->glEnableVertexAttribArray(1);
     offset += 4 * sizeof(float);
   } break;
-  case DX_VERTEX_FORMAT_POSITION_TEXTURE: {
+  case DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_UV: {
     size_t stride = 3 * sizeof(float) + 2 * sizeof(float);
     size_t offset = 0;
 
@@ -66,7 +66,7 @@ static int dx_gl_binding_construct(dx_gl_binding* binding, DX_VERTEX_FORMAT vert
     ctx->glEnableVertexAttribArray(1);
     offset += 2 * sizeof(float);
   } break;
-  case DX_VERTEX_FORMAT_COLOR:
+  case DX_VERTEX_FORMAT_AMBIENT_RGBA:
   default: {
     dx_set_error(DX_INVALID_ARGUMENT);
     ctx->glDeleteVertexArrays(1, &binding->id);

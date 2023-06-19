@@ -23,6 +23,9 @@ struct dx_asset_mesh {
   /// @brief The number of vertices of this mesh.
   uint32_t number_of_vertices;
 
+  /// @brief The format of the vertices of this mesh.
+  DX_VERTEX_FORMAT vertex_format;
+
   struct {
     /// The mesh ambient "rgba" value.
     DX_VEC4 ambient_rgba;

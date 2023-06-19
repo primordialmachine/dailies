@@ -19,6 +19,10 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, size_t index)
 
 static dx_string* _parse_type(dx_adl_node* node, dx_adl_semantical_names* names);
 
+static int dx_adl_semantical_read_vertex_format(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names, DX_VERTEX_FORMAT* vertex_format);
+
+static int _parse_color_instance(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names, DX_RGB_U8* target);
+
 /// @param palette A pointer to a palette or the null pointer.
 static int _parse_rgb_u8(dx_adl_node* node, char const* name, dx_adl_semantical_state* state, dx_adl_semantical_names* names, DX_RGB_U8* target);
 
@@ -33,8 +37,30 @@ static dx_string* _parse_type(dx_adl_node* node, dx_adl_semantical_names* names)
   return type;
 }
 
-static int _parse_color_reference(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names, DX_RGB_U8* target) {
-  dx_string* expected_type = NAME(color_reference_type);
+static int dx_adl_semantical_read_vertex_format(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names, DX_VERTEX_FORMAT* vertex_format) {
+  if (!node || node->kind != dx_adl_node_kind_list) {
+    return 1;
+  }
+  DX_VERTEX_FORMAT vertex_format_1 = 0;
+  for (dx_size i = 0, n = dx_adl_node_list_get_size(node); i < n; ++i) {
+    dx_adl_node* child_node = dx_adl_node_list_get(node, i);
+    dx_string* received_value = dx_adl_node_get_string(child_node);
+    if (dx_string_is_equal_to(received_value, NAME(position_xyz_string))) {
+      vertex_format_1 |= DX_VERTEX_FORMAT_POSITION_XYZ;
+    } else if (dx_string_is_equal_to(received_value, NAME(ambient_rgba_string))) {
+      vertex_format_1 |= DX_VERTEX_FORMAT_AMBIENT_RGBA;
+    } else if (dx_string_is_equal_to(received_value, NAME(ambient_uv_string))) {
+      vertex_format_1 |= DX_VERTEX_FORMAT_AMBIENT_UV;
+    } else {
+      return 1;
+    }
+  }
+  (*vertex_format) = vertex_format_1;
+  return 0;
+}
+
+static int _parse_color_instance(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names, DX_RGB_U8* target) {
+  dx_string* expected_type = NAME(color_instance_type);
   dx_string* received_type = _parse_type(node, names);
   if (!received_type) {
     return 1;
@@ -63,7 +89,7 @@ static int _parse_rgb_u8(dx_adl_node* node, char const* name, dx_adl_semantical_
   dx_adl_node* child_node = dx_adl_node_map_get(node, name1);
   DX_UNREFERENCE(name1);
   name1 = NULL;
-  return _parse_color_reference(child_node, state, names, target);
+  return _parse_color_instance(child_node, state, names, target);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -530,15 +556,24 @@ static dx_asset_mesh* _parse_mesh(dx_adl_node* node, dx_adl_semantical_state* st
       goto END;
     }
   }
-  // material
+  // vertexFormat
+  DX_VERTEX_FORMAT vertex_format = DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_RGBA_AMBIENT_UV;
   {
-    dx_string* name = dx_string_create("material", sizeof("material") - 1);
-    if (!name) {
+    dx_string* name = NAME(vertex_format_key);
+    dx_adl_node* child_node = dx_adl_node_map_get(node, name);
+    if (dx_get_error()) {
       goto END;
     }
+    if (child_node) {
+      if (dx_adl_semantical_read_vertex_format(child_node, state, names, &vertex_format)) {
+        goto END;
+      }
+    }
+  }
+  // material
+  {
+    dx_string* name = NAME(material_key);
     dx_adl_node* child_node = dx_adl_node_map_get(node, name);
-    DX_UNREFERENCE(name);
-    name = NULL;
     if (!child_node) {
       goto END;
     }
@@ -547,7 +582,7 @@ static dx_asset_mesh* _parse_mesh(dx_adl_node* node, dx_adl_semantical_state* st
       goto END;
     }
   }
-  mesh = dx_asset_mesh_create(generator, material);
+  mesh = dx_asset_mesh_create(generator, vertex_format, material);
   if (!mesh) {
     goto END;
   }
@@ -590,13 +625,8 @@ static dx_asset_mesh_instance* _parse_mesh_instance(dx_adl_node* node, dx_adl_se
   DX_MAT4* transformation = NULL;
   // mesh
   {
-    dx_string* name = dx_string_create("mesh", sizeof("mesh") - 1);
-    if (!name) {
-      goto END;
-    }
+    dx_string* name = NAME(mesh_key);
     dx_adl_node* child_node = dx_adl_node_map_get(node, name);
-    DX_UNREFERENCE(name);
-    name = NULL;
     if (!child_node) {
       goto END;
     }

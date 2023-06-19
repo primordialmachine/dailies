@@ -77,7 +77,7 @@ static void dx_asset_mesh_destruct(dx_asset_mesh* self) {
   }
 }
 
-static int dx_asset_mesh_construct(dx_asset_mesh* self, dx_string* specifier, dx_asset_material* material) {
+static int dx_asset_mesh_construct(dx_asset_mesh* self, dx_string* specifier, DX_VERTEX_FORMAT vertex_format, dx_asset_material* material) {
   if (!self || !specifier || !material) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -146,16 +146,17 @@ SELECT_GENERATOR(octahedron)
   }
   self->material = material;
   DX_REFERENCE(material);
+  self->vertex_format = vertex_format;
   DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_asset_mesh_destruct;
   return 0;
 }
 
-dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier, dx_asset_material* material) {
+dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier, DX_VERTEX_FORMAT vertex_format, dx_asset_material* material) {
   dx_asset_mesh* self = DX_ASSET_MESH(dx_object_alloc(sizeof(dx_asset_mesh)));
   if (!self) {
     return NULL;
   }
-  if (dx_asset_mesh_construct(self, specifier, material)) {
+  if (dx_asset_mesh_construct(self, specifier, vertex_format, material)) {
     DX_UNREFERENCE(self);
     self = NULL;
     return NULL;
@@ -165,7 +166,7 @@ dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier, dx_asset_material* mat
 
 int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, void** bytes, size_t* number_of_bytes) {
   switch (vertex_format) {
-  case DX_VERTEX_FORMAT_POSITION: {
+  case DX_VERTEX_FORMAT_POSITION_XYZ: {
     void* p = dx_memory_allocate(self->number_of_vertices * sizeof(DX_VEC3));
     if (!p) {
       return 1;
@@ -179,7 +180,7 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
     *number_of_bytes = self->number_of_vertices * (sizeof(DX_VEC3));
     return 0;
   } break;
-  case DX_VERTEX_FORMAT_COLOR: {
+  case DX_VERTEX_FORMAT_AMBIENT_RGBA: {
     void* p = dx_memory_allocate(self->number_of_vertices * sizeof(DX_VEC4));
     if (!p) {
       return 1;
@@ -193,7 +194,7 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
     *number_of_bytes = self->number_of_vertices * (sizeof(DX_VEC4));
     return 0;
   } break;
-  case DX_VERTEX_FORMAT_POSITION_COLOR: {
+  case DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_RGBA: {
     void* p = dx_memory_allocate(self->number_of_vertices * (sizeof(DX_VEC3) + sizeof(DX_VEC4)));
     if (!p) {
       return 1;
@@ -209,7 +210,7 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
     *number_of_bytes = self->number_of_vertices * (sizeof(DX_VEC3) + sizeof(DX_VEC4));
     return 0;
   } break;
-  case DX_VERTEX_FORMAT_POSITION_TEXTURE: {
+  case DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_UV: {
     void* p = dx_memory_allocate(self->number_of_vertices * (sizeof(DX_VEC3) + sizeof(DX_VEC2)));
     if (!p) {
       return 1;

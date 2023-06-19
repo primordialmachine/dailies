@@ -193,7 +193,7 @@ static void remove_material_from_backend(dx_mesh* self) {
 }
 
 static int add_to_backend(dx_mesh* self) {
-  static const DX_VERTEX_FORMAT vertex_format = DX_VERTEX_FORMAT_POSITION_TEXTURE;
+  static const DX_VERTEX_FORMAT vertex_format = DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_UV;
 
   // create buffer
   self->buffer = dx_context_create_buffer(self->context);
@@ -225,13 +225,13 @@ static int add_to_backend(dx_mesh* self) {
   // create the program
   uint8_t flags = DX_PROGRAM_WITH_MESH_AMBIENT_RGBA;
   switch (vertex_format) {
-  case DX_VERTEX_FORMAT_POSITION: {
+  case DX_VERTEX_FORMAT_POSITION_XYZ: {
     /*Intentionally empty.*/
   } break;
-  case DX_VERTEX_FORMAT_POSITION_COLOR: {
+  case DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_RGBA: {
     flags |= DX_PROGRAM_WITH_VERTEX_AMBIENT_RGBA;
   } break;
-  case DX_VERTEX_FORMAT_POSITION_TEXTURE: {
+  case DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_UV: {
    flags |= DX_PROGRAM_WITH_VERTEX_AMBIENT_UV;
    if (self->material->asset_material->ambient_texture) {
       flags |= DX_PROGRAM_WITH_AMBIENT_TEXTURE;

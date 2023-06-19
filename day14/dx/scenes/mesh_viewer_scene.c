@@ -174,7 +174,7 @@ static int add_mesh_draw_command(dx_command_list* commands,
     mesh = NULL;
     return 1;
   }
-  static DX_VERTEX_FORMAT const vertex_format = DX_VERTEX_FORMAT_POSITION_COLOR;
+  static DX_VERTEX_FORMAT const vertex_format = DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_RGBA;
   void* bytes; size_t number_of_bytes;
   if (dx_asset_mesh_format(mesh, vertex_format, &bytes, &number_of_bytes)) {
     DX_UNREFERENCE(buffer);

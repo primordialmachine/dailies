@@ -21,8 +21,7 @@
 @import url("../../prosilver/theme/responsive.css?hash=87b53e08");
 
 .site_logo {
-  display: inline-block;
-  height: 48px;
-  width: 8px;
-  background-image: none;
+  background-image: url("./images/site-logo-v3.svg");
+  width: 56px;
+  height: 56px;
 }

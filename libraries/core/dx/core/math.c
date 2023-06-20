@@ -62,6 +62,22 @@ void dx_vec3_cross(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v) {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+void dx_vec4_add4(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v) {
+  w->e[0] = u->e[0] + v->e[0];
+  w->e[1] = u->e[1] + v->e[1];
+  w->e[2] = u->e[2] + v->e[2];
+  w->e[3] = u->e[3] + v->e[3];
+}
+
+void dx_vec4_sub4(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v) {
+  w->e[0] = u->e[0] - v->e[0];
+  w->e[1] = u->e[1] - v->e[1];
+  w->e[2] = u->e[2] - v->e[2];
+  w->e[3] = u->e[3] - v->e[3];
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 void dx_mat4_set_identity(DX_MAT4* m) {
   // column #1
   m->e[0][0] = 1.f;

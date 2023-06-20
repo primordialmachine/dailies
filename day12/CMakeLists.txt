@@ -8,28 +8,38 @@ cmake_minimum_required(VERSION 3.20)
 set(name "dailies.day12")
 
 
-# DX sources.
+# One list for inlays files, one list for source files, one list for headers, one list for readmes.
 set(${name}.inlays "")
 set(${name}.sources "")
 set(${name}.headers "")
 set(${name}.readmes "")
-set(${name}.asms "")
 
+# "README.md".
+set(${name}.readmes "README.md")
+
+# "main.c".
 list(APPEND ${name}.sources "main.c")
-list(APPEND ${name}.readmes "README.md")
 
-# DX scenes sources.
-list(APPEND ${name}.sources "dx/scenes/mesh_viewer_scene.c")
-list(APPEND ${name}.headers "dx/scenes/mesh_viewer_scene.h")
-
+# "dx/scene.(c|h)".
 list(APPEND ${name}.sources "dx/scene.c")
 list(APPEND ${name}.headers "dx/scene.h")
 
-# Small utility function to find files by expression and append them to the specified list.
-function(add_files file_list expression)
-  file(GLOB_RECURSE temporary ${expression})
-  set(${file_list} ${${file_list}} ${temporary} PARENT_SCOPE)
-endfunction()
+# "dx/scenes/*".
+list(APPEND ${name}.sources "dx/scenes/mesh_viewer_scene.c")
+list(APPEND ${name}.headers "dx/scenes/mesh_viewer_scene.h")
+list(APPEND ${name}.sources "dx/scenes/create_assets.c")
+list(APPEND ${name}.headers "dx/scenes/create_assets.h")
+
+# The target architecture determines which implementation to compile.
+if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+  message( STATUS "detected x64 target architecture" )
+  set( infix "x64" )
+elseif( CMAKE_SIZEOF_VOID_P EQUAL 4 )
+  message( STATUS "detected x86 target architecture" )
+  set( infix "x86" )
+else()
+  message( FATAL_ERROR "unable to detect architecture" )
+endif()
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.sources})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.headers})
@@ -41,13 +51,20 @@ project(${name})
 
 add_executable(${name} ${${name}.sources} ${${name}.headers} ${${name}.readmes} ${${name}.inlays} ${${name}.asms})
 
-target_link_libraries(${name} dailies.day10_to_day14)
-target_link_libraries(${name} dailies.day10_to_day14.gl)
+# DLL plugins.
+add_dependencies(${name} tif-writer)
+add_custom_command(TARGET ${name} POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                   ${CMAKE_CURRENT_BINARY_DIR}/../tif-writer/$<CONFIG>/tif-writer.dll $<TARGET_FILE_DIR:${name}>
+                   COMMAND_EXPAND_LISTS)
 
 # See ${CMAKE_SOURCE_DIR_DIR}/CMakeLibrary.cmake for more information.
 dx_configure_warnings(${name})
 
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(${name} dailies.day15_to_day19)
+target_link_libraries(${name} dailies.day15_to_day19.gl)
 
 find_package(Doxygen)
 

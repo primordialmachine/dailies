@@ -1,9 +1,9 @@
-#if defined(WITH_AMBIENT_TEXTURE)
+#if defined(WITH_MATERIAL_AMBIENT_TEXTURE)
 
 // texture sampler.
 uniform sampler2D ambient_texture_sampler;
 
-#endif // WITH_AMBIENT_TEXTURE
+#endif // WITH_MATERIAL_AMBIENT_TEXTURE
 
 #if defined(WITH_VERTEX_AMBIENT_RGBA)
 
@@ -30,7 +30,7 @@ in vec4 fs_mesh_ambient_rgba;
 out vec4 out_fragment_color;
 
 void main() {
-#if defined(WITH_VERTEX_AMBIENT_UV) && defined(WITH_AMBIENT_TEXTURE)
+#if defined(WITH_VERTEX_AMBIENT_UV) && defined(WITH_MATERIAL_AMBIENT_TEXTURE)
   out_fragment_color = texture(ambient_texture_sampler, fs_fragment_ambient_uv);
 #elif defined(WITH_VERTEX_AMBIENT_RGBA)
   out_fragment_color = fs_vertex_ambient_rgba;

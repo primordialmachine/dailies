@@ -9,7 +9,7 @@
       },
       mesh : {
         type : 'Mesh',
-        vertex_format : ['position xyz', 'ambient uv'],
+        vertexFormat : ['position xyz', 'ambient uv'],
         generator : 'cube',
         material : {
           type : 'Material',
@@ -48,7 +48,7 @@
       },
       mesh : {
         type : 'Mesh',
-        vertex_format : ['position xyz', 'ambient uv'],
+        vertexFormat : ['position xyz', 'ambient uv'],
         generator : 'cube',
         material : {
           type : 'Material',

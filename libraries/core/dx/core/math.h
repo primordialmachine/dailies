@@ -75,7 +75,7 @@ void dx_vec3_norm(DX_VEC3* v, DX_VEC3 const* u);
 
 /// @ingroup math
 /// @brief Compute the sum of two vectors.
-/// @param w Pointer too a DX_VEC3 object.
+/// @param w Pointer to a DX_VEC3 object.
 /// @param u Pointer to a DX_VEC3 object.
 /// The object's values represent the augend (aka the 1st operand).
 /// @param v Pointer toa DX_VEC3 object.
@@ -111,6 +111,35 @@ void dx_vec3_cross(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v);
 typedef struct DX_VEC4 {
   float e[4];
 } DX_VEC4;
+
+static inline void dx_vec4_set(DX_VEC4* v, float x, float y, float z, float w) {
+  v->e[0] = x;
+  v->e[1] = y;
+  v->e[2] = z;
+  v->e[3] = w;
+}
+
+/// @ingroup math
+/// @brief Compute the sum of two vectors.
+/// @param w Pointer to a DX_VEC4 object.
+/// @param u Pointer to a DX_VEC4 object.
+/// The object's values represent the augend (aka the 1st operand).
+/// @param v Pointer toa DX_VEC4 object.
+/// The object's values represent the addend (aka the 2nd operand).
+/// @remarks @a w, @a u, and @a v all may refer to the same object.
+/// @post <code>*w/<code> was assigned the values of the sum vector.
+void dx_vec4_add4(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v);
+
+/// @ingroup math
+/// @brief Compute the difference of two vectors.
+/// @param w Pointer to a DX_VEC4 object.
+/// @param u Pointer to a DX_VEC4 object.
+/// The object's values represent the vector that is the minuend (aka the 1st operand).
+/// @param v Pointer to a DX_VEC4 object.
+/// The object's values represent hte vector that is the the subtrahend (aka the 2nd operand).
+/// @remarks @a w, @a u, and @a v all may refer to the same object.
+/// @post <code>*w/<code> was assigned the values of the difference vector.
+void dx_vec4_sub4(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v);
 
 static inline void dx_vec4_lerp(DX_VEC4 const* u, DX_VEC4 const* v, float t, DX_VEC4* w) {
   t = dx_clamp(t);

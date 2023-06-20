@@ -6,7 +6,14 @@
 
 // EXIT_SUCCESS, EXIT_FAILURE
 #include <stdlib.h>
+
 #include "dx/core.h"
+
+// GetTickCount64
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
+#include "dx/application.h"
 #include "dx/gl/wgl/wm.h"
 #include "dx/scenes/mesh_viewer_scene.h"
 
@@ -24,7 +31,7 @@ static dx_scene* g_scenes[2] = { NULL, NULL };
 
 static int on_msg(dx_msg* msg);
 
-static int on_render_scene(dx_context* context, float delta_seconds, int canvas_width, int canvas_height);
+static int on_render(dx_context* context, int canvas_width, int canvas_height);
 
 static int run();
 
@@ -55,6 +62,12 @@ void dx_application_shutdown();
 /// Otherwise a pointer to the application object is returned an the reference count of the application object is incremented by @a 1.
 dx_application* dx_application_get();
 
+#if defined(_WIN32)
+  #include "dx/gl/wgl/wm.h"
+#else
+  #error("environment not (yet) supported")
+#endif
+
 int dx_application_startup(dx_msg_queue* msg_queue) {
   return dx_gl_wgl_application_startup(msg_queue);
 }
@@ -66,6 +79,7 @@ void dx_application_shutdown() {
 dx_application* dx_application_get() {
   return (dx_application*)dx_gl_wgl_application_get();
 }
+
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -100,11 +114,11 @@ static int on_msg(dx_msg* msg) {
 }
 
 static int on_startup_scene(dx_context* context) {
-  g_scenes[0] = DX_SCENE(dx_mesh_viewer_scene_create("quadriliteral", NULL));
+  g_scenes[0] = DX_SCENE(dx_mesh_viewer_scene_create("quadriliteral"));
   if (!g_scenes[0]) {
     return 1;
   }
-  g_scenes[1] = DX_SCENE(dx_mesh_viewer_scene_create("triangle", NULL));
+  g_scenes[1] = DX_SCENE(dx_mesh_viewer_scene_create("triangle"));
   if (!g_scenes[1]) {
     DX_UNREFERENCE(g_scenes[0]);
     g_scenes[0] = NULL;
@@ -112,11 +126,14 @@ static int on_startup_scene(dx_context* context) {
   }
   //
   if (dx_scene_startup(g_scenes[0], context)) {
+    DX_UNREFERENCE(g_scenes[1]);
+    g_scenes[1] = NULL;
     DX_UNREFERENCE(g_scenes[0]);
     g_scenes[0] = NULL;
     return 1;
   }
   if (dx_scene_startup(g_scenes[1], context)) {
+    dx_scene_shutdown(g_scenes[0], context);
     DX_UNREFERENCE(g_scenes[1]);
     g_scenes[1] = NULL;
     DX_UNREFERENCE(g_scenes[0]);
@@ -160,13 +177,13 @@ static int run() {
     // create the "emit" message.
     msg = DX_MSG(dx_emit_msg_create("Hello, World!\n", sizeof("Hello, World!\n")));
     if (!msg) {
-      dx_log("leave: run\n", sizeof("leave: run\n"));
+      dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
       return 1;
     }
     if (dx_msg_queue_push(g_msg_queue, msg)) {
       DX_UNREFERENCE(msg);
       msg = NULL;
-      dx_log("leave: run\n", sizeof("leave: run\n"));
+      dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
       return 1;
     }
     DX_UNREFERENCE(msg);
@@ -174,6 +191,7 @@ static int run() {
   }
   dx_context* ctx = DX_CONTEXT(dx_gl_wgl_get_context());
   if (on_startup_scene(ctx)) {
+    dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
     return 1;
   }
   uint64_t last = GetTickCount64();
@@ -185,15 +203,15 @@ static int run() {
     last = now;
 
     if (dx_gl_wgl_update_wm()) {
-      dx_log("leave: run\n", sizeof("leave: run\n"));
       on_shutdown_scene(ctx);
+      dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
       return 1;
     }
     do {
       dx_msg* msg;
       if (dx_msg_queue_pop(g_msg_queue, &msg)) {
-        dx_log("leave: run\n", sizeof("leave: run\n"));
         on_shutdown_scene(ctx);
+        dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
         return 1;
       }
       if (msg) {
@@ -201,7 +219,7 @@ static int run() {
           DX_UNREFERENCE(msg);
           msg = NULL;
           on_shutdown_scene(ctx);
-          dx_log("leave: run\n", sizeof("leave: run\n"));
+          dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
           return 1;
         }
         DX_UNREFERENCE(msg);
@@ -227,7 +245,7 @@ static int run() {
     dx_gl_wgl_leave_frame();
   }
   on_shutdown_scene(ctx);
-  dx_log("leave: run\n", sizeof("leave: run\n"));
+  dx_log("leave: run (success)\n", sizeof("leave: run (success)\n"));
   return 0;
 }
 

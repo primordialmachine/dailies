@@ -16,7 +16,7 @@
 #define DX_PROGRAM_WITH_VERTEX_AMBIENT_UV (4)
 
 /// @brief See shader program source code for details.
-#define DX_PROGRAM_WITH_AMBIENT_TEXTURE (8)
+#define DX_PROGRAM_WITH_MATERIAL_AMBIENT_TEXTURE (8)
 
 // @brief
 // Load a program consisting of a vertex and a fragment shader.
@@ -88,8 +88,7 @@ static dx_program_text* load_program(dx_string* path, dx_string* filename, uint8
       goto on_error;
     }
     if (DX_PROGRAM_WITH_MESH_AMBIENT_RGBA == (flags & DX_PROGRAM_WITH_MESH_AMBIENT_RGBA)) {
-      dx_string* name = dx_string_create("WITH_MESH_AMBIENT_RGBA",
-        sizeof("WITH_MESH_AMBIENT_RGBA") - 1);
+      dx_string* name = dx_string_create("WITH_MESH_AMBIENT_RGBA", sizeof("WITH_MESH_AMBIENT_RGBA") - 1);
       if (!name) {
         DX_UNREFERENCE(program);
         program = NULL;
@@ -106,8 +105,7 @@ static dx_program_text* load_program(dx_string* path, dx_string* filename, uint8
       name = NULL;
     }
     if (DX_PROGRAM_WITH_VERTEX_AMBIENT_RGBA == (flags & DX_PROGRAM_WITH_VERTEX_AMBIENT_RGBA)) {
-      dx_string* name = dx_string_create("WITH_VERTEX_AMBIENT_RGBA",
-        sizeof("WITH_VERTEX_AMBIENT_RGBA") - 1);
+      dx_string* name = dx_string_create("WITH_VERTEX_AMBIENT_RGBA", sizeof("WITH_VERTEX_AMBIENT_RGBA") - 1);
       if (!name) {
         DX_UNREFERENCE(program);
         program = NULL;
@@ -124,8 +122,7 @@ static dx_program_text* load_program(dx_string* path, dx_string* filename, uint8
       name = NULL;
     }
     if (DX_PROGRAM_WITH_VERTEX_AMBIENT_UV == (flags & DX_PROGRAM_WITH_VERTEX_AMBIENT_UV)) {
-      dx_string* name = dx_string_create("WITH_VERTEX_AMBIENT_UV",
-        sizeof("WITH_VERTEX_AMBIENT_UV") - 1);
+      dx_string* name = dx_string_create("WITH_VERTEX_AMBIENT_UV", sizeof("WITH_VERTEX_AMBIENT_UV") - 1);
       if (!name) {
         DX_UNREFERENCE(program);
         program = NULL;
@@ -141,9 +138,8 @@ static dx_program_text* load_program(dx_string* path, dx_string* filename, uint8
       DX_UNREFERENCE(name);
       name = NULL;
     }
-    if (DX_PROGRAM_WITH_AMBIENT_TEXTURE == (flags & DX_PROGRAM_WITH_AMBIENT_TEXTURE)) {
-      dx_string* name = dx_string_create("WITH_AMBIENT_TEXTURE",
-        sizeof("WITH_AMBIENT_TEXTURE") - 1);
+    if (DX_PROGRAM_WITH_MATERIAL_AMBIENT_TEXTURE == (flags & DX_PROGRAM_WITH_MATERIAL_AMBIENT_TEXTURE)) {
+      dx_string* name = dx_string_create("WITH_MATERIAL_AMBIENT_TEXTURE", sizeof("WITH_MATERIAL_AMBIENT_TEXTURE") - 1);
       if (!name) {
         DX_UNREFERENCE(program);
         program = NULL;
@@ -234,7 +230,7 @@ static int add_to_backend(dx_mesh* self) {
   case DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_UV: {
    flags |= DX_PROGRAM_WITH_VERTEX_AMBIENT_UV;
    if (self->material->asset_material->ambient_texture) {
-      flags |= DX_PROGRAM_WITH_AMBIENT_TEXTURE;
+      flags |= DX_PROGRAM_WITH_MATERIAL_AMBIENT_TEXTURE;
     }
   } break;
   default: {

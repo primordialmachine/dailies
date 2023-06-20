@@ -5,7 +5,7 @@ The program opens a window.
 The window is presenting multiple "scenes" using a modern OpenGL backend.
 
 This program introduces the concept of time-based changes to the visuals of scenes
-by oscillating the mesh color of the meshes displayed by the triangle and quadriliteral scenes.
+by oscillating the mesh color of the meshes displayed by the quadriliteral and triangle scenes.
 
 To exit the program either close the window or press `Escape` when the window has keyboard focus.
 To switch between the two scenes, press `Enter`.

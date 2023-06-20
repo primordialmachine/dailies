@@ -9,102 +9,67 @@
 // snprintf
 #include <stdio.h>
 #include "dx/val/cbinding.h"
-#include "dx/val/program_text.h"
+#include "dx/scenes/create_assets.h"
+#include "dx/adl/syntactical.h"
 
-static DX_VEC4 const clear_color = { 0.f / 255.f, 191.f / 255.f, 255.f / 255.f, 0.f }; // color called "Capri" (0, 191, 255)
+DX_DEFINE_OBJECT_TYPE("dx.mesh_viewer_scene", dx_mesh_viewer_scene, dx_scene)
 
-static dx_cbinding* create_cbinding() {
-  DX_MAT4 identity;
-  dx_mat4_set_identity(&identity);
-  dx_cbinding* cbinding = dx_cbinding_create();
-  if (!cbinding) {
-    return NULL;
+static int mesh_instance_on_startup(dx_mesh_viewer_scene* self, dx_context* context, dx_asset_scene* asset_scene) {
+  if (dx_object_array_initialize(&self->mesh_instances, 2)) {
+    return 1;
   }
-  static const DX_VEC4 malachite = { 0.f, 255.f / 255.f, 64.f / 255.f, 1.0f }; // color called "Malachite" (0, 255, 64) from "Capri"'s tetradic palette
-  dx_cbinding_set_vec4(cbinding, "mesh.color", &malachite);
-  dx_cbinding_set_mat4(cbinding, "matrices.projection_matrix", &identity);
-  dx_cbinding_set_mat4(cbinding, "matrices.view_matrix", &identity);
-  dx_cbinding_set_mat4(cbinding, "matrices.world_matrix", &identity);
-  return cbinding;
+  for (size_t i = 0, n = dx_object_array_get_size(&asset_scene->mesh_instances); i < n; ++i) {
+    dx_asset_mesh_instance* asset_mesh_instance = DX_ASSET_MESH_INSTANCE(dx_object_array_get_at(&asset_scene->mesh_instances, i));
+    dx_mesh* mesh = dx_mesh_create(context, asset_mesh_instance->mesh);
+    dx_mesh_instance* mesh_instance = dx_mesh_instance_create(asset_mesh_instance->world_matrix, mesh);
+    if (dx_object_array_append(&self->mesh_instances, DX_OBJECT(mesh_instance))) {
+      DX_UNREFERENCE(mesh_instance);
+      mesh_instance = NULL;
+      dx_object_array_uninitialize(&self->mesh_instances);
+      return 1;
+    }
+    DX_UNREFERENCE(mesh_instance);
+    mesh_instance = NULL;
+  }
+  return 0;
 }
 
-// @brief Load the fragment shader <version>.fs and the vertex shader <version>.vs as a program text object.
-// @remarks
-// <version>.fs is a fragment shader and <version>.fs is a vertex shader
-// where <version> can assume the values 1 and 2. The shaders differ in
-// what color information they use.
-// - 1 the shader requires per-mesh color information.
-// - 2 the shader requires per-vertex color information.
-static dx_program_text* load_program(dx_string* path, dx_string* filename) {
-  dx_program_text* vertex_program = NULL, * fragment_program = NULL;
-  dx_program_text* program = NULL;
-  {
-    dx_string* format = dx_string_create("%s/%s.vs", sizeof("%s/%s.vs") - 1);
-    if (!format) {
-      goto on_error;
-    }
-    dx_string* p = dx_string_printf(format, path, filename);
-    DX_UNREFERENCE(format);
-    format = NULL;
-    if (!p) {
-      goto on_error;
-    }
-    vertex_program = dx_program_text_create_from_file(DX_PROGRAM_TEXT_TYPE_VERTEX, p);
-    DX_UNREFERENCE(p);
-    p = NULL;
-    if (!vertex_program) {
-      goto on_error;
-    }
-  }
-  {
-    dx_string* format = dx_string_create("%s/%s.fs", sizeof("%s/%s.fs") - 1);
-    if (!format) {
-      goto on_error;
-    }
-    dx_string* p = dx_string_printf(format, path, filename);
-    DX_UNREFERENCE(format);
-    format = NULL;
-    if (!p) {
-      goto on_error;
-    }
-    fragment_program = dx_program_text_create_from_file(DX_PROGRAM_TEXT_TYPE_FRAGMENT, p);
-    DX_UNREFERENCE(p);
-    p = NULL;
-    if (!fragment_program) {
-      goto on_error;
-    }
-  }
-  {
-    program = dx_program_text_create(vertex_program, fragment_program);
-    DX_UNREFERENCE(vertex_program);
-    vertex_program = NULL;
-    DX_UNREFERENCE(fragment_program);
-    fragment_program = NULL;
-    if (!program) {
-      goto on_error;
-    }
-  }
-  return program;
-on_error:
-  if (program) {
-    DX_UNREFERENCE(program);
-    program = NULL;
-  }
-  if (fragment_program) {
-    DX_UNREFERENCE(fragment_program);
-    fragment_program = NULL;
-  }
-  if (vertex_program) {
-    DX_UNREFERENCE(vertex_program);
-    vertex_program = NULL;
-  }
-  return NULL;
+static void mesh_instance_on_shutdown(dx_mesh_viewer_scene* self) {
+  dx_object_array_uninitialize(&self->mesh_instances);
 }
 
-// add commands "clear color", "clear depth", and "set viewport".
-static int add_enter_frame_commands(dx_command_list* commands) {
+static int viewer_push_constants(dx_mesh_viewer_scene* self, dx_cbinding* cbinding) {
+  dx_cbinding_set_mat4(cbinding, "matrices.projection_matrix", &self->projection_matrix);
+  dx_cbinding_set_mat4(cbinding, "matrices.view_matrix", &self->view_matrix);
+  return 0;
+}
+
+// the initial position of the viewer.
+// must be different from TARGET.
+static DX_VEC3 const SOURCE = { 0.f, 0.f, 1.f };
+
+// Rotate viewer with 25 degrees per second counter-clockwise around the y-axis.
+static float const degrees_per_second = 0.f;
+
+// Let viewer look at this point.
+static DX_VEC3 const TARGET = { 0.f, 0.f, 0.f };
+
+// The viewer's up vector.
+static DX_VEC3 const UP = { 0.f, 1.f, 0.f };
+
+static int update_viewer(dx_mesh_viewer_scene* scene) {
+  DX_MAT4 a;
+  dx_mat4_set_rotate_y(&a, scene->angle);
+  dx_transform_point(&scene->viewer_position, &SOURCE, &a);
+  dx_mat4_set_look_at(&scene->view_matrix, &scene->viewer_position, &TARGET, &UP);
+  return 0;
+}
+
+static int make_commands_1(dx_command_list* commands) {
   dx_command* command = NULL;
+
   // clear color command
+  static const DX_VEC4 clear_color = { 0.f / 255.f, 191.f / 255.f, 255.f / 255.f, 0.f }; // color called "Capri" (0, 191, 255)
   command = dx_command_create_clear_color(0, 0, 640, 480, &clear_color);
   if (!command) {
     return 1;
@@ -116,9 +81,10 @@ static int add_enter_frame_commands(dx_command_list* commands) {
   }
   DX_UNREFERENCE(command);
   command = NULL;
+
   // clear depth command
   static const float clear_depth = 1.f;
-  command = dx_command_create_clear_depth(0, 0, 640, 480, 1.f);
+  command = dx_command_create_clear_depth(0, 0, 640, 480, clear_depth);
   if (!command) {
     return 1;
   }
@@ -129,6 +95,7 @@ static int add_enter_frame_commands(dx_command_list* commands) {
   }
   DX_UNREFERENCE(command);
   command = NULL;
+
   // set viewport command
   command = dx_command_create_viewport(0, 0, 640, 480);
   if (!command) {
@@ -141,125 +108,7 @@ static int add_enter_frame_commands(dx_command_list* commands) {
   }
   DX_UNREFERENCE(command);
   command = NULL;
-  //
-  return 0;
-}
 
-static int add_mesh_draw_command(dx_command_list* commands,
-                                 int (*on_mesh_loaded)(dx_asset_mesh*),
-                                 char const* name,
-                                 dx_context* context) {
-  dx_string* name1 = dx_string_create(name, strlen(name));
-  if (!name1) {
-    return 1;
-  }
-  dx_asset_mesh* mesh = dx_asset_mesh_create(name1);
-  DX_UNREFERENCE(name1);
-  name1 = NULL;
-  if (!mesh) {
-    return 1;
-  }
-  if (on_mesh_loaded) {
-    if (on_mesh_loaded(mesh)) {
-      DX_UNREFERENCE(mesh);
-      mesh = NULL;
-      return 1;
-    }
-  }
-  dx_buffer* buffer = dx_context_create_buffer(context);
-  if (!buffer) {
-    DX_UNREFERENCE(mesh);
-    mesh = NULL;
-    return 1;
-  }
-  if (dx_buffer_set_data(buffer, mesh->vertices.xyz, mesh->number_of_vertices * sizeof(DX_VEC3))) {
-    DX_UNREFERENCE(buffer);
-    buffer = NULL;
-    DX_UNREFERENCE(mesh);
-    mesh = NULL;
-    return 1;
-  }
-  DX_VERTEX_FORMAT vertex_format = DX_VERTEX_FORMAT_POSITION_XYZ;
-  dx_vbinding* vbinding = dx_context_create_vbinding(context, vertex_format, buffer);
-  DX_UNREFERENCE(buffer);
-  buffer = NULL;
-  if (!vbinding) {
-    DX_UNREFERENCE(mesh);
-    mesh = NULL;
-    return 1;
-  }
-  dx_program* program = NULL;
-  //
-  {
-    dx_string* path = dx_string_create("assets/gl", sizeof("assets/gl") - 1);
-    if (!path) {
-      DX_UNREFERENCE(vbinding);
-      vbinding = NULL;
-      DX_UNREFERENCE(mesh);
-      mesh = NULL;
-      return 1;
-    }
-    dx_string* filename = dx_string_create("1", sizeof("1") - 1);
-    if (!filename) {
-      DX_UNREFERENCE(path);
-      path = NULL;
-      DX_UNREFERENCE(vbinding);
-      vbinding = NULL;
-      DX_UNREFERENCE(mesh);
-      mesh = NULL;
-      return 1;
-    }
-    dx_program_text* program_text = load_program(path, filename);
-    DX_UNREFERENCE(filename);
-    filename = NULL;
-    DX_UNREFERENCE(path);
-    path = NULL;
-    if (!program_text) {
-      DX_UNREFERENCE(vbinding);
-      vbinding = NULL;
-      DX_UNREFERENCE(mesh);
-      mesh = NULL;
-      return 1;
-    }
-    program = dx_context_create_program(context, program_text);
-    DX_UNREFERENCE(program_text);
-    program_text = NULL;
-    if (!program) {
-      DX_UNREFERENCE(vbinding);
-      vbinding = NULL;
-      DX_UNREFERENCE(mesh);
-      mesh = NULL;
-      return 1;
-    }
-  }
-  dx_cbinding* cbinding = create_cbinding();
-  if (!cbinding) {
-    DX_UNREFERENCE(program);
-    program = NULL;
-    DX_UNREFERENCE(vbinding);
-    vbinding = NULL;
-    DX_UNREFERENCE(mesh);
-    mesh = NULL;
-    return 1;
-  }
-  dx_command* command = dx_command_create_draw(vbinding, cbinding, program, 0, mesh->number_of_vertices);
-  DX_UNREFERENCE(cbinding);
-  cbinding = NULL;
-  DX_UNREFERENCE(program);
-  program = NULL;
-  DX_UNREFERENCE(vbinding);
-  vbinding = NULL;
-  DX_UNREFERENCE(mesh);
-  mesh = NULL;
-  if (dx_command_list_append(commands, command)) {
-    DX_UNREFERENCE(commands);
-    commands = NULL;
-    DX_UNREFERENCE(command);
-    command = NULL;
-    return 1;
-  }
-  DX_UNREFERENCE(command);
-  command = NULL;
   return 0;
 }
 
@@ -274,84 +123,173 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
     return 1;
   }
 #endif
+#if defined(DX_SAFE_MUL_IX_WITH_TESTS) && 1 == DX_SAFE_MUL_IX_WITH_TESTS
+  if (dx_safe_mul_ix_tests()) {
+    return 1;
+  }
+#endif
 #if defined(DX_SAFE_MUL_NX_WITH_TESTS) && 1 == DX_SAFE_MUL_NX_WITH_TESTS
   if (dx_safe_mul_nx_tests()) {
     return 1;
   }
 #endif
-  dx_mat4_set_ortho(&scene->projection_matrix, -1, +1, -1, +1, -1, +1);
-  dx_mat4_set_identity(&scene->view_matrix);
-  dx_mat4_set_identity(&scene->world_matrix);
-  dx_command_list* commands = dx_command_list_create();
-  if (!commands) {
+#if defined(DX_ADL_PARSER_WITH_TESTS) && 1 == DX_ADL_PARSER_WITH_TESTS
+  if (dx_adl_parser_tests()) {
     return 1;
   }
-  if (add_enter_frame_commands(commands)) {
-    DX_UNREFERENCE(commands);
-    commands = NULL;
+#endif
+  {
+    if (!strcmp(scene->name, "quadriliteral")) {
+      char* p;
+      size_t n;
+      if (dx_get_file_contents("./assets/quadriliteral.adl", &p, &n)) {
+        dx_memory_deallocate(p);
+        p = NULL;
+        return 1;
+      }
+      scene->asset_scene = _create_scene_from_text(p, n);
+      dx_memory_deallocate(p);
+      p = NULL;
+    } else if (!strcmp(scene->name, "triangle")) {
+      char* p;
+      size_t n;
+      if (dx_get_file_contents("./assets/triangle.adl", &p, &n)) {
+        dx_memory_deallocate(p);
+        p = NULL;
+        return 1;
+      }
+      scene->asset_scene = _create_scene_from_text(p, n);
+      dx_memory_deallocate(p);
+      p = NULL;
+    }
+  }
+  if(!scene->asset_scene) {
     return 1;
   }
-  if (add_mesh_draw_command(commands, scene->on_mesh_loaded, scene->name, context)) {
-    DX_UNREFERENCE(commands);
-    commands = NULL;
+  //
+  scene->time = 0.f;
+  //
+  scene->angle = 0.f;
+  //
+  if (mesh_instance_on_startup(scene, context, scene->asset_scene)) {
+    DX_UNREFERENCE(scene->asset_scene);
+    scene->asset_scene = NULL;
     return 1;
   }
-  scene->commands = commands;
+  //
+  dx_mat4_set_identity(&scene->projection_matrix);
+  update_viewer(scene);
+  //
+  {
+    dx_command* command = NULL;
+    dx_command_list* commands = dx_command_list_create();
+    if (!commands) {
+      mesh_instance_on_shutdown(scene);
+      DX_UNREFERENCE(scene->asset_scene);
+      scene->asset_scene = NULL;
+      return 1;
+    }
+    if (make_commands_1(commands)) {
+      DX_UNREFERENCE(commands);
+      commands = NULL;
+      mesh_instance_on_shutdown(scene);
+      DX_UNREFERENCE(scene->asset_scene);
+      scene->asset_scene = NULL;
+      return 1;
+    }
+    scene->commands = commands;
+  }
+  //
   return 0;
 }
 
 static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* scene, dx_context* context, float delta_seconds, int canvas_width, int canvas_height) {
-  {
-    dx_command* command = NULL;
+  //dx_mat4_set_ortho(&scene->projection_matrix, -1, +1, -1, +1, -1, +1);
+  dx_mat4_set_perspective(&scene->projection_matrix, 60.f, (float)canvas_width / (float)canvas_height, +0.1f, 100.f);
+  //dx_mat4_set_perspective(&scene->projection_matrix, 60.f, (float)canvas_width / (float)canvas_height, +0.1f, 100.f);
+  update_viewer(scene);
+  
+  DX_VEC4 current = { 0.f, 255.f / 255.f, 64.f / 255.f, 1.0f };
 
-    // Update the rectangle of the "clear color" command.
-    command = dx_command_list_get_at(scene->commands, 0);
-    if (DX_COMMAND_KIND_CLEAR_COLOR != command->kind) {
-      return 1;
+  {
+    static const DX_VEC4 start = { 0.f, 255.f / 255.f, 64.f / 255.f, 1.0f }; // color called "Malachite" (0, 255, 64) from "Capri"'s tetradic palette
+    static const DX_VEC4 end = { 255.f / 255.f, 192.f / 255.f, 0.f / 255.f }; // color called "Amber" (255, 192, 0) from "Capri"'s Split Complementary Palette.
+    // fix the situation in which the sum might overflow
+    if (isinf(scene->time + delta_seconds)) {
+      // this is effectively equivalen to
+      // time = (time + available) % MAX if we
+      float available = (FLT_MAX - scene->time);
+      scene->time = delta_seconds - available;
+    } else {
+      scene->time += delta_seconds;
     }
+    static const float shift = 0.5f;
+    static const float amplitude = 0.5f;
+    static const float period = 8;
+    static const float DX_TWO_PI_F32 = DX_PI_F32 * 2.f;
+    float t = amplitude * sinf(scene->time / period * DX_TWO_PI_F32) + shift;
+    dx_vec4_lerp(&start, &end, t, &current);
+  }
+
+  float degrees = degrees_per_second * delta_seconds;
+  scene->angle = fmodf(scene->angle + degrees, 360.f);
+  {
+    dx_command* command;
+
+    // clear color command
+    command = dx_command_list_get_at(scene->commands, 0);
     command->clear_color_command.rectangle.w = (float)canvas_width;
     command->clear_color_command.rectangle.h = (float)canvas_height;
 
-    // Update the rectangle of the "clear depth" command.
+    // clear depth command
     command = dx_command_list_get_at(scene->commands, 1);
-    if (DX_COMMAND_KIND_CLEAR_DEPTH != command->kind) {
-      return 1;
-    }
     command->clear_depth_command.rectangle.w = (float)canvas_width;
     command->clear_depth_command.rectangle.h = (float)canvas_height;
 
-    // Update the rectangle of the "set viewport" command.
+    // viewport command
     command = dx_command_list_get_at(scene->commands, 2);
-    if (DX_COMMAND_KIND_VIEWPORT != command->kind) {
-      return 1;
-    }
     command->viewport_command.w = (float)canvas_width;
     command->viewport_command.h = (float)canvas_height;
   }
-  {
-    // Update the constants.
-    dx_command* command = dx_command_list_get_at(scene->commands, 3);
-    if (DX_COMMAND_KIND_DRAW != command->kind) {
-      return 1;
-    }
-    dx_cbinding* cbinding = command->draw_command.cbinding;
-    dx_cbinding_set_mat4(cbinding, "matrices.projection_matrix", &scene->projection_matrix);
-    dx_cbinding_set_mat4(cbinding, "matrices.view_matrix", &scene->view_matrix);
-    dx_cbinding_set_mat4(cbinding, "matrices.world_matrix", &scene->world_matrix);
+  // the "on enter frame" commands.
+  if (dx_context_execute_commands(context, scene->commands)) {
+    return 1;
   }
-  // Execute the commands.
-  return dx_context_execute_commands(context, scene->commands);
-}
-
-static int dx_mesh_viewer_scene_shutdown(dx_mesh_viewer_scene* scene, dx_context* context) {
-  if (scene->commands) {
-    DX_UNREFERENCE(scene->commands);
-    scene->commands = NULL;
+  // the "per mesh instance" commands.
+  {
+    for (size_t i = 0, n = dx_object_array_get_size(&scene->mesh_instances); i < n; ++i) {
+      dx_mesh_instance* mesh_instance = DX_MESH_INSTANCE(dx_object_array_get_at(&scene->mesh_instances, i));
+      if (!mesh_instance) {
+        return 1;
+      }
+      // update the constant binding
+      dx_cbinding* cbinding = dx_mesh_instance_get_cbinding(mesh_instance);
+      mesh_instance->mesh->material->ambient_color = current;
+      dx_mesh_instance_update_cbinding(mesh_instance, cbinding);
+      viewer_push_constants(scene, cbinding);
+      if (dx_context_execute_commands(context, mesh_instance->commands)) {
+        return 1;
+      }
+    }
   }
   return 0;
 }
 
-int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const *name, int (*on_mesh_loaded)(dx_asset_mesh*)) {
+static int dx_mesh_viewer_scene_shutdown(dx_mesh_viewer_scene* scene, dx_context* context) {
+  mesh_instance_on_shutdown(scene);
+  if (scene->asset_scene) {
+    DX_UNREFERENCE(scene->asset_scene);
+    scene->asset_scene = NULL;
+  }
+  if (scene->commands) {
+    DX_UNREFERENCE(scene->commands);
+    scene->commands = NULL;
+  }
+  dx_object_array_uninitialize(&scene->mesh_instances);
+  return 0;
+}
+
+int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const* name) {
   if (dx_scene_construct(DX_SCENE(scene))) {
     return 1;
   }
@@ -359,13 +297,13 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const *name
   if (!scene->name) {
     return 1;
   }
-  scene->on_mesh_loaded = on_mesh_loaded;
   dx_mat4_set_identity(&scene->projection_matrix);
   dx_mat4_set_identity(&scene->view_matrix);
   dx_mat4_set_identity(&scene->projection_matrix);
+  scene->asset_scene = NULL;
   scene->commands = NULL;
   DX_SCENE(scene)->startup = (int (*)(dx_scene*, dx_context*)) & dx_mesh_viewer_scene_startup;
-  DX_SCENE(scene)->render = (int (*)(dx_scene*, dx_context*, float, int, int)) &dx_mesh_viewer_scene_render;
+  DX_SCENE(scene)->render = (int (*)(dx_scene*, dx_context*, float, int, int)) & dx_mesh_viewer_scene_render;
   DX_SCENE(scene)->shutdown = (int (*)(dx_scene*, dx_context*)) dx_mesh_viewer_scene_shutdown;
   DX_OBJECT(scene)->destruct = (void (*)(dx_object*)) & dx_mesh_viewer_scene_destruct;
   return 0;
@@ -379,12 +317,12 @@ void dx_mesh_viewer_scene_destruct(dx_mesh_viewer_scene* scene) {
   dx_scene_destruct(DX_SCENE(scene));
 }
 
-dx_mesh_viewer_scene* dx_mesh_viewer_scene_create(char const* name, int (*on_mesh_loaded)(dx_asset_mesh*)) {
+dx_mesh_viewer_scene* dx_mesh_viewer_scene_create(char const* name) {
   dx_mesh_viewer_scene* scene = DX_MESH_VIEWER_SCENE(dx_object_alloc(sizeof(dx_mesh_viewer_scene)));
   if (!scene) {
     return NULL;
   }
-  if (dx_mesh_viewer_scene_construct(scene, name, on_mesh_loaded)) {
+  if (dx_mesh_viewer_scene_construct(scene, name)) {
     DX_UNREFERENCE(scene);
     scene = NULL;
     return NULL;

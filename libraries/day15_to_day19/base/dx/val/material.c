@@ -33,7 +33,7 @@ int dx_material_construct(dx_material* self, dx_context* context, dx_asset_mater
   self->context = context;
   self->asset_material = asset_material;
   DX_REFERENCE(asset_material);
-  self->ambient_color = (DX_VEC4){ 1.f, 1.f, 1.f, 1.f };
+  self->ambient_color = asset_material->ambient_color;
   self->ambient_texture = NULL;
   if (add_to_backend(self)) {
     DX_UNREFERENCE(self->asset_material);

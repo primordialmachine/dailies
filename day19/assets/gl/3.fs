@@ -7,15 +7,15 @@ uniform sampler2D ambient_texture_sampler;
 
 #if defined(WITH_VERTEX_AMBIENT_RGBA)
 
-// vs.vertex.ambient.rgba -> fs.fragment.ambient.rgba
-in vec4 fs_fragment_ambient_rgba;
+// vs.vertex.ambient.rgba -> fs.vertex.ambient.rgba
+in vec4 fs_vertex_ambient_rgba;
 
 #endif // WITH_VERTEX_AMBIENT_RGBA
 
 #if defined(WITH_VERTEX_AMBIENT_UV)
 
-// vs.vertex.ambient.uv -> fs.fragment.ambient.uv
-in vec2 fs_fragment_ambient_uv;
+// vs.vertex.ambient.uv -> fs.vertex.ambient.uv
+in vec2 fs_vertex_ambient_uv;
 
 #endif // WITH_VERTEX_AMBIENT_UV
 
@@ -31,7 +31,7 @@ out vec4 out_fragment_color;
 
 void main() {
 #if defined(WITH_VERTEX_AMBIENT_UV) && defined(WITH_MATERIAL_AMBIENT_TEXTURE)
-  out_fragment_color = texture(ambient_texture_sampler, fs_fragment_ambient_uv);
+  out_fragment_color = texture(ambient_texture_sampler, fs_vertex_ambient_uv);
 #elif defined(WITH_VERTEX_AMBIENT_RGBA)
   out_fragment_color = fs_vertex_ambient_rgba;
 #elif defined(WITH_MESH_AMBIENT_RGBA)

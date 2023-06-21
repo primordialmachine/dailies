@@ -59,7 +59,7 @@ layout (location = 0) in vec3 vs_vertex_xyz;
 // mesh.ambient.rgba
 uniform vec4 vs_mesh_ambient_rgba = vec4(0.f, 255.f/255.f, 64.f/255.f, 1.f); // color called "Malachite" (0, 255, 64) from "Capri"'s tetradic palette
 
-// mesh ambient rgba to fragment shader
+// mesh ambient rgba (vertex shader) to mesh ambient rgba (fragment shader)
 out vec4 fs_mesh_ambient_rgba;
 
 #endif // WITH_MESH_AMBIENT_RGBA
@@ -71,8 +71,8 @@ out vec4 fs_mesh_ambient_rgba;
 // vertex.ambient.rgba
 layout (location = 1) in vec4 vs_vertex_ambient_rgba;
 
-// vertex ambient uv to fragment shader 
-out vec4 fs_fragment_ambient_rgba;
+// vertex ambient rgba (vertex shader) to vertex ambient rgba (fragment shader) 
+out vec4 fs_vertex_ambient_rgba;
 
 #endif // WITH_VERTEX_AMBIENT_RGBA
 
@@ -90,8 +90,8 @@ layout (location = 1) in vec2 vs_vertex_ambient_uv;
 
 #endif // WITH_VERTEX_AMBIENT_RGBA
 
-// vertex ambient uv to fragment shader 
-out vec2 fs_fragment_ambient_uv;
+// vertex ambient uv (vertex shader) to vertex ambient uv (fragment shader) 
+out vec2 fs_vertex_ambient_uv;
 
 #endif // WITH_VERTEX_AMBIENT_UV
 
@@ -111,6 +111,6 @@ void main() {
 #endif // WITH_VERTEX_AMBIENT_RGBA
 
 #if defined(WITH_VERTEX_AMBIENT_UV)
-  fs_fragment_ambient_uv = vs_vertex_ambient_uv;
+  fs_vertex_ambient_uv = vs_vertex_ambient_uv;
 #endif // WITH_VERTEX_AMBIENT_UV
 }

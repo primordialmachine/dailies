@@ -174,9 +174,11 @@ on_error:
 }
 
 static int add_material_to_backend(dx_mesh* self) {
-  self->material = dx_material_create(self->context, self->asset_mesh->material);
-  if (!self->material) {
-    return 1;
+  if (self->asset_mesh->material) {
+    self->material = dx_material_create(self->context, self->asset_mesh->material);
+    if (!self->material) {
+      return 1;
+    }
   }
   return 0;
 }

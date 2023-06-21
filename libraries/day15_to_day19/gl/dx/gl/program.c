@@ -10,7 +10,7 @@
 #include "dx/gl/context.h"
 
 /// @brief Defined and equal to @a 1, then do not display shader logs to the user.
-#define DX_GL_PROGRAM_WITH_LOG_EMISSION_DISABLED (1)
+#define DX_GL_PROGRAM_WITH_LOG_EMISSION_DISABLED (0)
 
 // Create a fragment program or vertex program.
 static int

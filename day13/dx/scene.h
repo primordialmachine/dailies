@@ -42,6 +42,14 @@ int dx_scene_construct(dx_scene* scene);
 /// @param scene A pointer to this scene.
 void dx_scene_destruct(dx_scene* scene);
 
+/// @brief Increment the reference count of this scene.
+/// @param scene A pointer to this scene.
+void dx_scene_reference(dx_scene* scene);
+
+/// @brief Decrement the reference count of this scene.
+/// @param scene A pointer to this scene.
+void dx_scene_unrefrence(dx_scene* scene);
+
 /// @brief Callback. Invoked by the execution environment.
 /// @param scene A pointer to this scene.
 /// @return @a 0 on success. A non-zero value on failure.

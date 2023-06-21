@@ -10,8 +10,7 @@ int dx_scene_construct(dx_scene* scene) {
   return 0;
 }
 
-void dx_scene_destruct(dx_scene* scene)
-{/*Intentionally empty.*/}
+void dx_scene_destruct(dx_scene* scene) { }
 
 int dx_scene_startup(dx_scene* scene, dx_context* context) {
   if (!scene) {

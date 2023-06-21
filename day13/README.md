@@ -2,15 +2,11 @@
 The folder, in which this `README.md` is located in, contains the source code and the build and configuration files for a C program.
 
 The program opens a window.
-The window is presenting multiple "scenes" using a modern OpenGL backend.
 
-This program introduces the concept of time-based changes to the visuals of scenes
-by oscillating the mesh color of the meshes displayed by the quadriliteral and triangle scenes.
+It presents two scenes, a triangle with per-vertex colors and a quadriliteral with per-vertex colors.
 
 To exit the program either close the window or press `Escape` when the window has keyboard focus.
 To switch between the two scenes, press `Enter`.
-
-This program introduces - for the first time in this series - the concept of time-based animations.
 
 # Building the Program
 To compile this program, you generate your environment-specific build files using the KitWare's CMake.

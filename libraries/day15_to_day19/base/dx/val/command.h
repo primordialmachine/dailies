@@ -25,7 +25,9 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-DX_DECLARE_OBJECT_TYPE("dx.command", dx_command, dx_object)
+DX_DECLARE_OBJECT_TYPE("dx.command",
+                       dx_command,
+                       dx_object)
 
 static inline dx_command* DX_COMMAND(void* p) {
   return (dx_command*)p;
@@ -109,7 +111,9 @@ struct dx_command {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-DX_DECLARE_OBJECT_TYPE("dx.command_list", dx_command_list, dx_object)
+DX_DECLARE_OBJECT_TYPE("dx.command_list",
+                       dx_command_list,
+                       dx_object)
 
 static inline dx_command_list* DV_COMMAND_LIST(void* p) {
   return (dx_command_list*)p;

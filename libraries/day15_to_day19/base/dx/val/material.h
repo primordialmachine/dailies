@@ -6,7 +6,9 @@
 
 /// @brief The backend-representation of a material.
 /// A dx.material usually represents a dx.asset.material.
-DX_DECLARE_OBJECT_TYPE("dx.material", dx_material, dx_object)
+DX_DECLARE_OBJECT_TYPE("dx.material",
+                       dx_material,
+                       dx_object)
 
 static inline dx_material* DX_MATERIAL(void* p) {
   return (dx_material*)p;

@@ -12,7 +12,9 @@
 #include "dx/scenes/create_assets.h"
 #include "dx/adl/syntactical.h"
 
-DX_DEFINE_OBJECT_TYPE("dx.mesh_viewer_scene", dx_mesh_viewer_scene, dx_scene)
+DX_DEFINE_OBJECT_TYPE("dx.mesh_viewer_scene",
+                      dx_mesh_viewer_scene,
+                      dx_scene)
 
 static int mesh_instance_on_startup(dx_mesh_viewer_scene* self, dx_context* context, dx_asset_scene* asset_scene) {
   if (dx_object_array_initialize(&self->mesh_instances, 2)) {
@@ -262,6 +264,10 @@ static int dx_mesh_viewer_scene_shutdown(dx_mesh_viewer_scene* scene, dx_context
 }
 
 int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const* name) {
+  dx_rti_type* type = dx_mesh_viewer_scene_get_type();
+  if (!type) {
+    return 1;
+  }
   if (dx_scene_construct(DX_SCENE(scene))) {
     return 1;
   }
@@ -290,6 +296,10 @@ void dx_mesh_viewer_scene_destruct(dx_mesh_viewer_scene* scene) {
 }
 
 dx_mesh_viewer_scene* dx_mesh_viewer_scene_create(char const* name) {
+  dx_rti_type* type = dx_mesh_viewer_scene_get_type();
+  if (!type) {
+    return 1;
+  }
   dx_mesh_viewer_scene* scene = DX_MESH_VIEWER_SCENE(dx_object_alloc(sizeof(dx_mesh_viewer_scene)));
   if (!scene) {
     return NULL;

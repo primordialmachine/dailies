@@ -5,7 +5,8 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-DX_DECLARE_ENUMERATION_TYPE("dx.asset.mesh_operation_kind", dx_asset_mesh_operation_kind)
+DX_DECLARE_ENUMERATION_TYPE("dx.asset.mesh_operation_kind",
+                            dx_asset_mesh_operation_kind)
 
 enum dx_asset_mesh_operation_kind {
   /// @brief Set the vertex colors of a mesh.

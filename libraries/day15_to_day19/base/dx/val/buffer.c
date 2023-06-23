@@ -1,15 +1,23 @@
 #include "dx/val/buffer.h"
 
-int dx_buffer_construct(dx_buffer* buffer, dx_context* context) {
-  buffer->context = context;
-  DX_OBJECT(buffer)->destruct = (void(*)(dx_object*)) & dx_buffer_destruct;
+DX_DEFINE_OBJECT_TYPE("dx.buffer",
+                      dx_buffer,
+                      dx_object)
+
+int dx_buffer_construct(dx_buffer* self, dx_context* context) {
+  dx_rti_type* type = dx_buffer_get_type();
+  if (!type) {
+    return 1;
+  }
+  self->context = context;
+  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_buffer_destruct;
   return 0;
 }
 
-void dx_buffer_destruct(dx_buffer* buffer) {
-  buffer->context = NULL;
+void dx_buffer_destruct(dx_buffer* self) {
+  self->context = NULL;
 }
 
-int dx_buffer_set_data(dx_buffer* buffer, void const* p, size_t n) {
-  return buffer->set_data(buffer, p, n);
+int dx_buffer_set_data(dx_buffer* self, void const* p, size_t n) {
+  return self->set_data(self, p, n);
 }

@@ -3,7 +3,10 @@
 
 #include "dx/core.h"
 
-typedef struct dx_context dx_context;
+DX_DECLARE_OBJECT_TYPE("dx.context",
+                       dx_context,
+                       dx_object)
+
 static inline dx_context* DX_CONTEXT(void* p) {
   return (dx_context*)p;
 }

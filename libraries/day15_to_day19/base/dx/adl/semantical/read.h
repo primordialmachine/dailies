@@ -3,6 +3,11 @@
 
 #include "dx/adl/syntactical.h"
 #include "dx/adl/semantical/names.h"
+typedef struct dx_adl_semantical_state dx_adl_semantical_state;
+
+dx_string* dx_adl_semantical_read_type(dx_adl_node* node, dx_adl_semantical_names* names);
+
+DX_MAT4* dx_adl_parse_translation(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names);
 
 /// @brief Parse
 /// @code

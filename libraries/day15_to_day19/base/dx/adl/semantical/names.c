@@ -3,6 +3,13 @@
 // strlen
 #include <string.h>
 
+DX_DECLARE_ENUMERATION_TYPE("dx.adl.semantical_name_index",
+                            dx_adl_semantical_name_index)
+
+DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_names",
+                      dx_adl_semantical_names,
+                      dx_object)
+
 int dx_adl_semantical_names_construct(dx_adl_semantical_names* self) {
   self->names = (dx_string**)dx_memory_allocate(sizeof(dx_string*)*(DX_SEMANTICAL_NAMES_NUMBER_OF_NAMES));
   if (!self->names) {

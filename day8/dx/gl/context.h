@@ -16,7 +16,10 @@ typedef void (APIENTRY*PFNGLCLEARCOLORPROC)(GLclampf, GLclampf, GLclampf, GLclam
 typedef GLenum (APIENTRY*PFNGLGETERRORPROC)();
 typedef void (APIENTRY*PFNGLDRAWARRAYSPROC)(GLenum, GLint, GLsizei);
 
-typedef struct dx_gl_context dx_gl_context;
+DX_DECLARE_OBJECT_TYPE("dx.gl.context",
+                       dx_gl_context,
+                       dx_context)
+
 static inline dx_gl_context* DX_GL_CONTEXT(void* p) {
   return (dx_gl_context*)p;
 }

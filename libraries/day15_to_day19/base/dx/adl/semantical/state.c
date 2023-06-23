@@ -2,9 +2,35 @@
 
 #include "dx/adl/syntactical.h"
 
-static bool compare_keys_callback(dx_string** key1, dx_string** key2);
+#include "dx/adl/semantical/image_reader.h"
+#include "dx/adl/semantical/mesh_instance_reader.h"
+#include "dx/adl/semantical/mesh_reader.h"
+#include "dx/adl/semantical/texture_reader.h"
 
-static size_t hash_key_callback(dx_string** key);
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_reader",
+                      dx_adl_semantical_reader,
+                      dx_object)
+
+int dx_adl_semantical_reader_construct(dx_adl_semantical_reader* self) {
+  return 0;
+}
+
+void dx_adl_semantical_reader_destruct(dx_adl_semantical_reader* self)
+{/*Intentionally empty.*/}
+
+dx_object* dx_adl_semantical_reader_read(dx_adl_semantical_reader* self,
+                                         dx_adl_node* node,
+                                         dx_adl_semantical_state* state,
+                                         dx_adl_semantical_names* names)
+{ return self->read(self, node, state, names); }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static dx_bool compare_keys_callback(dx_string** key1, dx_string** key2);
+
+static dx_size hash_key_callback(dx_string** key);
 
 static void key_added_callback(dx_string** key);
 
@@ -56,9 +82,23 @@ DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_state",
                        dx_adl_semantical_state,
                        dx_object)
 
+static inline dx_string* _get_name(dx_adl_semantical_names* names, size_t index) {
+  DX_DEBUG_ASSERT(NULL != names);
+  DX_DEBUG_ASSERT(index < DX_SEMANTICAL_NAMES_NUMBER_OF_NAMES);
+  dx_string* name = names->names[index];
+  DX_DEBUG_ASSERT(NULL != name);
+  return name;
+}
+
+#define NAME(name) _get_name((self->names), dx_semantical_name_index_##name)
+
 int dx_adl_semantical_state_construct(dx_adl_semantical_state* self) {
   dx_rti_type* type = dx_adl_semantical_state_get_type();
   if (!type) {
+    return 1;
+  }
+  self->names = dx_adl_semantical_names_create();
+  if (!self->names) {
     return 1;
   }
   self->scene = NULL;
@@ -70,9 +110,39 @@ int dx_adl_semantical_state_construct(dx_adl_semantical_state* self) {
     .value_added_callback = (dx_value_added_callback*)&value_added_callback,
     .value_removed_callback = (dx_value_removed_callback*)&value_removed_callback,
   };
-  if (dx_pointer_hashmap_initialize(&self->named_nodes, &configuration)) {
+  if (dx_pointer_hashmap_initialize(&self->readers, &configuration)) {
+    DX_UNREFERENCE(self->names);
+    self->names = NULL;
     return 1;
   }
+#define DEFINE(NAME) \
+  { \
+    dx_string* k = _get_name((self->names), dx_semantical_name_index_##NAME##_type); \
+    dx_adl_semantical_reader* v = (dx_adl_semantical_reader*)dx_adl_semantical_##NAME##_reader_create(); \
+    if (!v) { \
+      dx_pointer_hashmap_uninitialize(&self->readers); \
+      DX_UNREFERENCE(self->names); \
+      self->names = NULL; \
+      return 1; \
+    } \
+    if (dx_pointer_hashmap_set(&self->readers, k, v)) { \
+      DX_UNREFERENCE(v); \
+      v = NULL; \
+      dx_pointer_hashmap_uninitialize(&self->readers); \
+      DX_UNREFERENCE(self->names); \
+      self->names = NULL; \
+      return 1; \
+    } \
+    DX_UNREFERENCE(v); \
+    v = NULL; \
+  }
+
+DEFINE(image)
+DEFINE(mesh)
+DEFINE(mesh_instance)
+DEFINE(texture)
+
+#undef DEFINE
   DX_OBJECT(self)->destruct = (void(*)(dx_object*))&dx_adl_semantical_state_destruct;
   return 0;
 }
@@ -82,7 +152,7 @@ void dx_adl_semantical_state_destruct(dx_adl_semantical_state* self) {
     DX_UNREFERENCE(self->scene);
     self->scene = NULL;
   }
-  dx_pointer_hashmap_uninitialize(&self->named_nodes);
+  dx_pointer_hashmap_uninitialize(&self->readers);
 }
 
 dx_adl_semantical_state* dx_adl_semantical_state_create() {
@@ -102,12 +172,12 @@ dx_adl_semantical_state* dx_adl_semantical_state_create() {
   return self;
 }
 
-int dx_adl_semantical_add_named_node(dx_adl_semantical_state* self, dx_string* name, dx_adl_node* node) {
-  if (!self || !name || !node) {
+int dx_adl_semantical_add_reader(dx_adl_semantical_state* self, dx_string* name, dx_adl_semantical_reader* reader) {
+  if (!self || !name || !reader) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  if (dx_pointer_hashmap_set(&self->named_nodes, (dx_pointer_hashmap_key)name, (dx_pointer_hashmap_value)node)) {
+  if (dx_pointer_hashmap_set(&self->readers, (dx_pointer_hashmap_key)name, (dx_pointer_hashmap_value)reader)) {
     return 1;
   }
   return 0;

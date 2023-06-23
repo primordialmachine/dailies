@@ -2,6 +2,10 @@
 
 #include "dx/val/texture.h"
 
+DX_DEFINE_OBJECT_TYPE("dx.material",
+                      dx_material,
+                      dx_object)
+
 static int add_to_backend(dx_material* self) {
   if (self->asset_material->ambient_texture) {
     dx_texture* ambient_texture = dx_context_create_texture(self->context);
@@ -28,6 +32,10 @@ static void remove_from_backend(dx_material* self) {
 int dx_material_construct(dx_material* self, dx_context* context, dx_asset_material* asset_material) {
   if (!self || !context || !asset_material) {
     dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  dx_rti_type* type = dx_material_get_type();
+  if (!type) {
     return 1;
   }
   self->context = context;

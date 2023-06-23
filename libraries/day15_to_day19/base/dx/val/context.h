@@ -10,7 +10,9 @@ typedef struct dx_program dx_program;
 typedef struct dx_program_text dx_program_text;
 typedef struct dx_texture dx_texture;
 
-DX_DECLARE_OBJECT_TYPE("dx.context", dx_context, dx_object)
+DX_DECLARE_OBJECT_TYPE("dx.context",
+                       dx_context,
+                       dx_object)
 
 static inline dx_context* DX_CONTEXT(void* p) {
   return (dx_context*)p;

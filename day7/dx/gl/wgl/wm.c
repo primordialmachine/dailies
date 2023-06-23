@@ -68,6 +68,10 @@ static LRESULT CALLBACK window_procedure(HWND wnd, UINT msg, WPARAM wparam, LPAR
   };
 }
 
+DX_DEFINE_OBJECT_TYPE("dx.gl.wgl.application",
+                      dx_gl_wgl_application,
+                      dx_application)
+
 int dx_gl_wgl_application_construct(dx_gl_wgl_application* application, dx_msg_queue* msg_queue) {
   //
   if (dx_application_construct(DX_APPLICATION(application))) {

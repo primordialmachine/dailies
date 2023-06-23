@@ -3,7 +3,10 @@
 
 #include "dx/gl/context.h"
 
-typedef struct dx_gl_wgl_context dx_gl_wgl_context;
+DX_DECLARE_OBJECT_TYPE("dx.gl.wgl.context",
+                       dx_gl_wgl_context,
+                       dx_gl_context)
+
 static inline dx_gl_wgl_context* DX_GL_WGL_CONTEXT(void* p) {
   return (dx_gl_wgl_context*)p;
 }

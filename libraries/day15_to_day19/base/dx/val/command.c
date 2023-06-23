@@ -115,7 +115,15 @@ void dx_command_destruct(dx_command* command) {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+DX_DEFINE_OBJECT_TYPE("dx.command_list",
+                      dx_command_list,
+                      dx_object)
+
 int dx_command_list_construct(dx_command_list* command_list) {
+  dx_rti_type* type = dx_command_list_get_type();
+  if (!type) {
+    return 1;
+  }
   command_list->size = 0;
   command_list->capacity = 32;
   command_list->elements = dx_memory_allocate(sizeof(dx_command*) * command_list->capacity);
@@ -137,6 +145,10 @@ void dx_command_list_destruct(dx_command_list* command_list) {
 }
 
 dx_command_list* dx_command_list_create() {
+  dx_rti_type* type = dx_command_list_get_type();
+  if (!type) {
+    return NULL;
+  }
   dx_command_list* command_list = DV_COMMAND_LIST(dx_object_alloc(sizeof(dx_command_list)));
   if (!command_list) {
     return NULL;

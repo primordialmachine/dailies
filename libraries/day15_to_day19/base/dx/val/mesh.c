@@ -6,6 +6,10 @@
 #include <stdio.h>
 #include "dx/val/program_text.h"
 
+DX_DEFINE_OBJECT_TYPE("dx.mesh",
+                      dx_mesh,
+                      dx_object)
+
 /// @brief See shader program source code for details.
 #define DX_PROGRAM_WITH_MESH_AMBIENT_RGBA (1)
 
@@ -295,6 +299,11 @@ static void remove_from_backend(dx_mesh* self) {
 }
 
 int dx_mesh_construct(dx_mesh* self, dx_context* context, dx_asset_mesh* asset_mesh) {
+  dx_rti_type* type = dx_mesh_get_type();
+  if (!type) {
+    return 1;
+  }
+
   self->asset_mesh = asset_mesh;
   DX_REFERENCE(asset_mesh);
 
@@ -324,6 +333,10 @@ void dx_mesh_destruct(dx_mesh* self) {
 }
 
 dx_mesh* dx_mesh_create(dx_context* context, dx_asset_mesh* asset_mesh) {
+  dx_rti_type* type = dx_mesh_get_type();
+  if (!type) {
+    return NULL;
+  }
   dx_mesh* self = DX_MESH(dx_object_alloc(sizeof(dx_mesh)));
   if (!self) {
     return NULL;

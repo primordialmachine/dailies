@@ -8,7 +8,9 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-typedef struct dx_gl_wgl_application dx_gl_wgl_application;
+DX_DECLARE_OBJECT_TYPE("dx.gl.wgl.application",
+                       dx_gl_wgl_application,
+                       dx_application)
 
 static dx_gl_wgl_application* DX_GL_WGL_APPLICATION(void* p) {
   return (dx_gl_wgl_application*)p;

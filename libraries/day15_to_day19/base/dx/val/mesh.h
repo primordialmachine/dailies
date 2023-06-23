@@ -12,7 +12,10 @@
 
 /// @brief The backend-representation of a mesh.
 /// A dx.mesh usually represents a dx.asset.mesh.
-typedef struct dx_mesh dx_mesh;
+DX_DECLARE_OBJECT_TYPE("dx.mesh",
+                       dx_mesh,
+                       dx_object)
+
 static inline dx_mesh* DX_MESH(void* p) {
   return (dx_mesh*)p;
 }

@@ -19,7 +19,8 @@ typedef struct dx_buffer dx_buffer;
 /// That is, it is not verified that
 /// - the buffer is big enough to provide th specified sub-sequence of variable value to present and
 /// - the program has ariables of the right types declared to receive the variables values.
-typedef struct dx_vbinding dx_vbinding;
+DX_DECLARE_OBJECT_TYPE("dx.vbinding", dx_vbinding, dx_object)
+
 static inline dx_vbinding* DX_VBINDING(void* p) {
   return (dx_vbinding*)p;
 }

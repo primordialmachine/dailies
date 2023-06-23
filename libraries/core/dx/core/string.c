@@ -3,10 +3,11 @@
 // memcpy
 #include <string.h>
 
+#include "dx/core/byte_array.h"
+#include "dx/core/memory.h"
 #include "dx/core/safe_add_nx.h"
 #include "dx/core/safe_mul_nx.h"
 
-#include "dx/core/byte_array.h"
 #include <stdarg.h>
 
 dx_string* dx_string_printfv(dx_string* format, va_list arguments) {
@@ -77,7 +78,6 @@ dx_string* dx_string_printf(dx_string* format, ...) {
   va_end(arguments);
   return string;
 }
-
 
 int dx_string_construct(dx_string* self, char const* bytes, size_t number_of_bytes) {
   if (!self || !bytes) {

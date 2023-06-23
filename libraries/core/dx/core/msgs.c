@@ -14,11 +14,19 @@
 #define TRACE(msg)
 #endif
 
+DX_DEFINE_OBJECT_TYPE("dx.msg",
+                      dx_msg,
+                      dx_object);
+
 uint32_t dx_msg_get_flags(dx_msg const* msg) {
   return msg->flags;
 }
 
 int dx_msg_construct(dx_msg* msg) {
+  dx_rti_type* type = dx_msg_get_type();
+  if (!type) {
+    return 1;
+  }
   TRACE("enter: dx_msg_construct\n");
   msg->flags = DX_MSG_TYPE_UNDETERMINED;
   DX_OBJECT(msg)->destruct = (void (*)(dx_object*)) & dx_msg_destruct;

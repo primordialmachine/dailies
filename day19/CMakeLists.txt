@@ -20,10 +20,6 @@ set(${name}.readmes "README.md")
 # "main.c".
 list(APPEND ${name}.sources "main.c")
 
-# "dx/scene.(c|h)".
-list(APPEND ${name}.sources "dx/scene.c")
-list(APPEND ${name}.headers "dx/scene.h")
-
 # "dx/scenes/*".
 list(APPEND ${name}.sources "dx/scenes/mesh_viewer_scene.c")
 list(APPEND ${name}.headers "dx/scenes/mesh_viewer_scene.h")

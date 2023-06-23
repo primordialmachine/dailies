@@ -11,7 +11,7 @@ The type *Number* represents both 2-complement integer numbers as well as floati
 The type *String* represents UTF-8 strings. The language knows single-quoted and double quoted strings.
 Single quoted strings are opened and closed by the single quote `'` and double quoted strings are opened and closed by the double quote `"`.
 To type a single quote in a single-quoted string, preceed it by a backslash.
-To tpe a double quote in double-quoted string, preceed it by a backslash. 
+To type a double quote in double-quoted string, preceed it by a backslash. 
 A double backslash is interpreted as a single slash.
 
 The type *List* represents sequences of values the six types.

@@ -158,7 +158,7 @@ dx_bool dx_rti_type_is_object(dx_rti_type* type) {
   return _DX_RTI_TYPE_NODE_FLAGS_OBJECT == (_DX_RTI_TYPE(type)->flags & _DX_RTI_TYPE_NODE_FLAGS_OBJECT);
 }
 
-dx_rti_type* dx_get_or_create_fundamental(char const* p, size_t n, void (*on_type_destroyed)(), dx_size value_size) {
+dx_rti_type* dx_rti_create_fundamental(char const* p, size_t n, void (*on_type_destroyed)(), dx_size value_size) {
   _dx_rti_type_name* name = _dx_rti_type_name_create(p, n);
   if (!name) {
     return NULL;
@@ -173,14 +173,18 @@ dx_rti_type* dx_get_or_create_fundamental(char const* p, size_t n, void (*on_typ
     name = NULL;
     return NULL;
   }
+  if (dx_get_error() != DX_NOT_FOUND) {
+    return NULL;
+  }
+  dx_set_error(DX_NO_ERROR);
   type = dx_memory_allocate(sizeof(_dx_rti_type));
   if (!type) {
     return NULL;
   }
-  type->on_type_destroyed = NULL;
+  type->on_type_destroyed = on_type_destroyed;
   type->flags = _DX_RTI_TYPE_NODE_FLAGS_FUNDAMENTAL;
   type->name = name;
-  _dx_rti_type_name_reference(type->name);
+  //_dx_rti_type_name_reference(type->name);
   type->reference_count = 1;
   type->fundamental.value_size = value_size;
   if (dx_pointer_hashmap_set(g_types, name, type)) {
@@ -193,7 +197,7 @@ dx_rti_type* dx_get_or_create_fundamental(char const* p, size_t n, void (*on_typ
   return NULL;
 }
 
-dx_rti_type* dx_rti_get_or_create_enumeration(char const* p, size_t n, void (*on_type_destroyed)()) {
+dx_rti_type* dx_rti_create_enumeration(char const* p, size_t n, void (*on_type_destroyed)()) {
   _dx_rti_type_name* name = _dx_rti_type_name_create(p, n);
   if (!name) {
     return NULL;
@@ -208,14 +212,18 @@ dx_rti_type* dx_rti_get_or_create_enumeration(char const* p, size_t n, void (*on
     name = NULL;
     return NULL;
   }
+  if (dx_get_error() != DX_NOT_FOUND) {
+    return NULL;
+  }
+  dx_set_error(DX_NO_ERROR);
   type = dx_memory_allocate(sizeof(_dx_rti_type));
   if (!type) {
     return NULL;
   }
-  type->on_type_destroyed = NULL;
+  type->on_type_destroyed = on_type_destroyed;
   type->flags = _DX_RTI_TYPE_NODE_FLAGS_ENUMERATION;
   type->name = name;
-  _dx_rti_type_name_reference(type->name);
+  //_dx_rti_type_name_reference(type->name);
   type->reference_count = 1;
   if (dx_pointer_hashmap_set(g_types, name, type)) {
     _dx_rti_type_name_unreference(type->name);
@@ -227,7 +235,7 @@ dx_rti_type* dx_rti_get_or_create_enumeration(char const* p, size_t n, void (*on
   return NULL;
 }
 
-dx_rti_type* dx_rti_get_or_create_object(char const* p, size_t n, void (*on_type_destroyed)(), dx_size value_size, dx_rti_type* parent, void (*destruct)(void*)) {
+dx_rti_type* dx_rti_create_object(char const* p, size_t n, void (*on_type_destroyed)(), dx_size value_size, dx_rti_type* parent, void (*destruct)(void*)) {
   _dx_rti_type_name* name = _dx_rti_type_name_create(p, n);
   if (!name) {
     return NULL;
@@ -242,14 +250,18 @@ dx_rti_type* dx_rti_get_or_create_object(char const* p, size_t n, void (*on_type
     name = NULL;
     return NULL;
   }
+  if (dx_get_error() != DX_NOT_FOUND) {
+    return NULL;
+  }
+  dx_set_error(DX_NO_ERROR);
   type = dx_memory_allocate(sizeof(_dx_rti_type));
   if (!type) {
     return NULL;
   }
-  type->on_type_destroyed = NULL;
+  type->on_type_destroyed = on_type_destroyed;
   type->flags = _DX_RTI_TYPE_NODE_FLAGS_OBJECT;
   type->name = name;
-  _dx_rti_type_name_reference(type->name);
+  //_dx_rti_type_name_reference(type->name);
   type->reference_count = 1;
   type->object.value_size = value_size;
   type->object.destruct = destruct;
@@ -268,7 +280,8 @@ dx_rti_type* dx_rti_get_or_create_object(char const* p, size_t n, void (*on_type
     type = NULL;
     return NULL;
   }
-  return NULL;
+  DX_UNREFERENCE(type);
+  return (dx_rti_type*)type;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -281,7 +294,7 @@ static void dx_object_on_type_destroyed() {
 
 dx_rti_type* dx_object_get_type() {
   if (!g_dx_object_type) {
-    g_dx_object_type = dx_rti_get_or_create_object("dx.object", sizeof("dx.object") - 1, &dx_object_on_type_destroyed, sizeof(dx_object), NULL, NULL); \
+    g_dx_object_type = dx_rti_create_object("dx.object", sizeof("dx.object") - 1, &dx_object_on_type_destroyed, sizeof(dx_object), NULL, NULL); \
   }
   return g_dx_object_type;
 }

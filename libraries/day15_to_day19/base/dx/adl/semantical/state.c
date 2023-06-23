@@ -52,7 +52,15 @@ static void value_removed_callback(dx_adl_node** value) {
   DX_UNREFERENCE(*value);
 }
 
+DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_state",
+                       dx_adl_semantical_state,
+                       dx_object)
+
 int dx_adl_semantical_state_construct(dx_adl_semantical_state* self) {
+  dx_rti_type* type = dx_adl_semantical_state_get_type();
+  if (!type) {
+    return 1;
+  }
   self->scene = NULL;
   static DX_POINTER_HASHMAP_CONFIGURATION const configuration = {
     .compare_keys_callback = (dx_compare_keys_callback*)&compare_keys_callback,
@@ -78,6 +86,10 @@ void dx_adl_semantical_state_destruct(dx_adl_semantical_state* self) {
 }
 
 dx_adl_semantical_state* dx_adl_semantical_state_create() {
+  dx_rti_type* type = dx_adl_semantical_state_get_type();
+  if (!type) {
+    return NULL;
+  }
   dx_adl_semantical_state* self = DX_ADL_SEMANTICAL_STATE(dx_object_alloc(sizeof(dx_adl_semantical_state)));
   if (!self) {
     return NULL;

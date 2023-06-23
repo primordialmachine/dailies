@@ -4,6 +4,10 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+DX_DEFINE_ENUMERATION_TYPE("dx.adl.word_kind",
+                           dx_adl_word_kind)
+
+
 int dx_adl_word_construct(dx_adl_word* self, dx_adl_word_kind kind, dx_string* text) {
   if (!self || !text) {
     dx_set_error(DX_INVALID_ARGUMENT);
@@ -53,6 +57,10 @@ static int dx_adl_scanner_skip_multi_line_comment(dx_adl_scanner* self);
 
 static int dx_adl_scanner_skip_nls_and_ws(dx_adl_scanner* self);
 
+DX_DEFINE_OBJECT_TYPE("dx.adl.scanner",
+                      dx_adl_scanner,
+                      dx_object)
+
 static int dx_adl_scanner_save_and_next(dx_adl_scanner* self) {
   if (self->current == self->end) {
     return 1;
@@ -84,7 +92,7 @@ static bool dx_adl_scanner_is_alphabetic(dx_adl_scanner* self) {
     return false;
   }
   return ('a' <= *self->current && *self->current <= 'z')
-    || ('A' <= *self->current && *self->current <= 'Z');
+      || ('A' <= *self->current && *self->current <= 'Z');
 }
 
 static int dx_adl_scanner_on_single_quoted_string(dx_adl_scanner* self) {
@@ -269,6 +277,10 @@ static int dx_adl_scanner_on_number(dx_adl_scanner* self) {
 }
 
 int dx_adl_scanner_construct(dx_adl_scanner* self) {
+  dx_rti_type* type = dx_adl_scanner_get_type();
+  if (!type) {
+    return 1;
+  }
   static char const EMPTY[] = "";
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
@@ -287,8 +299,8 @@ int dx_adl_scanner_construct(dx_adl_scanner* self) {
 
 static int dx_adl_scanner_skip_single_line_comment(dx_adl_scanner* self) {
   while (!(self->current == self->end)
-    && !(self->current != self->end && *self->current == '\n')
-    && !(self->current != self->end && *self->current == '\r')) {
+      && !(self->current != self->end && *self->current == '\n')
+      && !(self->current != self->end && *self->current == '\r')) {
     self->current++;
   }
   return 0;
@@ -515,7 +527,7 @@ char const* dx_adl_scanner_get_word_text_bytes(dx_adl_scanner const* self) {
   return self->text.elements;
 }
 
-size_t dx_adl_scanner_get_word_text_number_of_bytes(dx_adl_scanner const* self) {
+dx_size dx_adl_scanner_get_word_text_number_of_bytes(dx_adl_scanner const* self) {
   return self->text.size;
 }
 

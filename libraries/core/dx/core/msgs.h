@@ -17,7 +17,9 @@
 #define DX_MSG_TYPE_INPUT (4)
 
 // The opaque type of a message.
-typedef struct dx_msg dx_msg;
+DX_DECLARE_OBJECT_TYPE("dx.msg",
+                       dx_msg,
+                       dx_object);
 
 static inline dx_msg* DX_MSG(void* p) {
   return (dx_msg*)p;

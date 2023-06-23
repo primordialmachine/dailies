@@ -9,11 +9,11 @@
 
 DX_DEFINE_OBJECT_TYPE("dx.asset.mesh", dx_asset_mesh, dx_object)
 
-static inline size_t dx_min_sz(size_t x, size_t y) {
+static inline dx_size dx_min_sz(dx_size x, dx_size y) {
   return x < y ? x : y;
 }
 
-static int resize_vertex_arrays(dx_asset_mesh* self, bool shrink, size_t number_of_vertices) {
+static int resize_vertex_arrays(dx_asset_mesh* self, dx_bool shrink, dx_size number_of_vertices) {
   if (self->number_of_vertices == number_of_vertices) {
     // if the number of vertices in the mesh is equal to the required number of vertices, return success.
     return 0;
@@ -80,6 +80,10 @@ static void dx_asset_mesh_destruct(dx_asset_mesh* self) {
 static int dx_asset_mesh_construct(dx_asset_mesh* self, dx_string* specifier, DX_VERTEX_FORMAT vertex_format, dx_asset_material* material) {
   if (!self || !specifier || !material) {
     dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  dx_rti_type* type = dx_asset_mesh_get_type();
+  if (!type) {
     return 1;
   }
   // "default" mesh

@@ -13,7 +13,9 @@ enum dx_canvas_msg_kind {
   dx_canvas_msg_kind_size_changed,
 };
 
-DX_DECLARE_OBJECT_TYPE("dx.canvas_msg", dx_canvas_msg, dx_msg)
+DX_DECLARE_OBJECT_TYPE("dx.canvas_msg",
+                       dx_canvas_msg,
+                       dx_msg)
 
 static inline dx_canvas_msg* DX_CANVAS_MSG(void* p) {
   return (dx_canvas_msg*)p;

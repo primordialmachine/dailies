@@ -1,5 +1,9 @@
 #include "dx/asset/mesh_operations/set_vertex_colors.h"
 
+DX_DEFINE_OBJECT_TYPE("dx.asset.mesh_operations.set_vertex_colors",
+                      dx_asset_mesh_operations_set_vertex_colors,
+                      dx_asset_mesh_operation)
+
 static const DX_VEC4 colors[] = {
   { 1.f, 0.f, 0.f, 1.f },
   { 0.f, 1.f, 0.f, 1.f },
@@ -22,6 +26,10 @@ static int apply(dx_asset_mesh_operations_set_vertex_colors* self, dx_asset_mesh
 }
 
 int dx_asset_mesh_operations_set_vertex_colors_construct(dx_asset_mesh_operations_set_vertex_colors* self) {
+  dx_rti_type* type = dx_asset_mesh_operations_set_vertex_colors_get_type();
+  if (!type) {
+    return 1;
+  }
   if (dx_asset_mesh_operation_construct(DX_ASSET_MESH_OPERATION(self), dx_asset_mesh_operation_kind_set_vertex_colors)) {
     return 1;
   }
@@ -35,6 +43,10 @@ void dx_asset_mesh_operations_set_vertex_colors_destruct(dx_asset_mesh_operation
 }
 
 dx_asset_mesh_operations_set_vertex_colors* dx_asset_mesh_operations_set_vertex_colors_create() {
+  dx_rti_type* _type = dx_asset_mesh_operations_set_vertex_colors_get_type();
+  if (!_type) {
+    return NULL;
+  }
   dx_asset_mesh_operations_set_vertex_colors* self = DX_ASSET_MESH_OPERATIONS_SET_VERTEX_COLORS(dx_object_alloc(sizeof(dx_asset_mesh_operations_set_vertex_colors)));
   if (!self) {
     return NULL;

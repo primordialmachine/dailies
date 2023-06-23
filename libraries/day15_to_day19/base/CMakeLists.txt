@@ -16,6 +16,10 @@ set(${name}.readmes "")
 # "README.md"
 list(APPEND ${name}.readmes "README.md")
 
+# "dx/scene.(c|h)"
+list(APPEND ${name}.sources "dx/scene.c")
+list(APPEND ${name}.headers "dx/scene.h")
+
 # "dx/application.(c|h)"
 list(APPEND ${name}.sources "dx/application.c")
 list(APPEND ${name}.headers "dx/application.h")

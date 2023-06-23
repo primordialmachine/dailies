@@ -6,7 +6,10 @@
 #include "dx/adl/syntactical.h"
 
 /// @brief The state maintained while iterating over the ADL nodes in the semantical analyses stage.
-typedef struct dx_adl_semantical_state dx_adl_semantical_state;
+DX_DECLARE_OBJECT_TYPE("dx.adl.semantical_state",
+                       dx_adl_semantical_state,
+                       dx_object)
+
 static inline dx_adl_semantical_state* DX_ADL_SEMANTICAL_STATE(void* p) {
   return (dx_adl_semantical_state*)p;
 }

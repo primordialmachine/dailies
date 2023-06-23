@@ -16,6 +16,8 @@ struct dx_asset_scene {
   dx_asset_palette* palette;
   /// @brief The list of mesh instances.
   dx_object_array mesh_instances;
+  /// @brief The list of operations.
+  dx_pointer_hashmap mesh_operations;
 };
 
 /// @brief Construct this dx_asset_scene object with default values.

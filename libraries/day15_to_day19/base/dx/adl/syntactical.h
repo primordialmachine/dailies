@@ -226,7 +226,9 @@ dx_adl_word* dx_adl_word_create(dx_adl_word_kind kind, dx_string* text);
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /// @brief A scanner used for scanning programs of the language "2023-06-01".
-DX_DECLARE_OBJECT_TYPE("dx.adl.scanner", dx_adl_scanner, dx_object)
+DX_DECLARE_OBJECT_TYPE("dx.adl.scanner",
+                       dx_adl_scanner,
+                       dx_object)
 
 static inline dx_adl_scanner* DX_ADL_SCANNER(void* p) {
   return (dx_adl_scanner*)p;
@@ -296,7 +298,9 @@ dx_adl_word_kind dx_adl_scanner_get_word_kind(dx_adl_scanner const* self);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-DX_DECLARE_ENUMERATION_TYPE("dx.adl.node_kind", dx_adl_node_kind)
+DX_DECLARE_ENUMERATION_TYPE("dx.adl.node_kind",
+                            dx_adl_node_kind)
+
 enum dx_adl_node_kind {
   dx_adl_node_kind_error = 0,
 
@@ -307,7 +311,9 @@ enum dx_adl_node_kind {
 };
 
 /// @brief An ADL node of a programs of the language "2023-06-01".
-DX_DECLARE_OBJECT_TYPE("dx.adl.node", dx_adl_node, dx_object)
+DX_DECLARE_OBJECT_TYPE("dx.adl.node",
+                       dx_adl_node,
+                       dx_object)
 
 static inline dx_adl_node* DX_ADL_NODE(void* p) {
   return (dx_adl_node*)p;
@@ -469,7 +475,9 @@ int dx_adl_node_set_number(dx_adl_node* self, dx_string* number);
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /// @brief A parser used for parsing programs of the language "2023-06-01".
-DX_DECLARE_OBJECT_TYPE("dx.adl.parser", dx_adl_parser, dx_object)
+DX_DECLARE_OBJECT_TYPE("dx.adl.parser",
+                       dx_adl_parser,
+                       dx_object)
 
 static inline dx_adl_parser* DX_ADL_PARSER(void* p) {
   return (dx_adl_parser*)p;

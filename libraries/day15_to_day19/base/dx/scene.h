@@ -28,44 +28,36 @@ static inline dx_scene* DX_SCENE(void *p) {
 struct dx_scene {
   dx_object _parent;
   dx_context* context;
-  int (*startup)(dx_scene* scene, dx_context* context);
-  int (*render)(dx_scene* scene, dx_context* context, float delta_seconds, int canvas_width, int canvas_height);
-  int (*shutdown)(dx_scene* scene, dx_context* context);
+  int (*startup)(dx_scene* self, dx_context* context);
+  int (*render)(dx_scene* self, dx_context* context, float delta_seconds, int canvas_width, int canvas_height);
+  int (*shutdown)(dx_scene* self, dx_context* context);
 };
 
 /// @brief Construct this scene.
-/// @param scene A pointer to this scene.
-/// @return @a 0 on success. A non-zero value on failure.
-int dx_scene_construct(dx_scene* scene);
+/// @param self A pointer to this scene.
+/// @return The zero value on success. A non-zero value on failure.
+int dx_scene_construct(dx_scene* self);
 
 /// @brief Destruct this scene.
-/// @param scene A pointer to this scene.
-void dx_scene_destruct(dx_scene* scene);
-
-/// @brief Increment the reference count of this scene.
-/// @param scene A pointer to this scene.
-void dx_scene_reference(dx_scene* scene);
-
-/// @brief Decrement the reference count of this scene.
-/// @param scene A pointer to this scene.
-void dx_scene_unrefrence(dx_scene* scene);
+/// @param self A pointer to this scene.
+void dx_scene_destruct(dx_scene* self);
 
 /// @brief Callback. Invoked by the execution environment.
-/// @param scene A pointer to this scene.
-/// @return @a 0 on success. A non-zero value on failure.
-int dx_scene_startup(dx_scene* scene, dx_context* context);
+/// @param self A pointer to this scene.
+/// @return The zero value on success. A non-zero value on failure.
+int dx_scene_startup(dx_scene* self, dx_context* context);
 
 /// @brief Callback. Invoked by the execution environment.
-/// @param scene A pointer to this scene.
+/// @param self A pointer to this scene.
 /// @param context A pointer to the GL context.
 /// @param delta_seconds The delta, in seconds, the visualization time has advanced.
 /// @param canvas_width, canvas_height The width and height of the canvas.
-/// @return @a 0 on success. A non-zero value on failure.
-int dx_scene_render(dx_scene* scene, dx_context* context, float delta_seconds, int canvas_width, int canvas_height);
+/// @return The zero value on success. A non-zero value on failure.
+int dx_scene_render(dx_scene* self, dx_context* context, float delta_seconds, int canvas_width, int canvas_height);
 
 /// @brief Callback. Invoked by the execution environment.
-/// @param scene A pointer to this scene.
-/// @return @a 0 on success. A non-zero value on failure.
-int dx_scene_shutdown(dx_scene* scene, dx_context* context);
+/// @param self A pointer to this scene.
+/// @return The zero value on success. A non-zero value on failure.
+int dx_scene_shutdown(dx_scene* self, dx_context* context);
 
 #endif // DX_SCENE_H_INCLUDED

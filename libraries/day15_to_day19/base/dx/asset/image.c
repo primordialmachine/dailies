@@ -75,6 +75,10 @@ int dx_asset_image_construct(dx_asset_image* self,
                              dx_size width,
                              dx_size height,
                              DX_RGB_U8 const* color) {
+  dx_rti_type* _type = dx_asset_image_get_type();
+  if (!_type) {
+    return 1;
+  }
   self->width = width;
   self->height = height;
   self->pixel_format = pixel_format;
@@ -123,6 +127,10 @@ dx_asset_image* dx_asset_image_create(DX_PIXEL_FORMAT pixel_format,
                                       dx_size width,
                                       dx_size height,
                                       DX_RGB_U8 const* color) {
+  dx_rti_type* _type = dx_asset_image_get_type();
+  if (!_type) {
+    return NULL;
+  }
   dx_asset_image* self = DX_ASSET_IMAGE(dx_object_alloc(sizeof(dx_asset_image)));
   if (!self) {
     return NULL;

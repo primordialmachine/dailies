@@ -2,7 +2,15 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+DX_DEFINE_OBJECT_TYPE("dx.canvas_msg",
+                      dx_canvas_msg,
+                      dx_msg)
+
 int dx_canvas_msg_construct(dx_canvas_msg* self, dx_canvas_msg_kind kind) {
+  dx_rti_type* type = dx_canvas_msg_get_type();
+  if (!type) {
+    return 1;
+  }
   if (dx_msg_construct(DX_MSG(self))) {
     return 1;
   }

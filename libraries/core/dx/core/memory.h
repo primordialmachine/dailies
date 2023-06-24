@@ -66,4 +66,43 @@ int dx_memory_compare(void const* p, void const* q, dx_size n);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+/// @brief Statistics of an allocator.
+typedef struct dx_allocator_statistics dx_allocator_statistics;
+
+struct dx_allocator_statistics {
+  dx_size smallest_block;       ///< The size, in Bytes, of the greatest block allocated.
+                                ///< Can be @a 0 even if Blocks are allocated as Blocks can have zero size.
+                                ///< If no blocks are currently allocated, then the value is @a 0.
+  dx_size greatest_block;       ///< The size, in Bytes, of the greatest block allocated.
+                                ///< Can be @a 0 even if Blocks are allocated as Blocks can have zero size.
+                                ///< If no blocks are currently allocated, then the value is @a 0.
+  dx_size number_of_blocks;     ///< The number of blocks currently allocated.
+                                ///< The sum of the sizes, in Bytes, of all these blocks is the number of Bytes/KiloBytes allocated.
+  dx_size number_of_bytes;      ///< The number of Bytes currently allocated.
+  dx_size number_of_kilo_bytes; ///< The number of KiloBytes currently allocated (1 KiloByte = 1000 Bytes).
+};
+
+/// @brief Initialize a @a dx_allocator_statistics object.
+/// @param self a pointer to an uninitialized a @a dx_allocator_statistics object.
+/// @return The zero value on success. A non-zero value on failure.
+int dx_allocator_statistics_initialize(dx_allocator_statistics *statistics);
+
+/// @brief Uninitialize a @a dx_allocator_statistics object.
+/// @param statistics a pointer to an uninitialized @a dx_allocator_statistics object
+void dx_allocator_statistics_uninitialize(dx_allocator_statistics* statistics);
+
+/// @brief Update memory statistics for an allocation.
+/// @param statistics a pointer to an initialized @a (Spine_CollectorStatistics) object
+/// @param number_of_bytes The number of Bytes that has been allocated.
+/// @return The zero value on success. A non-zero value on failure.
+int dx_allocator_Statistics_on_block_allocated(dx_allocator_statistics* statistics, dx_size number_of_bytes);
+
+/// @brief Update memory statistics for a deallocation.
+/// @param statistics a pointer to an initialized @a (Spine_CollectorStatistics) object
+/// @param number_of_bytes The number of Bytes that has been deallocated.
+/// @return The zero value on success. A non-zero value on failure.
+int dx_allocator_statistics_on_block_deallocated(dx_allocator_statistics* statistics, dx_size number_of_bytes);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 #endif // DX_CORE_MEMORY_H_INCLUDED

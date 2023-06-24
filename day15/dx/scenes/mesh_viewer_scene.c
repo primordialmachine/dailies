@@ -298,7 +298,7 @@ void dx_mesh_viewer_scene_destruct(dx_mesh_viewer_scene* scene) {
 dx_mesh_viewer_scene* dx_mesh_viewer_scene_create(char const* name) {
   dx_rti_type* type = dx_mesh_viewer_scene_get_type();
   if (!type) {
-    return 1;
+    return NULL;
   }
   dx_mesh_viewer_scene* scene = DX_MESH_VIEWER_SCENE(dx_object_alloc(sizeof(dx_mesh_viewer_scene)));
   if (!scene) {

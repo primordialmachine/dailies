@@ -3,6 +3,7 @@
 #include "dx/adl/syntactical.h"
 
 #include "dx/adl/semantical/image_reader.h"
+#include "dx/adl/semantical/material_reader.h"
 #include "dx/adl/semantical/mesh_instance_reader.h"
 #include "dx/adl/semantical/mesh_reader.h"
 #include "dx/adl/semantical/texture_reader.h"
@@ -138,6 +139,7 @@ int dx_adl_semantical_state_construct(dx_adl_semantical_state* self) {
   }
 
 DEFINE(image)
+DEFINE(material)
 DEFINE(mesh)
 DEFINE(mesh_instance)
 DEFINE(texture)

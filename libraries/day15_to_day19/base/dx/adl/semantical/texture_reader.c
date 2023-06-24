@@ -15,13 +15,20 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, size_t index)
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-#if 1
-
-static dx_asset_image* dx_adl_parse_image(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names);
+static dx_asset_image* _parse_image(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names);
 
 static dx_asset_texture* _parse_texture(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names);
 
-static dx_asset_image* dx_adl_parse_image(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names) {
+static dx_object* read(dx_adl_semantical_texture_reader*,
+                       dx_adl_node* node,
+                       dx_adl_semantical_state*,
+                       dx_adl_semantical_names*);
+
+DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_texture_reader",
+                      dx_adl_semantical_texture_reader,
+                      dx_adl_semantical_reader)
+
+  static dx_asset_image* _parse_image(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names) {
   dx_asset_image* asset = NULL;
   dx_string* received_type = dx_adl_semantical_read_type(node, names);
   if (!received_type) {
@@ -44,7 +51,6 @@ END:
   return asset;
 }
 
-
 static dx_asset_texture* _parse_texture(dx_adl_node* node, dx_adl_semantical_state* state, dx_adl_semantical_names* names) {
   dx_asset_texture* texture = NULL;
   dx_asset_image* image = NULL;
@@ -55,7 +61,7 @@ static dx_asset_texture* _parse_texture(dx_adl_node* node, dx_adl_semantical_sta
     if (!child_node) {
       goto END;
     }
-    image = dx_adl_parse_image(child_node, state, names);
+    image = _parse_image(child_node, state, names);
     if (!image) {
       goto END;
     }
@@ -73,16 +79,6 @@ END:
   }
   return texture;
 }
-#endif
-
-static dx_object* read(dx_adl_semantical_texture_reader*,
-                       dx_adl_node* node,
-                       dx_adl_semantical_state*,
-                       dx_adl_semantical_names*);
-
-DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_texture_reader",
-                      dx_adl_semantical_texture_reader,
-                      dx_adl_semantical_reader)
 
 static dx_object* read(dx_adl_semantical_texture_reader* self, dx_adl_node* node,
                        dx_adl_semantical_state* state, dx_adl_semantical_names* names) {

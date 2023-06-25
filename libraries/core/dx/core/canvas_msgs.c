@@ -7,8 +7,8 @@ DX_DEFINE_OBJECT_TYPE("dx.canvas_msg",
                       dx_msg)
 
 int dx_canvas_msg_construct(dx_canvas_msg* self, dx_canvas_msg_kind kind) {
-  dx_rti_type* type = dx_canvas_msg_get_type();
-  if (!type) {
+  dx_rti_type* _type = dx_canvas_msg_get_type();
+  if (!_type) {
     return 1;
   }
   if (dx_msg_construct(DX_MSG(self))) {
@@ -16,6 +16,7 @@ int dx_canvas_msg_construct(dx_canvas_msg* self, dx_canvas_msg_kind kind) {
   }
   self->kind = kind;
   DX_MSG(self)->flags = DX_MSG_TYPE_CANVAS;
+  DX_OBJECT(self)->type = _type;
   DX_OBJECT(self)->destruct = (void(*)(dx_object*))&dx_canvas_msg_destruct;
   return 0;
 }
@@ -25,6 +26,10 @@ void dx_canvas_msg_destruct(dx_canvas_msg* self) {
 }
 
 dx_canvas_msg* dx_canvas_msg_create(dx_canvas_msg_kind kind) {
+  dx_rti_type* _type = dx_canvas_msg_get_type();
+  if (!_type) {
+    return NULL;
+  }
   dx_canvas_msg* self = DX_CANVAS_MSG(dx_object_alloc(sizeof(dx_canvas_msg)));
   if (!self) {
     return NULL;
@@ -39,12 +44,22 @@ dx_canvas_msg* dx_canvas_msg_create(dx_canvas_msg_kind kind) {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+DX_DEFINE_OBJECT_TYPE("dx.canvas_size_changed_msg",
+                      dx_canvas_size_changed_msg,
+                      dx_canvas_msg)
+
+
 int dx_canvas_size_changed_msg_construct(dx_canvas_size_changed_msg* self, dx_f32 width, dx_f32 height) {
+  dx_rti_type* _type = dx_canvas_size_changed_msg_get_type();
+  if (!_type) {
+    return 1;
+  }
   if (dx_canvas_msg_construct(DX_CANVAS_MSG(self), dx_canvas_msg_kind_size_changed)) {
     return 1;
   }
   self->width = width;
   self->height = height;
+  DX_OBJECT(self)->type = _type;
   DX_OBJECT(self)->destruct = (void(*)(dx_object*))&dx_canvas_size_changed_msg_destruct;
   return 0;
 }

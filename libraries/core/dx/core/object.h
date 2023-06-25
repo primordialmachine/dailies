@@ -154,7 +154,9 @@ static inline dx_object* DX_OBJECT(void *p) {
 struct dx_object {
   /// @brief The reference count of the object.
   dx_reference_counter reference_count;
-  /// @brief A pointer to the destructor of the object or a null pointer.
+  /// @brief A pointer to the type of this object or the null pointer.
+  dx_rti_type* type;
+  /// @brief A pointer to the destructor function of the object or the null pointer.
   void (*destruct)(dx_object* object);
 #if _DEBUG && 1 == DX_OBJECT_WITH_MAGIC_BYTES
   char magic_bytes[4];
@@ -172,7 +174,7 @@ void DX_DEBUG_CHECK_MAGIC_BYTES(void* p);
 /// @post
 /// On success, a pointer to dx_object object is returned.
 /// The object is initialized such that <code>dx_object::destructor</code> is assigned a null pointer and <code>dx_object::reference_count</code> is assigned @a 1.
-dx_object* dx_object_alloc(size_t size);
+dx_object* dx_object_alloc(dx_size size);
 
 /// @brief
 /// Increment the reference count of a dx_object object by @a 1.

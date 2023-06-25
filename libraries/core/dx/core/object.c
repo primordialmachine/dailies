@@ -310,9 +310,13 @@ void DX_DEBUG_CHECK_MAGIC_BYTES(void* p) {
 #endif
 }
 
-dx_object* dx_object_alloc(size_t size) {
+dx_object* dx_object_alloc(dx_size size) {
   if (size < sizeof(dx_object)) {
     dx_set_error(DX_INVALID_ARGUMENT);
+    return NULL;
+  }
+  dx_rti_type* type = dx_object_get_type();
+  if (!type) {
     return NULL;
   }
   dx_object* object = dx_memory_allocate(size);
@@ -320,6 +324,7 @@ dx_object* dx_object_alloc(size_t size) {
     return NULL;
   }
   object->reference_count = 1;
+  object->type = type;
   object->destruct = NULL;
 #if _DEBUG && 1 == DX_OBJECT_WITH_MAGIC_BYTES
   object->magic_bytes[0] = 66;

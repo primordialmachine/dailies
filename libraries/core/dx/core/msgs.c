@@ -9,9 +9,9 @@
 #define DX_MSG_TRACE (0)
 
 #if defined(DX_MSG_TRACE) && 1 == DX_MSG_TRACE
-#define TRACE(msg) dx_log(msg, sizeof(msg) - 1)
+  #define TRACE(msg) dx_log(msg, sizeof(msg) - 1)
 #else
-#define TRACE(msg)
+  #define TRACE(msg)
 #endif
 
 DX_DEFINE_OBJECT_TYPE("dx.msg",
@@ -23,19 +23,20 @@ uint32_t dx_msg_get_flags(dx_msg const* msg) {
 }
 
 int dx_msg_construct(dx_msg* msg) {
-  dx_rti_type* type = dx_msg_get_type();
-  if (!type) {
+  TRACE("enter: dx_msg_construct\n");
+  dx_rti_type* _type = dx_msg_get_type();
+  if (!_type) {
     return 1;
   }
-  TRACE("enter: dx_msg_construct\n");
   msg->flags = DX_MSG_TYPE_UNDETERMINED;
+  DX_OBJECT(msg)->type = _type;
   DX_OBJECT(msg)->destruct = (void (*)(dx_object*)) & dx_msg_destruct;
   TRACE("leave: dx_msg_construct\n");
   return 0;
 }
 
-void dx_msg_destruct(dx_msg* msg) {/*Intentionally empty.*/
-}
+void dx_msg_destruct(dx_msg* msg)
+{/*Intentionally empty.*/}
 
 #undef TRACE
 
@@ -44,33 +45,35 @@ void dx_msg_destruct(dx_msg* msg) {/*Intentionally empty.*/
 #define DX_EMIT_MSG_TRACE (0)
 
 #if defined(DX_EMIT_MSG_TRACE) && 1 == DX_EMIT_MSG_TRACE
-#define TRACE(msg) dx_log(msg, sizeof(msg) - 1)
+  #define TRACE(msg) dx_log(msg, sizeof(msg) - 1)
 #else
-#define TRACE(msg)
+  #define TRACE(msg)
 #endif
 
-struct dx_emit_msg {
-  dx_msg _parent;
-  char* p;
-  size_t n;
-};
+DX_DEFINE_OBJECT_TYPE("dx.emit_msg",
+                      dx_emit_msg,
+                      dx_msg);
 
-int dx_emit_msg_construct(dx_emit_msg* emit_msg, char const* p, size_t n) {
+int dx_emit_msg_construct(dx_emit_msg* self, char const* p, dx_size n) {
   TRACE("enter: dx_emit_msg_construct\n");
-  if (dx_msg_construct(DX_MSG(emit_msg))) {
+  dx_rti_type* _type = dx_emit_msg_get_type();
+  if (!_type) {
+    return 1;
+  }
+  if (dx_msg_construct(DX_MSG(self))) {
     TRACE("leave: dx_emit_msg_construct\n");
     return 1;
   }
-  emit_msg->p = dx_memory_allocate(n);
-  if (!emit_msg->p) {
-    dx_msg_destruct(DX_MSG(emit_msg));
+  self->p = dx_memory_allocate(n);
+  if (!self->p) {
     TRACE("leave: dx_emit_msg_construct\n");
     return 1;
   }
-  dx_memory_copy(emit_msg->p, p, n);
-  emit_msg->n = n;
-  DX_MSG(emit_msg)->flags = DX_MSG_TYPE_EMIT;
-  DX_OBJECT(emit_msg)->destruct = (void (*)(dx_object*)) & dx_emit_msg_destruct;
+  dx_memory_copy(self->p, p, n);
+  self->n = n;
+  DX_MSG(self)->flags = DX_MSG_TYPE_EMIT;
+  DX_OBJECT(self)->type = _type;
+  DX_OBJECT(self)->destruct = (void (*)(dx_object*)) & dx_emit_msg_destruct;
   TRACE("leave: dx_emit_msg_construct\n");
   return 0;
 }
@@ -83,26 +86,26 @@ void dx_emit_msg_destruct(dx_emit_msg* emit_msg) {
   TRACE("leave: dx_emit_msg_destruct\n");
 }
 
-dx_emit_msg* dx_emit_msg_create(char const* p, size_t n) {
+dx_emit_msg* dx_emit_msg_create(char const* p, dx_size n) {
   TRACE("enter: dx_emit_msg_create\n");
-  dx_emit_msg* emit_msg = DX_EMIT_MSG(dx_object_alloc(sizeof(dx_emit_msg)));
-  if (!emit_msg) {
+  dx_emit_msg* self = DX_EMIT_MSG(dx_object_alloc(sizeof(dx_emit_msg)));
+  if (!self) {
     TRACE("leave: dx_emit_msg_create\n");
     return NULL;
   }
-  if (dx_emit_msg_construct(emit_msg, p, n)) {
-    DX_UNREFERENCE(emit_msg);
-    emit_msg = NULL;
+  if (dx_emit_msg_construct(self, p, n)) {
+    DX_UNREFERENCE(self);
+    self = NULL;
     TRACE("leave: dx_emit_msg_create\n");
     return NULL;
   }
   TRACE("leave: dx_emit_msg_create\n");
-  return emit_msg;
+  return self;
 }
 
-int dx_emit_msg_get(dx_emit_msg* emit_msg, char const** p, size_t* n) {
-  *p = emit_msg->p;
-  *n = emit_msg->n;
+int dx_emit_msg_get(dx_emit_msg* self, char const** p, size_t* n) {
+  *p = self->p;
+  *n = self->n;
   return 0;
 }
 
@@ -113,45 +116,50 @@ int dx_emit_msg_get(dx_emit_msg* emit_msg, char const** p, size_t* n) {
 #define DX_QUIT_MSG_TRACE (0)
 
 #if defined(DX_QUIT_MSG_TRACE) && 1 == DX_QUIT_MSG_TRACE
-#define TRACE(msg) dx_log(msg, sizeof(msg) - 1)
+  #define TRACE(msg) dx_log(msg, sizeof(msg) - 1)
 #else
-#define TRACE(msg)
+  #define TRACE(msg)
 #endif
 
-struct dx_quit_msg {
-  dx_msg _parent;
-};
+DX_DEFINE_OBJECT_TYPE("dx.quit_msg",
+                      dx_quit_msg,
+                      dx_msg);
 
-int dx_quit_msg_construct(dx_quit_msg* quit_msg) {
+int dx_quit_msg_construct(dx_quit_msg* self) {
   TRACE("enter: dx_quit_msg_construct\n");
-  if (dx_msg_construct(DX_MSG(quit_msg))) {
+  dx_rti_type* _type = dx_quit_msg_get_type();
+  if (!_type) {
+    return 1;
+  }
+  if (dx_msg_construct(DX_MSG(self))) {
     TRACE("leave: dx_quit_msg_construct\n");
     return 1;
   }
-  DX_MSG(quit_msg)->flags = DX_MSG_TYPE_QUIT;
-  DX_OBJECT(quit_msg)->destruct = (void (*)(dx_object*)) & dx_quit_msg_destruct;
+  DX_MSG(self)->flags = DX_MSG_TYPE_QUIT;
+  DX_OBJECT(self)->type = _type;
+  DX_OBJECT(self)->destruct = (void (*)(dx_object*)) & dx_quit_msg_destruct;
   TRACE("leave: dx_quit_msg_construct\n");
   return 0;
 }
 
-void dx_quit_msg_destruct(dx_quit_msg* quit_msg) {/*Intentionally empty.*/
-}
+void dx_quit_msg_destruct(dx_quit_msg* self)
+{/*Intentionally empty.*/}
 
 dx_quit_msg* dx_quit_msg_create() {
   TRACE("enter: dx_quit_msg_create\n");
-  dx_quit_msg* quit_msg = DX_QUIT_MSG(dx_object_alloc(sizeof(dx_quit_msg)));
-  if (!quit_msg) {
+  dx_quit_msg* self = DX_QUIT_MSG(dx_object_alloc(sizeof(dx_quit_msg)));
+  if (!self) {
     TRACE("leave: dx_quit_msg_create\n");
     return NULL;
   }
-  if (dx_quit_msg_construct(quit_msg)) {
-    DX_UNREFERENCE(quit_msg);
-    quit_msg = NULL;
+  if (dx_quit_msg_construct(self)) {
+    DX_UNREFERENCE(self);
+    self = NULL;
     TRACE("leave: dx_quit_msg_create\n");
     return NULL;
   }
   TRACE("leave: dx_quit_msg_create\n");
-  return quit_msg;
+  return self;
 }
 
 #undef TRACE
@@ -161,15 +169,15 @@ dx_quit_msg* dx_quit_msg_create() {
 #define DX_MSG_QUEUE_TRACE (0)
 
 #if defined(DX_MSG_QUEUE_TRACE) && 1 == DX_MSG_QUEUE_TRACE
-#define TRACE(msg) dx_log(msg, sizeof(msg) - 1)
+  #define TRACE(msg) dx_log(msg, sizeof(msg) - 1)
 #else
-#define TRACE(msg)
+  #define TRACE(msg)
 #endif
 
 typedef struct dx_msg_queue {
   dx_msg** elements;
-  size_t size, capacity;
-  size_t write, read;
+  dx_size size, capacity;
+  dx_size write, read;
 } dx_msg_queue;
 
 int dx_msg_queue_push(dx_msg_queue* msg_queue, dx_msg* msg) {

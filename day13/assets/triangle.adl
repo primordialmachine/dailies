@@ -11,6 +11,11 @@
         type : 'Mesh',
         vertexFormat : ['position xyz', 'ambient rgba'],
         generator : 'triangle',
+        operations : [
+          {
+            type : 'MeshOperations.SetVertexColors'
+          }
+        ],
         material : {
           type : 'Material',
         },// Mesh.material

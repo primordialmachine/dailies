@@ -49,7 +49,7 @@ static int viewer_push_constants(dx_mesh_viewer_scene* self, dx_cbinding* cbindi
 
 // the initial position of the viewer.
 // must be different from TARGET.
-static DX_VEC3 const SOURCE = { 0.f, 0.f, 3.f };
+static DX_VEC3 const SOURCE = { 0.f, 0.f, 1.f };
 
 // Rotate viewer with 25 degrees per second counter-clockwise around the y-axis.
 static float const degrees_per_second = 0.f;

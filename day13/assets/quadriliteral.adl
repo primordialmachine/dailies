@@ -10,6 +10,11 @@
       mesh : {
         type : 'Mesh',
         vertexFormat : ['position xyz', 'ambient rgba'],
+        operations : [
+          {
+            type : 'MeshOperations.SetVertexColors'
+          }
+        ],
         generator : 'quadriliteral',
         material : {
           type : 'Material',

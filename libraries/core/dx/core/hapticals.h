@@ -76,7 +76,9 @@ enum dx_input_msg_kind {
   DX_INPUT_MSG_KIND_MOUSE_POINTER,
 };
 
-DX_DECLARE_OBJECT_TYPE("dx.input_msg", dx_input_msg, dx_msg)
+DX_DECLARE_OBJECT_TYPE("dx.input_msg",
+                       dx_input_msg,
+                       dx_msg)
 
 static inline dx_input_msg* DX_INPUT_MSG(void* p) {
   return (dx_input_msg*)p;
@@ -106,7 +108,9 @@ struct dx_input_msg {
 #define DX_KEYBOARD_KEY_ACTION_RELEASED (2)
 
 /// @brief The opaque type of a "keyboard key" message.
-DX_DECLARE_OBJECT_TYPE("dx.keyboard_key_msg", dx_keyboard_key_msg, dx_input_msg)
+DX_DECLARE_OBJECT_TYPE("dx.keyboard_key_msg",
+                       dx_keyboard_key_msg,
+                       dx_input_msg);
 
 static inline dx_keyboard_key_msg* DX_KEYBOARD_KEY_MSG(void* p) {
   return (dx_keyboard_key_msg*)p;
@@ -132,6 +136,13 @@ dx_keyboard_key dx_keyboard_key_msg_get_key(dx_keyboard_key_msg* self);
 /// @return A pointer to the message on success. The null pointer on failure.
 dx_keyboard_key_msg* dx_keyboard_key_msg_create(uint8_t action, dx_keyboard_key key, uint8_t modifiers);
 
+struct dx_keyboard_key_msg {
+  dx_input_msg _parent;
+  uint8_t action;
+  dx_keyboard_key key;
+  uint8_t modifiers;
+};
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #define DX_MOUSE_BUTTON_ACTION_PRESSED (1)
@@ -139,7 +150,9 @@ dx_keyboard_key_msg* dx_keyboard_key_msg_create(uint8_t action, dx_keyboard_key 
 #define DX_MOUSE_BUTTON_ACTION_RELEASED (2)
 
 /// @brief The opaque type of a "mouse button" message.
-DX_DECLARE_OBJECT_TYPE("dx.mouse_button_msg", dx_mouse_button_msg, dx_input_msg)
+DX_DECLARE_OBJECT_TYPE("dx.mouse_button_msg",
+                       dx_mouse_button_msg,
+                       dx_input_msg);
 
 static inline dx_mouse_button_msg* DX_MOUSE_BUTTON_MSG(void* p) {
   return (dx_mouse_button_msg*)p;
@@ -169,6 +182,14 @@ dx_mouse_button dx_mouse_button_msg_get_button(dx_mouse_button_msg* self);
 /// @return A pointer to the message on success. The null pointer on failure.
 dx_mouse_button_msg* dx_mouse_button_msg_create(uint8_t action, dx_mouse_button button, uint8_t modifiers, dx_f32 x, dx_f32 y);
 
+struct dx_mouse_button_msg {
+  dx_input_msg _parent;
+  uint8_t action;
+  dx_mouse_button button;
+  uint8_t modifiers;
+  dx_f32 x, y;
+};
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #define DX_MOUSE_POINTER_ACTION_MOVED (1)
@@ -176,7 +197,9 @@ dx_mouse_button_msg* dx_mouse_button_msg_create(uint8_t action, dx_mouse_button 
 #define DX_MOUSE_POINTER_ACTION_EXITED (3)
 
 /// @brief The opaque type of a "mouse pointer" message.
-DX_DECLARE_OBJECT_TYPE("dx.mouse_pointer_msg", dx_mouse_pointer_msg, dx_input_msg)
+DX_DECLARE_OBJECT_TYPE("dx.mouse_pointer_msg",
+                       dx_mouse_pointer_msg,
+                       dx_input_msg);
 
 static inline dx_mouse_pointer_msg* DX_MOUSE_POINTER_MSG(void* p) {
   return (dx_mouse_pointer_msg*)p;
@@ -201,6 +224,13 @@ uint8_t dx_mouse_pointer_msg_get_action(dx_mouse_pointer_msg* self);
 /// The origin is at the left/top of the canvas. The positive x-axis is pointing right, the positive y-axis is pointing down.
 /// @return A pointer to the message on success. The null pointer on failure.
 dx_mouse_pointer_msg* dx_mouse_pointer_msg_create(uint8_t action, uint8_t modifiers, dx_f32 x, dx_f32 y);
+
+struct dx_mouse_pointer_msg {
+  dx_input_msg _parent;
+  uint8_t action;
+  uint8_t modifiers;
+  dx_f32 x, y;
+};
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

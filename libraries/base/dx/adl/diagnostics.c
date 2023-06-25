@@ -5,10 +5,11 @@ DX_DEFINE_OBJECT_TYPE("dx.adl.diagnostics",
                       dx_object)
 
 int dx_adl_diagnostics_construct(dx_adl_diagnostics* self) {
-  dx_rti_type* type = dx_adl_diagnostics_get_type();
-  if (!type) {
+  dx_rti_type* _type = dx_adl_diagnostics_get_type();
+  if (!_type) {
     return 1;
   }
+  DX_OBJECT(self)->type = _type;
   DX_OBJECT(self)->destruct = (void(*)(dx_object*))&dx_adl_diagnostics_destruct;
   return 0;
 }

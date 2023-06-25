@@ -2,14 +2,17 @@
 The folder, in which this `README.md` is located in, contains the source code and the build and configuration files for a C program.
 
 The program opens a window.
+The window is presenting multiple "scenes" using a modern OpenGL backend.
 
-It presents two scenes:
-The first contains two cubes, the second two octahedron.
-The geometrics are textured with a checkerboard texture and are placed around the origin.
-The camera rotates around the center.
+The first scene displays a quadriliteral, the second scene a triangle.
+The geometrics are "Malachite"-colored, the background is "Capri"-colored.
 
 To exit the program either close the window or press `Escape` when the window has keyboard focus.
 To switch between the two scenes, press `Enter`.
+
+We introduce the concept of a scene and a scene execution environment:
+A scene is a independent unit of (audial/visual/haptical) input and output which is created, destroyed, and operated by a scene execution environment.
+This interaction is based on an interface between scenes and scene execution environments.
 
 # Building the Program
 To compile this program, you generate your environment-specific build files using the KitWare's CMake.

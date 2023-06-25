@@ -69,7 +69,7 @@ static int make_commands_1(dx_command_list* commands) {
   dx_command* command = NULL;
 
   // clear color command
-  static const DX_VEC4 clear_color = { 0.f / 255.f, 191.f / 255.f, 255.f / 255.f, 0.f }; // color called "Capri" (0, 191, 255)
+  DX_VEC4 clear_color = { (float)dx_colors_capri.r / 255.f, (float)dx_colors_capri.g / 255.f, (float)dx_colors_capri.b / 255.f, 0.f };
   command = dx_command_create_clear_color(0, 0, 640, 480, &clear_color);
   if (!command) {
     return 1;

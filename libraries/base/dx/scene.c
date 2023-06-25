@@ -5,9 +5,14 @@ DX_DEFINE_OBJECT_TYPE("dx.scene",
                       dx_object)
 
 int dx_scene_construct(dx_scene* self) {
+  dx_rti_type* _type = dx_scene_get_type();
+  if (!_type) {
+    return 1;
+  }
   self->startup = NULL;
   self->render = NULL;
   self->shutdown = NULL;
+  DX_OBJECT(self)->type = _type;
   DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_scene_destruct;
   return 0;
 }

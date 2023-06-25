@@ -72,7 +72,7 @@ static int make_commands_1(dx_command_list* commands) {
   dx_command* command = NULL;
 
   // clear color command
-  static const DX_VEC4 clear_color = { 0.f / 255.f, 191.f / 255.f, 255.f / 255.f, 0.f }; // color called "Capri" (0, 191, 255)
+  DX_VEC4 clear_color = { (float)dx_colors_capri.r / 255.f, (float)dx_colors_capri.g / 255.f, (float)dx_colors_capri.b / 255.f, 0.f };
   command = dx_command_create_clear_color(0, 0, 640, 480, &clear_color);
   if (!command) {
     return 1;
@@ -265,6 +265,10 @@ static int dx_mesh_viewer_scene_shutdown(dx_mesh_viewer_scene* scene, dx_context
 }
 
 int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const* name) {
+  dx_rti_type* _type = dx_mesh_viewer_scene_get_type();
+  if (!_type) {
+    return 1;
+  }
   if (dx_scene_construct(DX_SCENE(scene))) {
     return 1;
   }
@@ -280,6 +284,7 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const* name
   DX_SCENE(scene)->startup = (int (*)(dx_scene*, dx_context*)) & dx_mesh_viewer_scene_startup;
   DX_SCENE(scene)->render = (int (*)(dx_scene*, dx_context*, float, int, int)) & dx_mesh_viewer_scene_render;
   DX_SCENE(scene)->shutdown = (int (*)(dx_scene*, dx_context*)) dx_mesh_viewer_scene_shutdown;
+  DX_OBJECT(scene)->type = _type;
   DX_OBJECT(scene)->destruct = (void (*)(dx_object*)) & dx_mesh_viewer_scene_destruct;
   return 0;
 }

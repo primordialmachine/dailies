@@ -277,8 +277,8 @@ static int dx_adl_scanner_on_number(dx_adl_scanner* self) {
 }
 
 int dx_adl_scanner_construct(dx_adl_scanner* self) {
-  dx_rti_type* type = dx_adl_scanner_get_type();
-  if (!type) {
+  dx_rti_type* _type = dx_adl_scanner_get_type();
+  if (!_type) {
     return 1;
   }
   static char const EMPTY[] = "";
@@ -293,6 +293,7 @@ int dx_adl_scanner_construct(dx_adl_scanner* self) {
   self->end = self->start;
   self->current = self->start;
   self->kind = dx_adl_word_kind_start_of_input;
+  DX_OBJECT(self)->type = _type;
   DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_adl_scanner_destruct;
   return 0;
 }
@@ -537,6 +538,10 @@ dx_adl_word_kind dx_adl_scanner_get_word_kind(dx_adl_scanner const* self) {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+DX_DEFINE_OBJECT_TYPE("dx.adl.node",
+                      dx_adl_node,
+                      dx_object)
+
 static void on_added(dx_object** a);
 
 static void on_removed(dx_object** a);
@@ -566,6 +571,10 @@ static bool on_compare_keys(dx_object** a, dx_object** b) {
 int dx_adl_node_construct(dx_adl_node* self, dx_adl_node_kind kind) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  dx_rti_type* _type = dx_adl_node_get_type();
+  if (!_type) {
     return 1;
   }
   self->kind = kind;
@@ -608,6 +617,7 @@ int dx_adl_node_construct(dx_adl_node* self, dx_adl_node_kind kind) {
       return 1;
     } break;
   };
+  DX_OBJECT(self)->type = _type;
   DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_adl_node_destruct;
   return 0;
 }

@@ -19,8 +19,6 @@ struct dx_asset_palette_entry {
 
 int dx_asset_palette_entry_construct(dx_asset_palette_entry* self, dx_string* name, DX_RGB_U8 const* value);
 
-void dx_asset_palette_entry_destruct(dx_asset_palette_entry* self);
-
 dx_asset_palette_entry* dx_asset_palette_entry_create(dx_string* name, DX_RGB_U8 const* value);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -39,8 +37,6 @@ struct dx_asset_palette {
 };
 
 int dx_asset_palette_construct(dx_asset_palette* self);
-
-void dx_asset_palette_destruct(dx_asset_palette* self);
 
 dx_asset_palette* dx_asset_palette_create();
 

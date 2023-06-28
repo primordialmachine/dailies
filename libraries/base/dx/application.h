@@ -20,6 +20,4 @@ struct dx_application {
 
 int dx_application_construct(dx_application* application);
 
-void dx_application_destruct(dx_application* application);
-
 #endif // DX_APPLICATION_H_INCLUDED

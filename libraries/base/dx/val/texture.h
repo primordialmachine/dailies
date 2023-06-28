@@ -4,7 +4,10 @@
 #include "dx/val/context.h"
 #include "dx/asset/texture.h"
 
-typedef struct dx_texture dx_texture;
+DX_DECLARE_OBJECT_TYPE("dx.texture",
+                       dx_texture,
+                       dx_object)
+  
 static inline dx_texture* DX_TEXTURE(void* p) {
   return (dx_texture*)p;
 }
@@ -12,12 +15,10 @@ static inline dx_texture* DX_TEXTURE(void* p) {
 struct dx_texture {
   dx_object _parent;
   dx_context* context;
-  int (*set_data)(dx_texture* texture, dx_asset_texture*);
+  int (*set_data)(dx_texture* self, dx_asset_texture*);
 };
 
-int dx_texture_construct(dx_texture* texture, dx_context* context);
-
-void dx_texture_destruct(dx_texture* texture);
+int dx_texture_construct(dx_texture* self, dx_context* context);
 
 /// @brief Set the data of this texture.
 /// @param self A pointer to this texture.

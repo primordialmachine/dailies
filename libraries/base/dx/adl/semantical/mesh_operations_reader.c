@@ -20,13 +20,17 @@ DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_mesh_operations_reader",
 
 static dx_object* read(dx_adl_semantical_mesh_operations_reader* self, dx_adl_node* node, dx_adl_semantical_state* state) {
   {
-    dx_string* type = dx_adl_semantical_read_type(node, state->names);
-    if (!type) {
+    dx_string* received_type = dx_adl_semantical_read_type(node, state->names);
+    if (!received_type) {
       return NULL;
     }
-    if (dx_string_is_equal_to(type, NAME(mesh_operations_set_vertex_colors_type))) {
+    if (dx_string_is_equal_to(received_type, NAME(mesh_operations_set_vertex_colors_type))) {
+      DX_UNREFERENCE(received_type);
+      received_type = NULL;
       return DX_OBJECT(dx_asset_mesh_operations_set_vertex_colors_create());
     } else {
+      DX_UNREFERENCE(received_type);
+      received_type = NULL;
       dx_set_error(DX_SEMANTICAL_ERROR);
       return NULL;
     }
@@ -43,13 +47,11 @@ int dx_adl_semantical_mesh_operations_reader_construct(dx_adl_semantical_mesh_op
   }
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object * (*)(dx_adl_semantical_reader*, dx_adl_node*, dx_adl_semantical_state*)) & read;
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_adl_semantical_mesh_operations_reader_destruct;
   return 0;
 }
 
-void dx_adl_semantical_mesh_operations_reader_destruct(dx_adl_semantical_mesh_operations_reader* self) {
-  dx_adl_semantical_reader_destruct(DX_ADL_SEMANTICAL_READER(self));
-}
+static void dx_adl_semantical_mesh_operations_reader_destruct(dx_adl_semantical_mesh_operations_reader* self)
+{/*Intentionally empty.*/}
 
 dx_adl_semantical_mesh_operations_reader* dx_adl_semantical_mesh_operations_reader_create() {
   dx_adl_semantical_mesh_operations_reader* self = DX_ADL_SEMANTICAL_MESH_OPERATIONS_READER(dx_object_alloc(sizeof(dx_adl_semantical_mesh_operations_reader)));

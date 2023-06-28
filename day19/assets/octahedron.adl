@@ -9,14 +9,18 @@
       },
       mesh : {
         type : 'Mesh',
+        name : 'my.octahedron1',
         vertexFormat : ['position xyz', 'ambient uv'],
         generator : 'octahedron',
         material : {
           type : 'Material',
+          name : 'my.octahedron1.material',
           ambientTexture : {
             type : 'Texture',
+            name : 'my.octahedron1.texture',
             image : {
               type : 'Image',
+              name : 'my.octahedron1.image',
               width : 2048,
               height : 2048,
               color : { type : 'ColorInstance', reference : 'malachite' },
@@ -48,14 +52,18 @@
       },
       mesh : {
         type : 'Mesh',
+        name : 'my.octahedron2',
         vertexFormat : ['position xyz', 'ambient uv'],
         generator : 'octahedron',
         material : {
           type : 'Material',
+          name : 'my.octahedron2.material',
           ambientTexture : {
             type : 'Texture',
+            name : 'my.octahedron2.texture',
             image : {
               type : 'Image',
+              name : 'my.octahedron2.image',
               width : 2048,
               height : 2048,
               color : { type : 'ColorInstance', reference : 'malachite' },

@@ -325,7 +325,6 @@ dx_object* dx_object_alloc(dx_size size) {
   }
   object->reference_count = 1;
   object->type = type;
-  object->destruct = NULL;
 #if _DEBUG && 1 == DX_OBJECT_WITH_MAGIC_BYTES
   object->magic_bytes[0] = 66;
   object->magic_bytes[1] = 12;
@@ -343,8 +342,12 @@ void dx_object_reference(dx_object *object) {
 void dx_object_unreference(dx_object* object) {
   DX_DEBUG_CHECK_MAGIC_BYTES(object);
   if (!dx_reference_counter_decrement(&object->reference_count)) {
-    if (object->destruct) {
-      object->destruct(object);
+    while (object->type) {
+      _dx_rti_type* type = (_dx_rti_type*)object->type;
+      if (type->object.destruct) {
+        type->object.destruct(object);
+      }
+      object->type = (dx_rti_type*)type->object.parent;
     }
     dx_memory_deallocate(object);
     object = NULL;

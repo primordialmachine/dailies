@@ -59,6 +59,10 @@ static int resize_vertex_arrays(dx_asset_mesh* self, dx_bool shrink, dx_size num
 }
 
 static void dx_asset_mesh_destruct(dx_asset_mesh* self) {
+  if (self->name) {
+    DX_UNREFERENCE(self->name);
+    self->name = NULL;
+  }
   if (self->material) {
     DX_UNREFERENCE(self->material);
     self->material = NULL;
@@ -77,13 +81,13 @@ static void dx_asset_mesh_destruct(dx_asset_mesh* self) {
   }
 }
 
-static int dx_asset_mesh_construct(dx_asset_mesh* self, dx_string* specifier, DX_VERTEX_FORMAT vertex_format, dx_asset_material* material) {
-  if (!self || !specifier || !material) {
+static int dx_asset_mesh_construct(dx_asset_mesh* self, dx_string* name, dx_string* specifier, DX_VERTEX_FORMAT vertex_format, dx_asset_material* material) {
+  if (!self || !name || !specifier || !material) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  dx_rti_type* type = dx_asset_mesh_get_type();
-  if (!type) {
+  dx_rti_type* _type = dx_asset_mesh_get_type();
+  if (!_type) {
     return 1;
   }
   // "default" mesh
@@ -150,17 +154,20 @@ SELECT_GENERATOR(octahedron)
   }
   self->material = material;
   DX_REFERENCE(material);
+  self->name = name;
+  DX_REFERENCE(name);
   self->vertex_format = vertex_format;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_asset_mesh_destruct;
+
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-dx_asset_mesh* dx_asset_mesh_create(dx_string* specifier, DX_VERTEX_FORMAT vertex_format, dx_asset_material* material) {
+dx_asset_mesh* dx_asset_mesh_create(dx_string* name, dx_string* specifier, DX_VERTEX_FORMAT vertex_format, dx_asset_material* material) {
   dx_asset_mesh* self = DX_ASSET_MESH(dx_object_alloc(sizeof(dx_asset_mesh)));
   if (!self) {
     return NULL;
   }
-  if (dx_asset_mesh_construct(self, specifier, vertex_format, material)) {
+  if (dx_asset_mesh_construct(self, name, specifier, vertex_format, material)) {
     DX_UNREFERENCE(self);
     self = NULL;
     return NULL;

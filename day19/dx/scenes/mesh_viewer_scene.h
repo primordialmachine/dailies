@@ -40,10 +40,6 @@ struct dx_mesh_viewer_scene {
 /// after the mesh was loaded to allow for custom post-processing on the mesh.
 int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const *path);
 
-/// @brief Destruct this scene.
-/// @param scene A pointer to this scene.
-void dx_mesh_viewer_scene_destruct(dx_mesh_viewer_scene* scene);
-
 dx_mesh_viewer_scene* dx_mesh_viewer_scene_create(char const *path);
 
 #endif // DX_SCENES_MESH_VIEWER_SCENE_H_INCLUDED

@@ -17,8 +17,6 @@ struct dx_asset_mesh_operations_set_vertex_colors {
 
 int dx_asset_mesh_operations_set_vertex_colors_construct(dx_asset_mesh_operations_set_vertex_colors* self);
 
-void dx_asset_mesh_operations_set_vertex_colors_destruct(dx_asset_mesh_operations_set_vertex_colors* self);
-
 dx_asset_mesh_operations_set_vertex_colors* dx_asset_mesh_operations_set_vertex_colors_create();
 
 #endif // DX_ASSET_MESH_OPERATIONS_SET_VERTEX_COLORS_H_INCLUDED

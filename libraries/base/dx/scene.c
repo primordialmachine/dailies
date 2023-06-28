@@ -13,11 +13,11 @@ int dx_scene_construct(dx_scene* self) {
   self->render = NULL;
   self->shutdown = NULL;
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_scene_destruct;
   return 0;
 }
 
-void dx_scene_destruct(dx_scene* self) { }
+static void dx_scene_destruct(dx_scene* self)
+{/*Intentionally empty.*/}
 
 int dx_scene_startup(dx_scene* self, dx_context* context) {
   if (!self) {

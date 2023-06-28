@@ -92,8 +92,6 @@ static inline dx_input_msg* DX_INPUT_MSG(void* p) {
 /// @failure This function has set the error variable.
 int dx_input_msg_construct(dx_input_msg* self, dx_input_msg_kind kind);
 
-void dx_input_msg_destruct(dx_input_msg* self);
-
 dx_input_msg_kind dx_input_msg_get_kind(dx_input_msg* self);
 
 struct dx_input_msg {
@@ -122,8 +120,6 @@ static inline dx_keyboard_key_msg* DX_KEYBOARD_KEY_MSG(void* p) {
 /// @return The zero value on success. A non-zero value on failure.
 /// @failure This function has set the error variable.
 int dx_keyboard_key_msg_construct(dx_keyboard_key_msg* self, uint8_t action, dx_keyboard_key key, uint8_t modifiers);
-
-void dx_keyboard_key_msg_destruct(dx_keyboard_key_msg* self);
 
 uint8_t dx_keyboard_key_msg_get_action(dx_keyboard_key_msg* self);
 
@@ -166,8 +162,6 @@ static inline dx_mouse_button_msg* DX_MOUSE_BUTTON_MSG(void* p) {
 /// The origin is at the left/top of the canvas. The positive x-axis is pointing right, the positive y-axis is pointing down.
 /// @return The zero value on success. A non-zero value on failure.
 int dx_mouse_button_msg_construct(dx_mouse_button_msg* self, uint8_t action, dx_mouse_button button, uint8_t modifiers, dx_f32 x, dx_f32 y);
-
-void dx_mouse_button_msg_destruct(dx_mouse_button_msg* self);
 
 uint8_t dx_mouse_button_msg_get_action(dx_mouse_button_msg* self);
 
@@ -212,8 +206,6 @@ static inline dx_mouse_pointer_msg* DX_MOUSE_POINTER_MSG(void* p) {
 /// The origin is at the left/top of the canvas. The positive x-axis is pointing right, the positive y-axis is pointing down.
 /// @return The zero value on success. A non-zero value on failure.
 int dx_mouse_pointer_msg_construct(dx_mouse_pointer_msg* self, uint8_t action, uint8_t modifiers, dx_f32 x, dx_f32 y);
-
-void dx_mouse_pointer_msg_destruct(dx_mouse_pointer_msg* self);
 
 uint8_t dx_mouse_pointer_msg_get_action(dx_mouse_pointer_msg* self);
 

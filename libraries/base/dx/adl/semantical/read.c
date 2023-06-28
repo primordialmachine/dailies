@@ -54,6 +54,17 @@ dx_string* dx_adl_semantical_read_type(dx_adl_node* node, dx_adl_semantical_name
   return type;
 }
 
+dx_string* dx_adl_semantical_read_name(dx_adl_node* node, dx_adl_semantical_names* names) {
+  dx_string* key = NAME(name_key);
+  dx_adl_node* child_node = dx_adl_node_map_get(node, key);
+  if (!child_node || child_node->kind != dx_adl_node_kind_string) {
+    return NULL;
+  }
+  dx_string* type = dx_adl_node_get_string(child_node);
+  DX_DEBUG_CHECK_MAGIC_BYTES(type);
+  return type;
+}
+
 int dx_adl_semantical_read_n8(dx_adl_node* node, dx_string* name, dx_n8* target) {
   dx_adl_node* child_node = dx_adl_node_map_get(node, name);
   if (!child_node || child_node->kind != dx_adl_node_kind_number) {

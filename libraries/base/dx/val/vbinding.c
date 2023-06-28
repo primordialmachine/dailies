@@ -2,22 +2,30 @@
 
 #include "dx/val/buffer.h"
 
-int dx_vbinding_construct(dx_vbinding* vbinding, dx_buffer* buffer) {
-  vbinding->buffer = buffer;
-  DX_REFERENCE(vbinding->buffer);
-  vbinding->context = buffer->context;
-  DX_OBJECT(vbinding)->destruct = (void(*)(dx_object*)) & dx_vbinding_destruct;
+DX_DEFINE_OBJECT_TYPE("dx.vbinding",
+                      dx_vbinding,
+                      dx_object)
+
+int dx_vbinding_construct(dx_vbinding* self, dx_buffer* buffer) {
+  dx_rti_type* _type = dx_vbinding_get_type();
+  if (!_type) {
+    return 1;
+  }
+  self->buffer = buffer;
+  DX_REFERENCE(self->buffer);
+  self->context = buffer->context;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_vbinding_destruct(dx_vbinding* vbinding) {
-  if (vbinding->buffer) {
-    DX_UNREFERENCE(vbinding->buffer);
-    vbinding->buffer = NULL;
+static void dx_vbinding_destruct(dx_vbinding* self) {
+  if (self->buffer) {
+    DX_UNREFERENCE(self->buffer);
+    self->buffer = NULL;
   }
-  vbinding->context = NULL;
+  self->context = NULL;
 }
 
-int dx_vbinding_activate(dx_vbinding* vbinding) {
-  return vbinding->activate(vbinding);
+int dx_vbinding_activate(dx_vbinding* self) {
+  return self->activate(self);
 }

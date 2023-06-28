@@ -30,8 +30,6 @@ struct dx_context {
 
 int dx_context_construct(dx_context* context);
 
-void dx_context_destruct(dx_context* context);
-
 /// @brief Bind the specified texture to the specified texture unit.
 /// @param context A pointer to this context.
 /// @param unit The texture unit index.

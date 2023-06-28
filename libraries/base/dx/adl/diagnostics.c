@@ -10,12 +10,11 @@ int dx_adl_diagnostics_construct(dx_adl_diagnostics* self) {
     return 1;
   }
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*))&dx_adl_diagnostics_destruct;
   return 0;
 }
 
-void dx_adl_diagnostics_destruct(dx_adl_diagnostics* self) {
-}
+static void dx_adl_diagnostics_destruct(dx_adl_diagnostics* self)
+{/*Intentionally empty.*/}
 
 dx_adl_diagnostics* dx_adl_diagnostics_create() {
   dx_adl_diagnostics* self = DX_ADL_DIAGNOSTICS(dx_object_alloc(sizeof(dx_adl_diagnostics)));

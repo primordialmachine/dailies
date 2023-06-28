@@ -200,45 +200,45 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* scene, dx_context*
   return 0;
 }
 
-static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* scene, dx_context* context, float delta_seconds, int canvas_width, int canvas_height) {
-  dx_mat4_set_perspective(&scene->projection_matrix, 60.f, (float)canvas_width / (float)canvas_height, +0.1f, 100.f);
-  update_viewer(scene);
+static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* self, dx_context* context, float delta_seconds, int canvas_width, int canvas_height) {
+  dx_mat4_set_perspective(&self->projection_matrix, 60.f, (float)canvas_width / (float)canvas_height, +0.1f, 100.f);
+  update_viewer(self);
 
   float degrees = degrees_per_second * delta_seconds;
-  scene->angle = fmodf(scene->angle + degrees, 360.f);
+  self->angle = fmodf(self->angle + degrees, 360.f);
   {
     dx_command* command;
 
     // clear color command
-    command = dx_command_list_get_at(scene->commands, 0);
+    command = dx_command_list_get_at(self->commands, 0);
     command->clear_color_command.rectangle.w = (float)canvas_width;
     command->clear_color_command.rectangle.h = (float)canvas_height;
 
     // clear depth command
-    command = dx_command_list_get_at(scene->commands, 1);
+    command = dx_command_list_get_at(self->commands, 1);
     command->clear_depth_command.rectangle.w = (float)canvas_width;
     command->clear_depth_command.rectangle.h = (float)canvas_height;
 
     // viewport command
-    command = dx_command_list_get_at(scene->commands, 2);
+    command = dx_command_list_get_at(self->commands, 2);
     command->viewport_command.w = (float)canvas_width;
     command->viewport_command.h = (float)canvas_height;
   }
   // the "on enter frame" commands.
-  if (dx_context_execute_commands(context, scene->commands)) {
+  if (dx_context_execute_commands(context, self->commands)) {
     return 1;
   }
   // the "per mesh instance" commands.
   {
-    for (size_t i = 0, n = dx_object_array_get_size(&scene->mesh_instances); i < n; ++i) {
-      dx_mesh_instance* mesh_instance = DX_MESH_INSTANCE(dx_object_array_get_at(&scene->mesh_instances, i));
+    for (size_t i = 0, n = dx_object_array_get_size(&self->mesh_instances); i < n; ++i) {
+      dx_mesh_instance* mesh_instance = DX_MESH_INSTANCE(dx_object_array_get_at(&self->mesh_instances, i));
       if (!mesh_instance) {
         return 1;
       }
       // update the constant binding
       dx_cbinding* cbinding = dx_mesh_instance_get_cbinding(mesh_instance);
       dx_mesh_instance_update_cbinding(mesh_instance, cbinding);
-      viewer_push_constants(scene, cbinding);
+      viewer_push_constants(self, cbinding);
       if (dx_context_execute_commands(context, mesh_instance->commands)) {
         return 1;
       }
@@ -247,57 +247,60 @@ static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* scene, dx_context* 
   return 0;
 }
 
-static int dx_mesh_viewer_scene_shutdown(dx_mesh_viewer_scene* scene, dx_context* context) {
-  mesh_instance_on_shutdown(scene);
-  if (scene->asset_scene) {
-    DX_UNREFERENCE(scene->asset_scene);
-    scene->asset_scene = NULL;
+static int dx_mesh_viewer_scene_shutdown(dx_mesh_viewer_scene* self, dx_context* context) {
+  mesh_instance_on_shutdown(self);
+  if (self->asset_scene) {
+    DX_UNREFERENCE(self->asset_scene);
+    self->asset_scene = NULL;
   }
-  if (scene->commands) {
-    DX_UNREFERENCE(scene->commands);
-    scene->commands = NULL;
+  if (self->commands) {
+    DX_UNREFERENCE(self->commands);
+    self->commands = NULL;
   }
-  dx_object_array_uninitialize(&scene->mesh_instances);
+  dx_object_array_uninitialize(&self->mesh_instances);
   return 0;
 }
 
-int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const* name) {
-  if (dx_scene_construct(DX_SCENE(scene))) {
+int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* self, char const* name) {
+  dx_rti_type* _type = dx_mesh_viewer_scene_get_type();
+  if (!_type) {
     return 1;
   }
-  scene->name = _strdup(name);
-  if (!scene->name) {
+  if (dx_scene_construct(DX_SCENE(self))) {
     return 1;
   }
-  dx_mat4_set_identity(&scene->projection_matrix);
-  dx_mat4_set_identity(&scene->view_matrix);
-  dx_mat4_set_identity(&scene->projection_matrix);
-  scene->asset_scene = NULL;
-  scene->commands = NULL;
-  DX_SCENE(scene)->startup = (int (*)(dx_scene*, dx_context*)) & dx_mesh_viewer_scene_startup;
-  DX_SCENE(scene)->render = (int (*)(dx_scene*, dx_context*, float, int, int)) & dx_mesh_viewer_scene_render;
-  DX_SCENE(scene)->shutdown = (int (*)(dx_scene*, dx_context*)) dx_mesh_viewer_scene_shutdown;
-  DX_OBJECT(scene)->destruct = (void (*)(dx_object*)) & dx_mesh_viewer_scene_destruct;
+  self->name = _strdup(name);
+  if (!self->name) {
+    return 1;
+  }
+  dx_mat4_set_identity(&self->projection_matrix);
+  dx_mat4_set_identity(&self->view_matrix);
+  dx_mat4_set_identity(&self->projection_matrix);
+  self->asset_scene = NULL;
+  self->commands = NULL;
+  DX_SCENE(self)->startup = (int (*)(dx_scene*, dx_context*)) & dx_mesh_viewer_scene_startup;
+  DX_SCENE(self)->render = (int (*)(dx_scene*, dx_context*, float, int, int)) & dx_mesh_viewer_scene_render;
+  DX_SCENE(self)->shutdown = (int (*)(dx_scene*, dx_context*)) dx_mesh_viewer_scene_shutdown;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_mesh_viewer_scene_destruct(dx_mesh_viewer_scene* scene) {
-  if (scene->name) {
-    dx_memory_deallocate(scene->name);
-    scene->name = NULL;
+static void dx_mesh_viewer_scene_destruct(dx_mesh_viewer_scene* self) {
+  if (self->name) {
+    dx_memory_deallocate(self->name);
+    self->name = NULL;
   }
-  dx_scene_destruct(DX_SCENE(scene));
 }
 
 dx_mesh_viewer_scene* dx_mesh_viewer_scene_create(char const* name) {
-  dx_mesh_viewer_scene* scene = DX_MESH_VIEWER_SCENE(dx_object_alloc(sizeof(dx_mesh_viewer_scene)));
-  if (!scene) {
+  dx_mesh_viewer_scene* self = DX_MESH_VIEWER_SCENE(dx_object_alloc(sizeof(dx_mesh_viewer_scene)));
+  if (!self) {
     return NULL;
   }
-  if (dx_mesh_viewer_scene_construct(scene, name)) {
-    DX_UNREFERENCE(scene);
-    scene = NULL;
+  if (dx_mesh_viewer_scene_construct(self, name)) {
+    DX_UNREFERENCE(self);
+    self = NULL;
     return NULL;
   }
-  return scene;
+  return self;
 }

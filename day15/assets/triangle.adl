@@ -9,14 +9,18 @@
       },
       mesh : {
         type : 'Mesh',
+        name : 'my.triangle',
         vertexFormat : ['position xyz', 'ambient uv'],
         generator : 'triangle',
         material : {
           type : 'Material',
+          name : 'my.triangle.material',
           ambientTexture : {
             type : 'Texture',
+            name : 'my.triangle.texture',
             image : {
               type : 'Image',
+              name : 'my.triangle.image',
               width : 2048,
               height : 2048,
               color : { type : 'ColorInstance', reference : 'malachite' },

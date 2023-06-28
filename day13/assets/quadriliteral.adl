@@ -9,6 +9,7 @@
       },
       mesh : {
         type : 'Mesh',
+        name : 'my.quadriliteral',
         vertexFormat : ['position xyz', 'ambient rgba'],
         operations : [
           {
@@ -18,6 +19,7 @@
         generator : 'quadriliteral',
         material : {
           type : 'Material',
+          name : 'my.triangle.material',
         },// Mesh.material
       },// MeshInstance.mesh
     },

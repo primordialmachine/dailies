@@ -22,9 +22,6 @@ struct dx_gl_wgl_application {
 };
 
 /// @internal
-void dx_gl_wgl_application_destruct(dx_gl_wgl_application* application);
-
-/// @internal
 int dx_gl_wgl_application_construct(dx_gl_wgl_application* application, dx_msg_queue* msg_queue);
 
 /// @internal

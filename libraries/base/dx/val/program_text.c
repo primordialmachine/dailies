@@ -1,6 +1,14 @@
 #include "dx/val/program_text.h"
 
+DX_DEFINE_OBJECT_TYPE("dx.program.text",
+                      dx_program_text,
+                      dx_object)
+
 int dx_program_text_construct_from_file(dx_program_text* program_text, dx_program_text_type type, dx_string* path) {
+  dx_rti_type* _type = dx_program_text_get_type();
+  if (!_type) {
+    return 1;
+  }
   if (dx_string_contains_symbol(path, '\0')) {
     return 1;
   }
@@ -29,11 +37,15 @@ int dx_program_text_construct_from_file(dx_program_text* program_text, dx_progra
   }
   program_text->parent = NULL;
   program_text->type = type;
-  DX_OBJECT(program_text)->destruct = (void(*)(dx_object*)) & dx_program_text_destruct;
+  DX_OBJECT(program_text)->type = _type;
   return 0;
 }
 
 int dx_program_text_construct(dx_program_text* program_text, dx_program_text* vertex_program_text, dx_program_text* fragment_program_text) {
+  dx_rti_type* _type = dx_program_text_get_type();
+  if (!_type) {
+    return 1;
+  }
   if (!vertex_program_text || DX_PROGRAM_TEXT_TYPE_VERTEX != vertex_program_text->type) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -53,11 +65,11 @@ int dx_program_text_construct(dx_program_text* program_text, dx_program_text* ve
   
   program_text->type = DX_PROGRAM_TEXT_TYPE_VERTEX_FRAGMENT;
   
-  DX_OBJECT(program_text)->destruct = (void(*)(dx_object*)) & dx_program_text_destruct;
+  DX_OBJECT(program_text)->type = _type;
   return 0;
 }
 
-void dx_program_text_destruct(dx_program_text* program_text) {
+static void dx_program_text_destruct(dx_program_text* program_text) {
   switch (program_text->type) {
   case DX_PROGRAM_TEXT_TYPE_VERTEX_FRAGMENT: {
     DX_UNREFERENCE(program_text->vertex_program_text);

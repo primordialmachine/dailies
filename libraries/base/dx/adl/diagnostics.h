@@ -17,8 +17,6 @@ struct dx_adl_diagnostics {
 
 int dx_adl_diagnostics_construct(dx_adl_diagnostics* self);
 
-void dx_adl_diagnostics_destruct(dx_adl_diagnostics* self);
-
 dx_adl_diagnostics* dx_adl_diagnostics_create();
 
 int dx_adl_diagnostics_on_lexical(dx_adl_diagnostics* self);

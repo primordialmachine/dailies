@@ -27,8 +27,6 @@ struct dx_material {
 
 int dx_material_construct(dx_material* self, dx_context* context, dx_asset_material* asset_material);
 
-void dx_material_destruct(dx_material* self);
-
 dx_material* dx_material_create(dx_context* context, dx_asset_material* asset_material);
 
 #endif // DX_MATERIAL_H_INCLUDED

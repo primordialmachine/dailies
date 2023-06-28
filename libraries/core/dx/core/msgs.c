@@ -30,12 +30,11 @@ int dx_msg_construct(dx_msg* msg) {
   }
   msg->flags = DX_MSG_TYPE_UNDETERMINED;
   DX_OBJECT(msg)->type = _type;
-  DX_OBJECT(msg)->destruct = (void (*)(dx_object*)) & dx_msg_destruct;
   TRACE("leave: dx_msg_construct\n");
   return 0;
 }
 
-void dx_msg_destruct(dx_msg* msg)
+static void dx_msg_destruct(dx_msg* msg)
 {/*Intentionally empty.*/}
 
 #undef TRACE
@@ -73,16 +72,14 @@ int dx_emit_msg_construct(dx_emit_msg* self, char const* p, dx_size n) {
   self->n = n;
   DX_MSG(self)->flags = DX_MSG_TYPE_EMIT;
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void (*)(dx_object*)) & dx_emit_msg_destruct;
   TRACE("leave: dx_emit_msg_construct\n");
   return 0;
 }
 
-void dx_emit_msg_destruct(dx_emit_msg* emit_msg) {
+static void dx_emit_msg_destruct(dx_emit_msg* emit_msg) {
   TRACE("enter: dx_emit_msg_destruct\n");
   dx_memory_deallocate(emit_msg->p);
   emit_msg->p = NULL;
-  dx_msg_destruct(DX_MSG(emit_msg));
   TRACE("leave: dx_emit_msg_destruct\n");
 }
 
@@ -137,12 +134,11 @@ int dx_quit_msg_construct(dx_quit_msg* self) {
   }
   DX_MSG(self)->flags = DX_MSG_TYPE_QUIT;
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void (*)(dx_object*)) & dx_quit_msg_destruct;
   TRACE("leave: dx_quit_msg_construct\n");
   return 0;
 }
 
-void dx_quit_msg_destruct(dx_quit_msg* self)
+static void dx_quit_msg_destruct(dx_quit_msg* self)
 {/*Intentionally empty.*/}
 
 dx_quit_msg* dx_quit_msg_create() {

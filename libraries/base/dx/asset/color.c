@@ -2,15 +2,20 @@
 
 DX_DEFINE_OBJECT_TYPE("dx.asset.color", dx_asset_color, dx_object)
 
-void dx_asset_color_destruct(dx_asset_color* self) { }
+static void dx_asset_color_destruct(dx_asset_color* self)
+{/*Intentionally empty.*/}
 
 int dx_asset_color_construct(dx_asset_color* self, DX_RGB_U8 const* value) {
+  dx_rti_type* _type = dx_asset_color_get_type();
+  if (!_type) {
+    return 1;
+  }
   if (!self || !value) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
   self->value = *value;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_asset_color_destruct;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 

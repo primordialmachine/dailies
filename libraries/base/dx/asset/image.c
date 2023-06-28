@@ -73,6 +73,7 @@ static void fill_rgb_u8(void* pixels, OFFSET2 fill_offset, EXTEND2 fill_extend, 
 }
 
 int dx_asset_image_construct(dx_asset_image* self,
+                             dx_string* name,
                              DX_PIXEL_FORMAT pixel_format,
                              dx_size width,
                              dx_size height,
@@ -116,17 +117,21 @@ int dx_asset_image_construct(dx_asset_image* self,
     return 1;
   } break;
   };
+  self->name = name;
+  DX_REFERENCE(name);
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_asset_image_destruct;
   return 0;
 }
 
-void dx_asset_image_destruct(dx_asset_image* self) {
+static void dx_asset_image_destruct(dx_asset_image* self) {
+  DX_UNREFERENCE(self->name);
+  self->name = NULL;
   dx_memory_deallocate(self->pixels);
   self->pixels = NULL;
 }
 
-dx_asset_image* dx_asset_image_create(DX_PIXEL_FORMAT pixel_format,
+dx_asset_image* dx_asset_image_create(dx_string* name, 
+                                      DX_PIXEL_FORMAT pixel_format,
                                       dx_size width,
                                       dx_size height,
                                       DX_RGB_U8 const* color) {
@@ -138,7 +143,7 @@ dx_asset_image* dx_asset_image_create(DX_PIXEL_FORMAT pixel_format,
   if (!self) {
     return NULL;
   }
-  if (dx_asset_image_construct(self, pixel_format, width, height, color)) {
+  if (dx_asset_image_construct(self, name, pixel_format, width, height, color)) {
     DX_UNREFERENCE(self);
     self = NULL;
     return NULL;

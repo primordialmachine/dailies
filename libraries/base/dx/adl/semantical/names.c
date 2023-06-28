@@ -20,7 +20,7 @@ int dx_adl_semantical_names_construct(dx_adl_semantical_names* self) {
     goto ERROR;
   }
   memset(self->names, 0, sizeof(dx_string*) * (DX_SEMANTICAL_NAMES_NUMBER_OF_NAMES));
-#define DEFINE(NAME, NUMBER, STRING) \
+#define DEFINE(NAME, STRING) \
   self->names[dx_semantical_name_index_##NAME] = dx_string_create(STRING, sizeof(STRING) - 1); \
   if (!self->names[dx_semantical_name_index_##NAME]) { \
     goto ERROR; \
@@ -28,7 +28,6 @@ int dx_adl_semantical_names_construct(dx_adl_semantical_names* self) {
 #include "dx/adl/semantical/names.i"
 #undef DEFINE
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_adl_semantical_names_destruct;
   return 0;
 ERROR:
   if (self->names) {
@@ -46,7 +45,7 @@ ERROR:
   return 1;
 }
 
-void dx_adl_semantical_names_destruct(dx_adl_semantical_names* self) {
+static void dx_adl_semantical_names_destruct(dx_adl_semantical_names* self) {
   for (size_t i = 0, n = DX_SEMANTICAL_NAMES_NUMBER_OF_NAMES; i < n; ++i) {
     DX_DEBUG_ASSERT(self->names[i]);
     DX_UNREFERENCE(self->names[i]);

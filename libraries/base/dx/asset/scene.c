@@ -39,9 +39,15 @@ static dx_asset_palette* _create_default_palette() {
   return palette;
 }
 
-DX_DEFINE_OBJECT_TYPE("dx.asset.scene", dx_asset_scene, dx_object)
+DX_DEFINE_OBJECT_TYPE("dx.asset.scene",
+                      dx_asset_scene,
+                      dx_object)
 
 int dx_asset_scene_construct(dx_asset_scene* self) {
+  dx_rti_type* _type = dx_asset_scene_get_type();
+  if (!_type) {
+    return 1;
+  }
   if (dx_object_array_initialize(&self->mesh_instances, 0)) {
       return 1;
   }
@@ -50,11 +56,11 @@ int dx_asset_scene_construct(dx_asset_scene* self) {
     dx_object_array_uninitialize(&self->mesh_instances);
     return 1;
   }
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_asset_scene_destruct;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_asset_scene_destruct(dx_asset_scene* self) {
+static void dx_asset_scene_destruct(dx_asset_scene* self) {
   if (self->palette) {
     DX_UNREFERENCE(self->palette);
     self->palette = NULL;

@@ -6,8 +6,8 @@
 DX_DECLARE_ENUMERATION_TYPE("dx.adl.semantical_name_index",
                             dx_adl_semantical_name_index)
 
-  enum dx_semantical_name_index {
-#define DEFINE(NAME, NUMBER, STRING) dx_semantical_name_index_##NAME = NUMBER,
+enum dx_semantical_name_index {
+#define DEFINE(NAME, STRING) dx_semantical_name_index_##NAME,
 #include "dx/adl/semantical/names.i"
 #undef DEFINE
 };
@@ -28,8 +28,6 @@ struct dx_adl_semantical_names {
 };
 
 int dx_adl_semantical_names_construct(dx_adl_semantical_names* self);
-
-void dx_adl_semantical_names_destruct(dx_adl_semantical_names* self);
 
 dx_adl_semantical_names* dx_adl_semantical_names_create();
 

@@ -9,10 +9,12 @@
       },
       mesh : {
         type : 'Mesh',
+        name : 'my.triangle',
         vertexFormat : ['position xyz'],
         generator : 'triangle',
         material : {
           type : 'Material',
+          name : 'my.triangle.material',
           ambientColor : { type : 'ColorInstance', reference : 'malachite' },
         },// Mesh.material
       },// MeshInstance.mesh

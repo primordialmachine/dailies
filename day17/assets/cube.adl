@@ -9,14 +9,18 @@
       },
       mesh : {
         type : 'Mesh',
+        name : 'my.cube',
         vertexFormat : ['position xyz', 'ambient uv'],
         generator : 'cube',
         material : {
           type : 'Material',
+          name : 'my.cube.material',
           ambientTexture : {
             type : 'Texture',
+            name : 'my.cube.texture',
             image : {
               type : 'Image',
+              name : 'my.cube.image',
               width : 2048,
               height : 2048,
               color : { type : 'ColorInstance', reference : 'malachite' },

@@ -310,16 +310,14 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* scene, char const* name
   DX_SCENE(scene)->render = (int (*)(dx_scene*, dx_context*, float, int, int)) & dx_mesh_viewer_scene_render;
   DX_SCENE(scene)->shutdown = (int (*)(dx_scene*, dx_context*)) dx_mesh_viewer_scene_shutdown;
   DX_OBJECT(scene)->type = _type;
-  DX_OBJECT(scene)->destruct = (void (*)(dx_object*)) & dx_mesh_viewer_scene_destruct;
   return 0;
 }
 
-void dx_mesh_viewer_scene_destruct(dx_mesh_viewer_scene* scene) {
+static void dx_mesh_viewer_scene_destruct(dx_mesh_viewer_scene* scene) {
   if (scene->name) {
     dx_memory_deallocate(scene->name);
     scene->name = NULL;
   }
-  dx_scene_destruct(DX_SCENE(scene));
 }
 
 dx_mesh_viewer_scene* dx_mesh_viewer_scene_create(char const* name) {

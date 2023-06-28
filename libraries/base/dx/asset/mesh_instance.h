@@ -28,11 +28,6 @@ struct dx_asset_mesh_instance {
 /// - #DX_ALLOCATION_FAILED an allocation failed
 int dx_asset_mesh_instance_construct(dx_asset_mesh_instance* self, dx_asset_mesh* mesh);
 
-/// @brief Destruct this dx_asset_mesh object.
-/// @param self A pointer to this dx_asset_mesh object.
-/// @undefined @a self does not point to a constructed dx_asset_mesh object.
-void dx_asset_mesh_instance_destruct(dx_asset_mesh_instance* self);
-
 /// @brief Create a dx_asset_mesh_instance object.
 /// @param mesh A pointer to the mesh of this mesh instance.
 /// @return A pointer to the dx_asset_mesh_instance object on success. The null pointer failure.

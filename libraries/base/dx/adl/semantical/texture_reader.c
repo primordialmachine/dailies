@@ -46,8 +46,16 @@ static dx_asset_image* _parse_image(dx_adl_node* node, dx_adl_semantical_state* 
 }
 
 static dx_asset_texture* _parse_texture(dx_adl_node* node, dx_adl_semantical_state* state) {
-  dx_asset_texture* texture = NULL;
-  dx_asset_image* image = NULL;
+  dx_asset_texture* texture_value = NULL;
+  dx_string* name_value = NULL;
+  dx_asset_image* image_value = NULL;
+  // name
+  {
+    name_value = dx_adl_semantical_read_name(node, state->names);
+    if (!name_value) {
+      goto END;
+    }
+  }
   // image
   {
     dx_string* name = NAME(image_key);
@@ -55,23 +63,29 @@ static dx_asset_texture* _parse_texture(dx_adl_node* node, dx_adl_semantical_sta
     if (!child_node) {
       goto END;
     }
-    image = _parse_image(child_node, state);
-    if (!image) {
+    image_value = _parse_image(child_node, state);
+    if (!image_value) {
       goto END;
     }
   }
-  texture = dx_asset_texture_create(image);
-  DX_UNREFERENCE(image);
-  image = NULL;
-  if (!texture) {
+  texture_value = dx_asset_texture_create(name_value, image_value);
+  DX_UNREFERENCE(image_value);
+  image_value = NULL;
+  DX_UNREFERENCE(name_value);
+  name_value = NULL;
+  if (!texture_value) {
     goto END;
   }
 END:
-  if (image) {
-    DX_UNREFERENCE(image);
-    image = NULL;
+  if (name_value) {
+    DX_UNREFERENCE(name_value);
+    name_value = NULL;
   }
-  return texture;
+  if (image_value) {
+    DX_UNREFERENCE(image_value);
+    image_value = NULL;
+  }
+  return texture_value;
 }
 
 static dx_object* read(dx_adl_semantical_texture_reader* self, dx_adl_node* node, dx_adl_semantical_state* state) {
@@ -87,15 +101,12 @@ int dx_adl_semantical_texture_reader_construct(dx_adl_semantical_texture_reader*
     return 1;
   }
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_adl_node*, dx_adl_semantical_state*))&read;
-
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*))&dx_adl_semantical_texture_reader_destruct;
   return 0;
 }
 
-void dx_adl_semantical_texture_reader_destruct(dx_adl_semantical_texture_reader* self) {
-  dx_adl_semantical_reader_destruct(DX_ADL_SEMANTICAL_READER(self));
-}
+static void dx_adl_semantical_texture_reader_destruct(dx_adl_semantical_texture_reader* self)
+{/*Intentionally empty.*/}
 
 dx_adl_semantical_texture_reader* dx_adl_semantical_texture_reader_create() {
   dx_adl_semantical_texture_reader* self = DX_ADL_SEMANTICAL_TEXTURE_READER(dx_object_alloc(sizeof(dx_adl_semantical_texture_reader)));

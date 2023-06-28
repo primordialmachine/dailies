@@ -22,8 +22,6 @@ struct dx_mesh_instance {
 
 int dx_mesh_instance_construct(dx_mesh_instance* self, DX_MAT4 world_matrix, dx_mesh* mesh);
 
-void dx_mesh_instance_destruct(dx_mesh_instance* self);
-
 dx_mesh_instance* dx_mesh_instance_create(DX_MAT4 world_matrix, dx_mesh* mesh);
 
 /// @brief Get the constant binding of this mesh instance.

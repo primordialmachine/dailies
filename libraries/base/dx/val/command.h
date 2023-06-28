@@ -74,8 +74,6 @@ int dx_command_construct_viewport(dx_command* render_command, float l, float b, 
 /// - the positive y-axis goes from the bottom side of the canvas to the top side.
 dx_command* dx_command_create_viewport(float l, float b, float w, float h);
 
-void dx_command_destruct(dx_command* render_command);
-
 struct dx_command {
   dx_object _parent;
   uint8_t kind;
@@ -119,17 +117,15 @@ static inline dx_command_list* DV_COMMAND_LIST(void* p) {
   return (dx_command_list*)p;
 }
 
-int dx_command_list_construct(dx_command_list* command_list);
-
-void dx_command_list_destruct(dx_command_list* command_list);
+int dx_command_list_construct(dx_command_list* self);
 
 dx_command_list* dx_command_list_create();
 
-int dx_command_list_append(dx_command_list* command_list, dx_command* command);
+int dx_command_list_append(dx_command_list* self, dx_command* command);
 
-size_t dx_command_list_get_size(dx_command_list const* command_list);
+size_t dx_command_list_get_size(dx_command_list const* self);
 
-dx_command* dx_command_list_get_at(dx_command_list const* command_list, size_t index);
+dx_command* dx_command_list_get_at(dx_command_list const* self, size_t index);
 
 struct dx_command_list {
   dx_object _parent;

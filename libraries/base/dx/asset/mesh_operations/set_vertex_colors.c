@@ -26,21 +26,20 @@ static int apply(dx_asset_mesh_operations_set_vertex_colors* self, dx_asset_mesh
 }
 
 int dx_asset_mesh_operations_set_vertex_colors_construct(dx_asset_mesh_operations_set_vertex_colors* self) {
-  dx_rti_type* type = dx_asset_mesh_operations_set_vertex_colors_get_type();
-  if (!type) {
+  dx_rti_type* _type = dx_asset_mesh_operations_set_vertex_colors_get_type();
+  if (!_type) {
     return 1;
   }
   if (dx_asset_mesh_operation_construct(DX_ASSET_MESH_OPERATION(self), dx_asset_mesh_operation_kind_set_vertex_colors)) {
     return 1;
   }
   DX_ASSET_MESH_OPERATION(self)->apply = (int(*)(dx_asset_mesh_operation*, dx_asset_mesh*)) & apply;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*))&dx_asset_mesh_operations_set_vertex_colors_destruct;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_asset_mesh_operations_set_vertex_colors_destruct(dx_asset_mesh_operations_set_vertex_colors* self) {
-  dx_asset_mesh_operation_destruct(DX_ASSET_MESH_OPERATION(self));
-}
+static void dx_asset_mesh_operations_set_vertex_colors_destruct(dx_asset_mesh_operations_set_vertex_colors* self)
+{/*Intentionally empty.*/}
 
 dx_asset_mesh_operations_set_vertex_colors* dx_asset_mesh_operations_set_vertex_colors_create() {
   dx_rti_type* _type = dx_asset_mesh_operations_set_vertex_colors_get_type();

@@ -9,14 +9,18 @@
       },
       mesh : {
         type : 'Mesh',
+        name : 'my.quadriliteral',
         vertexFormat : ['position xyz', 'ambient uv'],
         generator : 'quadriliteral',
         material : {
           type : 'Material',
+          name : 'my.quadriliteral.material',
           ambientTexture : {
             type : 'Texture',
+            name : 'my.quadriliteral.texture',
             image : {
               type : 'Image',
+              name : 'my.quadriliteral.image',
               width : 2048,
               height : 2048,
               color : { type : 'ColorInstance', reference : 'malachite' },

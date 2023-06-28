@@ -31,6 +31,8 @@ static int _parse_color_instance(dx_adl_node* node, dx_adl_semantical_state* sta
     return 1;
   }
   if (!dx_string_is_equal_to(received_type, expected_type)) {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
     dx_set_error(DX_SEMANTICAL_ERROR);
     return 1;
   }
@@ -39,6 +41,8 @@ static int _parse_color_instance(dx_adl_node* node, dx_adl_semantical_state* sta
     return 1;
   }
   dx_asset_palette_entry* palette_entry = dx_asset_palette_get(state->scene->palette, value);
+  DX_UNREFERENCE(value);
+  value = NULL;
   if (!palette_entry) {
     return 1;
   }
@@ -57,6 +61,8 @@ static dx_asset_texture* _parse_texture(dx_adl_node* node, dx_adl_semantical_sta
   }
   expected_type = NAME(texture_type);
   if (dx_string_is_equal_to(expected_type, received_type)) {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
     dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&state->readers, expected_type);
     if (!reader) {
       return NULL;
@@ -66,6 +72,8 @@ static dx_asset_texture* _parse_texture(dx_adl_node* node, dx_adl_semantical_sta
       return NULL;
     }
   } else {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
     dx_set_error(DX_SEMANTICAL_ERROR);
     goto END;
   }
@@ -74,11 +82,23 @@ END:
 }
 
 static dx_asset_material* _parse_material(dx_adl_node* node, dx_adl_semantical_state* state) {
-  dx_asset_material* material = NULL;
-  dx_asset_material* material1 = dx_asset_material_create();
-  if (!material1) {
+  dx_asset_material* material_value = NULL;
+  dx_string* name_value = NULL;
+  // name
+  {
+    name_value = dx_adl_semantical_read_name(node, state->names);
+    if (!name_value) {
+      goto END;
+    }
+  }
+
+  dx_asset_material* material_value_1 = dx_asset_material_create(name_value);
+  DX_UNREFERENCE(name_value);
+  name_value = NULL;
+  if (!material_value_1) {
     goto END;
   }
+
   // ambientColor?
   {
     dx_string* name = NAME(ambient_color_key);
@@ -94,7 +114,7 @@ static dx_asset_material* _parse_material(dx_adl_node* node, dx_adl_semantical_s
       ambient_color_f32.e[1] = ((dx_f32)ambient_color_u8.g) / 255.f;
       ambient_color_f32.e[2] = ((dx_f32)ambient_color_u8.b) / 255.f;
       ambient_color_f32.e[3] = 1.f;
-      if (dx_asset_material_set_ambient_color(material1, &ambient_color_f32)) {
+      if (dx_asset_material_set_ambient_color(material_value_1, &ambient_color_f32)) {
         goto END;
       }
     } else {
@@ -111,7 +131,7 @@ static dx_asset_material* _parse_material(dx_adl_node* node, dx_adl_semantical_s
       if (!ambient_texture) {
         goto END;
       }
-      if (dx_asset_material_set_ambient_texture(material1, ambient_texture)) {
+      if (dx_asset_material_set_ambient_texture(material_value_1, ambient_texture)) {
         DX_UNREFERENCE(ambient_texture);
         ambient_texture = NULL;
         goto END;
@@ -122,9 +142,13 @@ static dx_asset_material* _parse_material(dx_adl_node* node, dx_adl_semantical_s
       dx_set_error(old_error);
     }
   }
-  material = material1;
+  material_value = material_value_1;
 END:
-  return material;
+  if (name_value) {
+    DX_UNREFERENCE(name_value);
+    name_value = NULL;
+  }
+  return material_value;
 }
 
 static dx_object* read(dx_adl_semantical_material_reader* self, dx_adl_node* node, dx_adl_semantical_state* state) {
@@ -141,13 +165,11 @@ int dx_adl_semantical_material_reader_construct(dx_adl_semantical_material_reade
   }
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_adl_node*, dx_adl_semantical_state*))&read;
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*))&dx_adl_semantical_material_reader_destruct;
   return 0;
 }
 
-void dx_adl_semantical_material_reader_destruct(dx_adl_semantical_material_reader* self) {
-  dx_adl_semantical_reader_destruct(DX_ADL_SEMANTICAL_READER(self));
-}
+static void dx_adl_semantical_material_reader_destruct(dx_adl_semantical_material_reader* self)
+{/*Intentionally empty.*/}
 
 dx_adl_semantical_material_reader* dx_adl_semantical_material_reader_create() {
   dx_adl_semantical_material_reader* self = DX_ADL_SEMANTICAL_MATERIAL_READER(dx_object_alloc(sizeof(dx_adl_semantical_material_reader)));

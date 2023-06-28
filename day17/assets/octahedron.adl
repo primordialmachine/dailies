@@ -9,14 +9,18 @@
       },
       mesh : {
         type : 'Mesh',
+        name : 'my.octahedron',
         vertexFormat : ['position xyz', 'ambient uv'],
         generator : 'octahedron',
         material : {
           type : 'Material',
+          name : 'my.octahedron.material',
           ambientTexture : {
             type : 'Texture',
+            name : 'my.octahedron.texture',
             image : {
               type : 'Image',
+              name : 'my.octahedron.image',
               width : 2048,
               height : 2048,
               color : { type : 'ColorInstance', reference : 'malachite' },

@@ -29,10 +29,6 @@ uint32_t dx_msg_get_flags(dx_msg const* msg);
 
 int dx_msg_construct(dx_msg* msg);
 
-/// @brief Destruct this message.
-/// @param msg A pointer to this message.
-void dx_msg_destruct(dx_msg* msg);
-
 struct dx_msg {
   dx_object _parent;
   uint32_t flags;
@@ -50,8 +46,6 @@ static inline dx_emit_msg* DX_EMIT_MSG(void* p) {
 }
 
 int dx_emit_msg_construct(dx_emit_msg* emit_msg, char const* p, dx_size n);
-
-void dx_emit_msg_destruct(dx_emit_msg* emit_msg);
 
 // Create an "emit" message.
 // @param p Pointer to an utf-8 string of @a n Bytes.
@@ -79,8 +73,6 @@ static inline dx_quit_msg* DX_QUIT_MSG(void* p) {
 }
 
 int dx_quit_msg_construct(dx_quit_msg* quit_msg);
-
-void dx_quit_msg_destruct(dx_quit_msg* emit_msg);
 
 // Create a "quit" message
 // @return pointer to the message on success. null pointer on failure

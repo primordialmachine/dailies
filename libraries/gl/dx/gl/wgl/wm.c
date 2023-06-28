@@ -540,27 +540,35 @@ static LRESULT CALLBACK window_procedure(HWND wnd, UINT msg, WPARAM wparam, LPAR
   };
 }
 
-int dx_gl_wgl_application_construct(dx_gl_wgl_application* application, dx_msg_queue* msg_queue) {
-  //
-  if (dx_application_construct(DX_APPLICATION(application))) {
+DX_DEFINE_OBJECT_TYPE("dx.gl.wgl.application",
+                      dx_gl_wgl_application,
+                      dx_application)
+
+int dx_gl_wgl_application_construct(dx_gl_wgl_application* self, dx_msg_queue* msg_queue) {
+  dx_rti_type* _type = dx_gl_wgl_application_get_type();
+  if (!_type) {
     return 1;
   }
   //
-  application->msg_queue = msg_queue;
+  if (dx_application_construct(DX_APPLICATION(self))) {
+    return 1;
+  }
+  //
+  self->msg_queue = msg_queue;
 
   //
-  application->class_name = _strdup("dx.gl.wgl.window.class_name");
-  if (!application->class_name) {
+  self->class_name = _strdup("dx.gl.wgl.window.class_name");
+  if (!self->class_name) {
     dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
 
   //
-  application->instance_handle = GetModuleHandle(NULL);
-  if (!application->instance_handle) {
+  self->instance_handle = GetModuleHandle(NULL);
+  if (!self->instance_handle) {
     dx_set_error(DX_ENVIRONMENT_FAILED);
-    dx_memory_deallocate(application->class_name);
-    application->class_name = NULL;
+    dx_memory_deallocate(self->class_name);
+    self->class_name = NULL;
     dx_log("unable to acquire module handle\n", sizeof("unable to acquire module handle\n"));
     return 1;
   }
@@ -572,54 +580,53 @@ int dx_gl_wgl_application_construct(dx_gl_wgl_application* application, dx_msg_q
   wcex.lpfnWndProc = &window_procedure;
   wcex.cbClsExtra = 0;
   wcex.cbWndExtra = 0;
-  wcex.hInstance = application->instance_handle;
+  wcex.hInstance = self->instance_handle;
   wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
   wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
   wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
   wcex.lpszMenuName = NULL;
-  wcex.lpszClassName = application->class_name;
+  wcex.lpszClassName = self->class_name;
   wcex.hIconSm = NULL;
-  application->class_handle = RegisterClassEx(&wcex);
-  if (!application->class_handle) {
+  self->class_handle = RegisterClassEx(&wcex);
+  if (!self->class_handle) {
     dx_set_error(DX_ENVIRONMENT_FAILED);
-    application->instance_handle = 0;
-    dx_memory_deallocate(application->class_name);
-    application->class_name = NULL;
+    self->instance_handle = 0;
+    dx_memory_deallocate(self->class_name);
+    self->class_name = NULL;
     dx_log("unable to register window class\n", sizeof("unable to register window class\n"));
     return 1;
   }
-  DX_OBJECT(application)->destruct = (void(*)(dx_object*)) & dx_gl_wgl_application_destruct;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_gl_wgl_application_destruct(dx_gl_wgl_application* application) {
-  if (application->class_handle) {
-    if (!UnregisterClass(application->class_name, application->instance_handle)) {
+static void dx_gl_wgl_application_destruct(dx_gl_wgl_application* self) {
+  if (self->class_handle) {
+    if (!UnregisterClass(self->class_name, self->instance_handle)) {
       dx_log("unable to unregister window class\n", sizeof("unable to unregister window class\n"));
     }
-    g_application->class_handle = 0;
+    self->class_handle = 0;
   }
-  if (application->instance_handle) {
-    application->instance_handle = 0;
+  if (self->instance_handle) {
+    self->instance_handle = 0;
   }
-  if (application->class_name) {
-    dx_memory_deallocate(application->class_name);
-    application->class_name = NULL;
+  if (self->class_name) {
+    dx_memory_deallocate(self->class_name);
+    self->class_name = NULL;
   }
-  dx_application_destruct(DX_APPLICATION(application));
 }
 
 dx_gl_wgl_application* dx_gl_wgl_application_create(dx_msg_queue* msg_queue) {
-  dx_gl_wgl_application* application = DX_GL_WGL_APPLICATION(dx_object_alloc(sizeof(dx_gl_wgl_application)));
-  if (!application) {
+  dx_gl_wgl_application* self = DX_GL_WGL_APPLICATION(dx_object_alloc(sizeof(dx_gl_wgl_application)));
+  if (!self) {
     return NULL;
   }
-  if (dx_gl_wgl_application_construct(application, msg_queue)) {
-    DX_UNREFERENCE(application);
-    application = NULL;
+  if (dx_gl_wgl_application_construct(self, msg_queue)) {
+    DX_UNREFERENCE(self);
+    self = NULL;
     return NULL;
   }
-  return application;
+  return self;
 }
 
 int dx_gl_wgl_application_startup(dx_msg_queue* msg_queue) {

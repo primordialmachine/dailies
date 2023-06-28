@@ -3,11 +3,12 @@
 // INT_MAX
 #include <limits.h>
 
-// malloc, free
-#include <malloc.h>
-
 #include "dx/val/cbinding.h"
 #include "dx/gl/context.h"
+
+DX_DEFINE_OBJECT_TYPE("dx.gl.program",
+                      dx_gl_program,
+                      dx_program)
 
 /// @brief Defined and equal to @a 1, then do not display shader logs to the user.
 #define DX_GL_PROGRAM_WITH_LOG_EMISSION_DISABLED (0)
@@ -37,8 +38,6 @@ static int dx_gl_program_construct(dx_gl_program* program,
                                    dx_gl_context* ctx,
                                    dx_string* vertex_program_text,
                                    dx_string* fragment_program_text);
-
-static void dx_gl_program_destruct(dx_gl_program* program);
 
 static int
 create_shader
@@ -112,14 +111,13 @@ emit_log
 #else
   GLint l; // including the zero terminator
   ctx->glGetShaderiv(id, GL_INFO_LOG_LENGTH, &l);
-  char* p = malloc(sizeof(char) * l);
+  char* p = dx_memory_allocate(sizeof(char) * l);
   if (!p) {
-    dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
   ctx->glGetShaderInfoLog(id, l, NULL, p);
   dx_log(p, strlen(p));
-  free(p);
+  dx_memory_deallocate(p);
 #endif
   return 0;
 }
@@ -196,85 +194,88 @@ static int dx_gl_program_bind(dx_gl_program* program, dx_cbinding* cbinding) {
   return 0;
 }
 
-static int dx_gl_program_activate(dx_gl_program* program) {
-  dx_gl_context* ctx = DX_GL_CONTEXT(DX_PROGRAM(program)->ctx);
-  ctx->glUseProgram(program->program_id);
+static int dx_gl_program_activate(dx_gl_program* self) {
+  dx_gl_context* ctx = DX_GL_CONTEXT(DX_PROGRAM(self)->ctx);
+  ctx->glUseProgram(self->program_id);
   return 0;
 }
 
-static int dx_gl_program_construct(dx_gl_program* program,
+static int dx_gl_program_construct(dx_gl_program* self,
                                    dx_gl_context* ctx,
                                    dx_string* vertex_program_text,
                                    dx_string* fragment_program_text)
 {
-  if (dx_program_construct(DX_PROGRAM(program), DX_CONTEXT(ctx))) {
+  dx_rti_type* _type = dx_gl_program_get_type();
+  if (!_type) {
     return 1;
   }
-  program->vertex_program_id = 0;
-  program->fragment_program_id = 0;
-  program->program_id = 0;
+  if (dx_program_construct(DX_PROGRAM(self), DX_CONTEXT(ctx))) {
+    return 1;
+  }
+  self->vertex_program_id = 0;
+  self->fragment_program_id = 0;
+  self->program_id = 0;
 
-  if (create_shader(&program->vertex_program_id, ctx, GL_VERTEX_SHADER, vertex_program_text)) {
+  if (create_shader(&self->vertex_program_id, ctx, GL_VERTEX_SHADER, vertex_program_text)) {
     return 1;
   }
-  if (create_shader(&program->fragment_program_id, ctx, GL_FRAGMENT_SHADER, fragment_program_text)) {
-    ctx->glDeleteShader(program->vertex_program_id);
-    program->vertex_program_id = 0;
+  if (create_shader(&self->fragment_program_id, ctx, GL_FRAGMENT_SHADER, fragment_program_text)) {
+    ctx->glDeleteShader(self->vertex_program_id);
+    self->vertex_program_id = 0;
     return 1;
   }
   GLint success;
   {
-    program->program_id = ctx->glCreateProgram();
-    ctx->glAttachShader(program->program_id, program->vertex_program_id);
-    ctx->glAttachShader(program->program_id, program->fragment_program_id);
-    ctx->glLinkProgram(program->program_id);
-    ctx->glGetProgramiv(program->program_id, GL_LINK_STATUS, &success);
+    self->program_id = ctx->glCreateProgram();
+    ctx->glAttachShader(self->program_id, self->vertex_program_id);
+    ctx->glAttachShader(self->program_id, self->fragment_program_id);
+    ctx->glLinkProgram(self->program_id);
+    ctx->glGetProgramiv(self->program_id, GL_LINK_STATUS, &success);
     if (!success) {
       dx_log("failed to link program\n", sizeof("failed to link program program\n"));
-      ctx->glDeleteShader(program->fragment_program_id);
-      program->fragment_program_id = 0;
-      ctx->glDeleteShader(program->vertex_program_id);
-      program->vertex_program_id = 0;
+      ctx->glDeleteShader(self->fragment_program_id);
+      self->fragment_program_id = 0;
+      ctx->glDeleteShader(self->vertex_program_id);
+      self->vertex_program_id = 0;
       return 1;
     }
   }
-  DX_PROGRAM(program)->bind = (int(*)(dx_program*, dx_cbinding*)) & dx_gl_program_bind;
-  DX_PROGRAM(program)->activate = (int(*)(dx_program*)) & dx_gl_program_activate;
-  DX_OBJECT(program)->destruct = (void(*)(dx_object*)) & dx_gl_program_destruct;
+  DX_PROGRAM(self)->bind = (int(*)(dx_program*, dx_cbinding*)) & dx_gl_program_bind;
+  DX_PROGRAM(self)->activate = (int(*)(dx_program*)) & dx_gl_program_activate;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-static void dx_gl_program_destruct(dx_gl_program* program) {
-  dx_gl_context* ctx = DX_GL_CONTEXT(DX_PROGRAM(program)->ctx);
-  if (program->program_id) {
-    ctx->glDeleteProgram(program->program_id);
-    program->program_id = 0;
+static void dx_gl_program_destruct(dx_gl_program* self) {
+  dx_gl_context* ctx = DX_GL_CONTEXT(DX_PROGRAM(self)->ctx);
+  if (self->program_id) {
+    ctx->glDeleteProgram(self->program_id);
+    self->program_id = 0;
   }
 
-  if (program->fragment_program_id) {
-    ctx->glDeleteShader(program->fragment_program_id);
-    program->fragment_program_id = 0;
+  if (self->fragment_program_id) {
+    ctx->glDeleteShader(self->fragment_program_id);
+    self->fragment_program_id = 0;
   }
 
-  if (program->vertex_program_id) {
-    ctx->glDeleteShader(program->vertex_program_id);
-    program->vertex_program_id = 0;
+  if (self->vertex_program_id) {
+    ctx->glDeleteShader(self->vertex_program_id);
+    self->vertex_program_id = 0;
   }
-  dx_program_destruct(DX_PROGRAM(program));
 }
 
 dx_gl_program* dx_gl_program_create(dx_gl_context* ctx,
                                     dx_string* vertex_program_text,
                                     dx_string* fragment_program_text)
 {
-  dx_gl_program* program = DX_GL_PROGRAM(dx_object_alloc(sizeof(dx_gl_program)));
-  if (!program) {
+  dx_gl_program* self = DX_GL_PROGRAM(dx_object_alloc(sizeof(dx_gl_program)));
+  if (!self) {
     return NULL;
   }
-  if (dx_gl_program_construct(program, ctx, vertex_program_text, fragment_program_text)) {
-    DX_UNREFERENCE(program);
-    program = NULL;
+  if (dx_gl_program_construct(self, ctx, vertex_program_text, fragment_program_text)) {
+    DX_UNREFERENCE(self);
+    self = NULL;
     return NULL;
   }
-  return program;
+  return self;
 }

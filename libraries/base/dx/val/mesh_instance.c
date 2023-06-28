@@ -75,7 +75,7 @@ int dx_mesh_instance_construct(dx_mesh_instance* self, DX_MAT4 world_matrix, dx_
   return 0;
 }
 
-void dx_mesh_instance_destruct(dx_mesh_instance* self) {
+static void dx_mesh_instance_destruct(dx_mesh_instance* self) {
   remove_from_backend(self);
   if (self->mesh) {
     DX_UNREFERENCE(self->mesh);

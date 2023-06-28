@@ -17,8 +17,6 @@ struct dx_adl_semantical_material_reader {
 
 int dx_adl_semantical_material_reader_construct(dx_adl_semantical_material_reader* self);
 
-void dx_adl_semantical_material_reader_destruct(dx_adl_semantical_material_reader* self);
-
 dx_adl_semantical_material_reader* dx_adl_semantical_material_reader_create();
 
 #endif // DX_ADL_SEMANTICAL_MATERIAL_READER_H_INCLUDED

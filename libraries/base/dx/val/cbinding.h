@@ -32,8 +32,6 @@ int dx_cbinding_set_texture_index(dx_cbinding* cbinding, char const* name, size_
 
 int dx_cbinding_construct(dx_cbinding* cbinding);
 
-void dx_cbinding_destruct(dx_cbinding* cbinding);
-
 dx_cbinding* dx_cbinding_create();
 
 typedef struct dx_cbinding_iter {

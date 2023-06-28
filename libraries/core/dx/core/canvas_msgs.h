@@ -24,8 +24,6 @@ static inline dx_canvas_msg* DX_CANVAS_MSG(void* p) {
 
 int dx_canvas_msg_construct(dx_canvas_msg* self, dx_canvas_msg_kind kind);
 
-void dx_canvas_msg_destruct(dx_canvas_msg* self);
-
 dx_canvas_msg* dx_canvas_msg_create(dx_canvas_msg_kind kind);
 
 struct dx_canvas_msg {
@@ -44,8 +42,6 @@ static inline dx_canvas_size_changed_msg* DX_CANVAS_SIZE_CHANGED_MSG(void* p) {
 }
 
 int dx_canvas_size_changed_msg_construct(dx_canvas_size_changed_msg* self, dx_f32 width, dx_f32 height);
-
-void dx_canvas_size_changed_msg_destruct(dx_canvas_size_changed_msg* self);
 
 dx_canvas_size_changed_msg* dx_canvas_size_changed_msg_create(dx_f32 width, dx_f32 height);
 

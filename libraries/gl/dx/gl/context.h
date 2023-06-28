@@ -30,7 +30,10 @@ typedef void (APIENTRY* PFNGLDISABLEPROC)(GLenum);
 typedef void (APIENTRY* PFNGLDEPTHFUNCPROC)(GLenum);
 typedef void (APIENTRY* PFNGLCULLFACEPROC)(GLenum);
 
-typedef struct dx_gl_context dx_gl_context;
+DX_DECLARE_OBJECT_TYPE("dx.gl.context",
+                       dx_gl_context,
+                       dx_context)
+
 static inline dx_gl_context* DX_GL_CONTEXT(void* p) {
   return (dx_gl_context*)p;
 }
@@ -43,7 +46,5 @@ struct dx_gl_context {
 };
 
 int dx_gl_context_construct(dx_gl_context* ctx, void *(*link)(char const* name));
-
-void dx_gl_context_destruct(dx_gl_context* ctx);
 
 #endif // DX_GL_CONTEXT_H_INCLUDED

@@ -19,8 +19,6 @@ struct dx_buffer {
 
 int dx_buffer_construct(dx_buffer* buffer, dx_context* context);
 
-void dx_buffer_destruct(dx_buffer* buffer);
-
 int dx_buffer_set_data(dx_buffer* buffer, void const* p, size_t n);
 
 #endif // DX_BUFFER_H_INCLUDED

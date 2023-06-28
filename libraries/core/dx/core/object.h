@@ -52,17 +52,17 @@ dx_rti_type* dx_rti_create_fundamental(char const *p, size_t n, void(*on_type_de
   dx_rti_type* C_NAME##_get_type(); \
 
 #define DX_DEFINE_FUNDAMENTAL_TYPE(NAME, C_NAME) \
-  static dx_rti_type* C_NAME##_type = NULL; \
+  static dx_rti_type* _##C_NAME##_type = NULL; \
 \
   static void C_NAME##_on_type_destroyed() { \
-    C_NAME##_type = NULL; \
+    _##C_NAME##_type = NULL; \
   } \
 \
   dx_rti_type* C_NAME##_get_type() { \
-    if (!C_NAME##_type) { \
-      C_NAME##_type = dx_rti_create_fundamental(NAME, sizeof(NAME) - 1, &C_NAME##_on_type_destroyed, value_size); \
+    if (!_##C_NAME##_type) { \
+      _##C_NAME##_type = dx_rti_create_fundamental(NAME, sizeof(NAME) - 1, &C_NAME##_on_type_destroyed, value_size); \
     } \
-    return C_NAME##_type; \
+    return _##C_NAME##_type; \
   }
 
 
@@ -82,17 +82,17 @@ dx_rti_type* dx_rti_create_enumeration(char const* p, size_t n, void(*on_type_de
   typedef enum C_NAME C_NAME;
 
 #define DX_DEFINE_ENUMERATION_TYPE(NAME, C_NAME) \
-  static dx_rti_type* C_NAME##_type = NULL; \
+  static dx_rti_type* _##C_NAME##_type = NULL; \
 \
   static void C_NAME##_on_type_destroyed() { \
-    C_NAME##_type = NULL; \
+    _##C_NAME##_type = NULL; \
   } \
 \
   dx_rti_type* C_NAME##_get_type() { \
-    if (!C_NAME##_type) { \
-      C_NAME##_type = dx_rti_create_enumeration(NAME, sizeof(NAME) - 1, &C_NAME##_on_type_destroyed); \
+    if (!_##C_NAME##_type) { \
+      _##C_NAME##_type = dx_rti_create_enumeration(NAME, sizeof(NAME) - 1, &C_NAME##_on_type_destroyed); \
     } \
-    return C_NAME##_type; \
+    return _##C_NAME##_type; \
   }
 
 /// @brief Used to register object types.
@@ -113,24 +113,24 @@ dx_rti_type* dx_rti_create_object(char const* p, size_t n, void (*on_type_destro
   typedef struct C_NAME C_NAME;
 
 #define DX_DEFINE_OBJECT_TYPE(NAME, C_NAME, C_PARENT_NAME) \
-  static dx_rti_type* C_NAME##_type = NULL; \
+  static dx_rti_type* _##C_NAME##_type = NULL; \
 \
   /** @todo Should be static. To be defined by the developer.*/ \
   void C_NAME##_destruct(C_NAME* self); \
 \
   static void C_NAME##_on_type_destroyed() { \
-    C_NAME##_type = NULL; \
+    _##C_NAME##_type = NULL; \
   } \
 \
   dx_rti_type* C_NAME##_get_type() { \
-    if (!C_NAME##_type) { \
+    if (!_##C_NAME##_type) { \
       dx_rti_type* parent = C_PARENT_NAME##_get_type(); \
       if (!parent) { \
         return NULL; \
       } \
-      C_NAME##_type = dx_rti_create_object(NAME, sizeof(NAME) - 1, &C_NAME##_on_type_destroyed, sizeof(C_NAME), parent, (void(*)(void*))&C_NAME##_destruct); \
+      _##C_NAME##_type = dx_rti_create_object(NAME, sizeof(NAME) - 1, &C_NAME##_on_type_destroyed, sizeof(C_NAME), parent, (void(*)(void*))&C_NAME##_destruct); \
     } \
-    return C_NAME##_type; \
+    return _##C_NAME##_type; \
   }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -156,8 +156,6 @@ struct dx_object {
   dx_reference_counter reference_count;
   /// @brief A pointer to the type of this object or the null pointer.
   dx_rti_type* type;
-  /// @brief A pointer to the destructor function of the object or the null pointer.
-  void (*destruct)(dx_object* object);
 #if _DEBUG && 1 == DX_OBJECT_WITH_MAGIC_BYTES
   char magic_bytes[4];
 #endif

@@ -42,6 +42,8 @@ static dx_asset_material* _read_material(dx_adl_node* node, dx_adl_semantical_st
     return NULL;
   }
   if (dx_string_is_equal_to(received_type, NAME(material_type))) {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
     dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&state->readers, NAME(material_type));
     if (!reader) {
       return NULL;
@@ -51,6 +53,8 @@ static dx_asset_material* _read_material(dx_adl_node* node, dx_adl_semantical_st
       goto END;
     }
   } else {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
     dx_set_error(DX_SEMANTICAL_ERROR);
     goto END;
   }
@@ -76,6 +80,8 @@ static int _read_mesh_operation(dx_adl_node* node, dx_adl_semantical_state* stat
     return 1;
   }
   dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&state->readers, received_type);
+  DX_UNREFERENCE(received_type);
+  received_type = NULL;
   if (!reader) {
     if (dx_get_error() != DX_NOT_FOUND) {
       return 1;
@@ -142,12 +148,21 @@ static int _read_vertex_format(dx_adl_node* node, dx_adl_semantical_state* state
     dx_adl_node* child_node = dx_adl_node_list_get(node, i);
     dx_string* received_value = dx_adl_node_get_string(child_node);
     if (dx_string_is_equal_to(received_value, NAME(position_xyz_string))) {
+      DX_UNREFERENCE(received_value);
+      received_value = NULL;
       vertex_format_1 |= DX_VERTEX_FORMAT_POSITION_XYZ;
     } else if (dx_string_is_equal_to(received_value, NAME(ambient_rgba_string))) {
+      DX_UNREFERENCE(received_value);
+      received_value = NULL;
       vertex_format_1 |= DX_VERTEX_FORMAT_AMBIENT_RGBA;
     } else if (dx_string_is_equal_to(received_value, NAME(ambient_uv_string))) {
+      DX_UNREFERENCE(received_value);
+      received_value = NULL;
       vertex_format_1 |= DX_VERTEX_FORMAT_AMBIENT_UV;
     } else {
+      dx_set_error(DX_SEMANTICAL_ERROR);
+      DX_UNREFERENCE(received_value);
+      received_value = NULL;
       return 1;
     }
   }
@@ -156,11 +171,18 @@ static int _read_vertex_format(dx_adl_node* node, dx_adl_semantical_state* state
 }
 
 static dx_asset_mesh* _read_mesh(dx_adl_node* node, dx_adl_semantical_state* state) {
-  dx_asset_mesh* mesh = NULL;
-  dx_string* generator = NULL;
-  dx_asset_material* material = NULL;
-  dx_pointer_array* mesh_operations = NULL;
-
+  dx_asset_mesh* mesh_value = NULL;
+  dx_string* name_value = NULL;
+  dx_string* generator_value = NULL;
+  dx_asset_material* material_value = NULL;
+  dx_pointer_array* operations_value = NULL;
+  // name
+  {
+    name_value = dx_adl_semantical_read_name(node, state->names);
+    if (!name_value) {
+      goto END;
+    }
+  }
   // generator
   {
     dx_string* name = dx_string_create("generator", sizeof("generator") - 1);
@@ -173,13 +195,13 @@ static dx_asset_mesh* _read_mesh(dx_adl_node* node, dx_adl_semantical_state* sta
     if (!child_node) {
       goto END;
     }
-    generator = dx_adl_node_get_string(child_node);
-    if (!generator) {
+    generator_value = dx_adl_node_get_string(child_node);
+    if (!generator_value) {
       goto END;
     }
   }
   // vertexFormat
-  DX_VERTEX_FORMAT vertex_format = DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_RGBA_AMBIENT_UV;
+  DX_VERTEX_FORMAT vertex_format_value = DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_RGBA_AMBIENT_UV;
   {
     dx_string* name = NAME(vertex_format_key);
     dx_adl_node* child_node = dx_adl_node_map_get(node, name);
@@ -187,7 +209,7 @@ static dx_asset_mesh* _read_mesh(dx_adl_node* node, dx_adl_semantical_state* sta
       goto END;
     }
     if (child_node) {
-      if (_read_vertex_format(child_node, state, &vertex_format)) {
+      if (_read_vertex_format(child_node, state, &vertex_format_value)) {
         goto END;
       }
     }
@@ -198,8 +220,8 @@ static dx_asset_mesh* _read_mesh(dx_adl_node* node, dx_adl_semantical_state* sta
     dx_string* name = NAME(operations_key);
     dx_adl_node* child_node = dx_adl_node_map_get(node, name);
     if (child_node) {
-      mesh_operations = _read_mesh_operations(child_node, state);
-      if (!mesh_operations) {
+      operations_value = _read_mesh_operations(child_node, state);
+      if (!operations_value) {
         goto END;
       }
     } else {
@@ -216,35 +238,49 @@ static dx_asset_mesh* _read_mesh(dx_adl_node* node, dx_adl_semantical_state* sta
     if (!child_node) {
       goto END;
     }
-    material = _read_material(child_node, state);
-    if (!material) {
+    material_value = _read_material(child_node, state);
+    if (!material_value) {
       goto END;
     }
   }
-  mesh = dx_asset_mesh_create(generator, vertex_format, material);
-  if (!mesh) {
+  mesh_value = dx_asset_mesh_create(name_value, generator_value, vertex_format_value, material_value);
+  DX_UNREFERENCE(material_value);
+  material_value = NULL;
+  DX_UNREFERENCE(generator_value);
+  generator_value = NULL;
+  DX_UNREFERENCE(name_value);
+  name_value = NULL;
+  if (!mesh_value) {
     goto END;
   }
-  if (mesh_operations) {
-    for (dx_size i = 0, n = dx_pointer_array_get_size(mesh_operations); i < n; ++i) {
-      dx_asset_mesh_operation* operation = DX_ASSET_MESH_OPERATION(dx_pointer_array_get_at(mesh_operations, i));
-      if (dx_asset_mesh_operation_apply(operation, mesh)) {
-        DX_UNREFERENCE(mesh);
-        mesh = NULL;
+  if (operations_value) {
+    for (dx_size i = 0, n = dx_pointer_array_get_size(operations_value); i < n; ++i) {
+      dx_asset_mesh_operation* operation_value = DX_ASSET_MESH_OPERATION(dx_pointer_array_get_at(operations_value, i));
+      if (dx_asset_mesh_operation_apply(operation_value, mesh_value)) {
+        DX_UNREFERENCE(mesh_value);
+        mesh_value = NULL;
         goto END;
       }
     }
   }
 END:
-  if (material) {
-    DX_UNREFERENCE(material);
-    material = NULL;
+  if (name_value) {
+    DX_UNREFERENCE(name_value);
+    name_value = NULL;
   }
-  if (mesh_operations) {
-    dx_pointer_array_uninitialize(mesh_operations);
-    dx_memory_deallocate(mesh_operations);
+  if (generator_value) {
+    DX_UNREFERENCE(generator_value);
+    generator_value = NULL;
   }
-  return mesh;
+  if (material_value) {
+    DX_UNREFERENCE(material_value);
+    material_value = NULL;
+  }
+  if (operations_value) {
+    dx_pointer_array_uninitialize(operations_value);
+    dx_memory_deallocate(operations_value);
+  }
+  return mesh_value;
 }
 
 static dx_object* read(dx_adl_semantical_mesh_reader* self, dx_adl_node* node, dx_adl_semantical_state* state) {
@@ -261,13 +297,11 @@ int dx_adl_semantical_mesh_reader_construct(dx_adl_semantical_mesh_reader* self)
   }
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_adl_node*, dx_adl_semantical_state*))&read;
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*))&dx_adl_semantical_mesh_reader_destruct;
   return 0;
 }
 
-void dx_adl_semantical_mesh_reader_destruct(dx_adl_semantical_mesh_reader* self) {
-  dx_adl_semantical_reader_destruct(DX_ADL_SEMANTICAL_READER(self));
-}
+static void dx_adl_semantical_mesh_reader_destruct(dx_adl_semantical_mesh_reader* self)
+{/*Intentionally empty.*/}
 
 dx_adl_semantical_mesh_reader* dx_adl_semantical_mesh_reader_create() {
   dx_adl_semantical_mesh_reader* self = DX_ADL_SEMANTICAL_MESH_READER(dx_object_alloc(sizeof(dx_adl_semantical_mesh_reader)));

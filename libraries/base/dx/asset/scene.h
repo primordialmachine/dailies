@@ -4,7 +4,9 @@
 #include "dx/asset/palette.h"
 
 /// @brief A scene asset.
-DX_DECLARE_OBJECT_TYPE("dx.asset.scene", dx_asset_scene, dx_object)
+DX_DECLARE_OBJECT_TYPE("dx.asset.scene",
+                       dx_asset_scene,
+                       dx_object)
 
 static inline dx_asset_scene* DX_ASSET_SCENE(void* p) {
     return (dx_asset_scene*)p;
@@ -25,11 +27,6 @@ struct dx_asset_scene {
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_ALLOCATION_FAILED an allocation failed
 int dx_asset_scene_construct(dx_asset_scene* self);
-
-/// @brief Destruct this dx_asset_scene object.
-/// @param self A pointer to this dx_asset_material object.
-/// @undefined @a self does not point to a constructed dx_asset_material object.
-void dx_asset_scene_destruct(dx_asset_scene* self);
 
 /// @brief Create a dx_asset_scene object with default values.
 /// @return A pointer to the dx_asset_material object on success. The null pointer failure.

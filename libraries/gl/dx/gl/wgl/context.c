@@ -1,5 +1,9 @@
 #include "dx/gl/wgl/context.h"
 
+DX_DEFINE_OBJECT_TYPE("dx.gl.wgl.context",
+                      dx_gl_wgl_context,
+                      dx_gl_context)
+
 static void* link(char const* name);
 
 static void* link(char const* name) {
@@ -15,26 +19,29 @@ static void* link(char const* name) {
   return p;
 }
 
-int dx_gl_wgl_context_construct(dx_gl_wgl_context* ctx) {
-  if (dx_gl_context_construct(DX_GL_CONTEXT(ctx), &link)) {
+int dx_gl_wgl_context_construct(dx_gl_wgl_context* self) {
+  dx_rti_type* _type = dx_gl_wgl_context_get_type();
+  if (!_type) {
     return 1;
   }
-  DX_OBJECT(ctx)->destruct = (void(*)(dx_object*)) & dx_gl_wgl_context_destruct;
+  if (dx_gl_context_construct(DX_GL_CONTEXT(self), &link)) {
+    return 1;
+  }
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_gl_wgl_context_destruct(dx_gl_wgl_context* ctx) {
-  dx_gl_context_destruct(DX_GL_CONTEXT(ctx));
-}
+static void dx_gl_wgl_context_destruct(dx_gl_wgl_context* self)
+{/*Intentionally empty.*/}
 
 dx_gl_wgl_context* dx_gl_wgl_context_create() {
-  dx_gl_wgl_context* ctx = DX_GL_WGL_CONTEXT(dx_object_alloc(sizeof(dx_gl_wgl_context)));
-  if (!ctx) {
+  dx_gl_wgl_context* self = DX_GL_WGL_CONTEXT(dx_object_alloc(sizeof(dx_gl_wgl_context)));
+  if (!self) {
     return NULL;
   }
-  if (dx_gl_wgl_context_construct(ctx)) {
-    DX_UNREFERENCE(ctx);
+  if (dx_gl_wgl_context_construct(self)) {
+    DX_UNREFERENCE(self);
     return NULL;
   }
-  return ctx;
+  return self;
 }

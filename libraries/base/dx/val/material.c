@@ -34,8 +34,8 @@ int dx_material_construct(dx_material* self, dx_context* context, dx_asset_mater
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  dx_rti_type* type = dx_material_get_type();
-  if (!type) {
+  dx_rti_type* _type = dx_material_get_type();
+  if (!_type) {
     return 1;
   }
   self->context = context;
@@ -48,11 +48,11 @@ int dx_material_construct(dx_material* self, dx_context* context, dx_asset_mater
     self->asset_material = NULL;
     return 1;
   }
-  DX_OBJECT(self)->destruct = (void (*)(dx_object*)) & dx_material_destruct;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_material_destruct(dx_material* self) {
+static void dx_material_destruct(dx_material* self) {
   remove_from_backend(self);
   DX_UNREFERENCE(self->asset_material);
   self->asset_material = NULL;

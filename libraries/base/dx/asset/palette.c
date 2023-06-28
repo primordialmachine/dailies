@@ -9,14 +9,18 @@ int dx_asset_palette_entry_construct(dx_asset_palette_entry* self, dx_string* na
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
+  dx_rti_type* _type = dx_asset_palette_entry_get_type();
+  if (!_type) {
+    return 1;
+  }
   self->name = name;
   DX_REFERENCE(self->name);
   self->value = *value;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*))&dx_asset_palette_entry_destruct;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_asset_palette_entry_destruct(dx_asset_palette_entry* self) {
+static void dx_asset_palette_entry_destruct(dx_asset_palette_entry* self) {
   DX_UNREFERENCE(self->name);
   self->name = NULL;
 }
@@ -68,6 +72,10 @@ static bool on_compare_keys(dx_object** a, dx_object** b) {
 }
 
 int dx_asset_palette_construct(dx_asset_palette* self) {
+  dx_rti_type* _type = dx_asset_palette_get_type();
+  if (!_type) {
+    return 1;
+  }
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -83,11 +91,11 @@ int dx_asset_palette_construct(dx_asset_palette* self) {
   if (dx_pointer_hashmap_initialize(&self->map, &configuration)) {
     return 1;
   }
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*))&dx_asset_palette_destruct;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_asset_palette_destruct(dx_asset_palette* self) {
+static void dx_asset_palette_destruct(dx_asset_palette* self) {
   dx_pointer_hashmap_uninitialize(&self->map);
 }
 

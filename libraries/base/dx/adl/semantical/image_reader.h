@@ -17,8 +17,6 @@ struct dx_adl_semantical_image_reader {
 
 int dx_adl_semantical_image_reader_construct(dx_adl_semantical_image_reader* self);
 
-void dx_adl_semantical_image_reader_destruct(dx_adl_semantical_image_reader* self);
-
 dx_adl_semantical_image_reader* dx_adl_semantical_image_reader_create();
 
 #endif // DX_ADL_SEMANTICAL_IMAGE_READER_H_INCLUDED

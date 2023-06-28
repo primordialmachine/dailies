@@ -3,11 +3,14 @@
 
 #include "dx/core.h"
 
-typedef enum dx_program_text_type {
+DX_DECLARE_ENUMERATION_TYPE("dx.program_text_type",
+                            dx_program_text_type)
+
+enum dx_program_text_type {
   DX_PROGRAM_TEXT_TYPE_FRAGMENT = 1,
   DX_PROGRAM_TEXT_TYPE_VERTEX = 2,
   DX_PROGRAM_TEXT_TYPE_VERTEX_FRAGMENT = 3,
-} dx_program_text_type;
+};
 
 /// @brief Representation of the source texts of a (parts of) programs.
 /// The objects are tagged unions.
@@ -17,7 +20,9 @@ typedef enum dx_program_text_type {
 /// - If the tag #DX_PROGRAM_TEXT_TYPE_VERTEX_FRAGMENT is specified,
 ///   then dx_program_text::fragment_program_text and dx_program_text::vertex_program_text contain references to
 ///   dx_program_text objects of the type #DX_PROGRAM_TEXT_TYPE_FRAGMENT and #DX_PROGRAM_TEXT_TYPE_VERTEX, respectively.
-typedef struct dx_program_text dx_program_text;
+DX_DECLARE_OBJECT_TYPE("dx.program_text",
+                       dx_program_text,
+                       dx_object)
 
 static inline dx_program_text* DX_PROGRAM_TEXT(void* p) {
   return (dx_program_text*)p;
@@ -38,19 +43,17 @@ struct dx_program_text {
   };
 };
 
-/// @param program_text Pointer to this program text object.
+/// @param self Pointer to this program text object.
 /// @param type The type of the program text.
 /// @param path The path to the file to load the program text from.
 /// @return @a 0 on success. A non-zero value on failure.
-int dx_program_text_construct_from_file(dx_program_text* program_text, dx_program_text_type type, dx_string* path);
+int dx_program_text_construct_from_file(dx_program_text* self, dx_program_text_type type, dx_string* path);
 
-/// @param program_text Pointer to this program text object.
+/// @param self Pointer to this program text object.
 /// @param vertex_program_text Pointer to a program text object of type DX_PROGRAM_SOURCE_TYPE_VERTEX.
 /// @param fragment_program_text Pointer to a program text object of type DX_PROGRAM_SOURCE_TYPE_FRAGMENT.
 /// @return @a 0 on success. A non-zero value on failure.
-int dx_program_text_construct(dx_program_text* program_text, dx_program_text *vertex_program_text, dx_program_text* fragment_program_text);
-
-void dx_program_text_destruct(dx_program_text* program_text);
+int dx_program_text_construct(dx_program_text* self, dx_program_text *vertex_program_text, dx_program_text* fragment_program_text);
 
 dx_program_text* dx_program_text_create_from_file(dx_program_text_type type, dx_string* path);
 

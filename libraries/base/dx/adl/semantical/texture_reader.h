@@ -17,8 +17,6 @@ struct dx_adl_semantical_texture_reader {
 
 int dx_adl_semantical_texture_reader_construct(dx_adl_semantical_texture_reader* self);
 
-void dx_adl_semantical_texture_reader_destruct(dx_adl_semantical_texture_reader* self);
-
 dx_adl_semantical_texture_reader* dx_adl_semantical_texture_reader_create();
 
 #endif // DX_ADL_SEMANTICAL_TEXTURE_READER_H_INCLUDED

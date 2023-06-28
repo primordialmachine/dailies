@@ -35,8 +35,6 @@ struct dx_mesh {
 
 int dx_mesh_construct(dx_mesh* self, dx_context* context, dx_asset_mesh* asset_mesh);
 
-void dx_mesh_destruct(dx_mesh* self);
-
 dx_mesh* dx_mesh_create(dx_context* context, dx_asset_mesh* asset_mesh);
 
 #endif // DX_MESH_H_INCLUDED

@@ -17,8 +17,6 @@ struct dx_adl_semantical_mesh_instance_reader {
 
 int dx_adl_semantical_mesh_instance_reader_construct(dx_adl_semantical_mesh_instance_reader* self);
 
-void dx_adl_semantical_mesh_instance_reader_destruct(dx_adl_semantical_mesh_instance_reader* self);
-
 dx_adl_semantical_mesh_instance_reader* dx_adl_semantical_mesh_instance_reader_create();
 
 #endif // DX_ADL_SEMANTICAL_MESH_INSTANCE_READER_H_INCLUDED

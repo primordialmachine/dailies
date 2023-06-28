@@ -2,8 +2,6 @@
 
 static int dx_gl_buffer_construct(dx_gl_buffer* buffer, dx_gl_context* context);
 
-static void dx_gl_buffer_destruct(dx_gl_buffer* buffer);
-
 static int dx_gl_buffer_set_data(dx_gl_buffer* buffer, void const* p, size_t n);
 
 static int dx_gl_buffer_construct(dx_gl_buffer* buffer, dx_gl_context* context) {
@@ -17,7 +15,6 @@ static int dx_gl_buffer_construct(dx_gl_buffer* buffer, dx_gl_context* context) 
     return 1;
   }
   DX_BUFFER(buffer)->set_data = (int(*)(dx_buffer*,void const*,size_t)) & dx_gl_buffer_set_data;
-  DX_OBJECT(buffer)->destruct = (void(*)(dx_object*)) & dx_gl_buffer_destruct;
   return 0;
 }
 
@@ -27,7 +24,6 @@ static void dx_gl_buffer_destruct(dx_gl_buffer* buffer) {
     context->glDeleteBuffers(1, &buffer->id);
     buffer->id = 0;
   }
-  dx_buffer_destruct(DX_BUFFER(buffer));
 }
 
 static int dx_gl_buffer_set_data(dx_gl_buffer* buffer, void const* p, size_t n) {

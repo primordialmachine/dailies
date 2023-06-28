@@ -38,10 +38,6 @@ struct dx_scene {
 /// @return The zero value on success. A non-zero value on failure.
 int dx_scene_construct(dx_scene* self);
 
-/// @brief Destruct this scene.
-/// @param self A pointer to this scene.
-void dx_scene_destruct(dx_scene* self);
-
 /// @brief Callback. Invoked by the execution environment.
 /// @param self A pointer to this scene.
 /// @return The zero value on success. A non-zero value on failure.

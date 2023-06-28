@@ -297,8 +297,8 @@ static void remove_from_backend(dx_mesh* self) {
 }
 
 int dx_mesh_construct(dx_mesh* self, dx_context* context, dx_asset_mesh* asset_mesh) {
-  dx_rti_type* type = dx_mesh_get_type();
-  if (!type) {
+  dx_rti_type* _type = dx_mesh_get_type();
+  if (!_type) {
     return 1;
   }
 
@@ -319,11 +319,11 @@ int dx_mesh_construct(dx_mesh* self, dx_context* context, dx_asset_mesh* asset_m
     return 1;
   }
 
-  DX_OBJECT(self)->destruct = (void (*) (dx_object*)) & dx_mesh_destruct;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_mesh_destruct(dx_mesh* self) {
+static void dx_mesh_destruct(dx_mesh* self) {
   remove_material_from_backend(self);
   remove_from_backend(self);
   DX_UNREFERENCE(self->asset_mesh);

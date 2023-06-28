@@ -7,17 +7,41 @@
 DX_DEFINE_ENUMERATION_TYPE("dx.adl.word_kind",
                            dx_adl_word_kind)
 
+dx_string* dx_adl_word_kind_to_string(dx_adl_word_kind self) {
+  switch (self) {
+  #define DEFINE(SYMBOL, STRING) \
+    case SYMBOL: { \
+      return dx_string_create(STRING, sizeof(STRING) - 1); \
+    } break;
+  #include "dx/adl/word_kind.i"
+  #undef DEFINE
+    default: {
+      dx_set_error(DX_INVALID_ARGUMENT);
+      return NULL;
+    } break;
+  };
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+DX_DEFINE_OBJECT_TYPE("dx.adl.word",
+                      dx_adl_word,
+                      dx_object)
 
 int dx_adl_word_construct(dx_adl_word* self, dx_adl_word_kind kind, dx_string* text) {
+  dx_rti_type* _type = dx_adl_word_get_type();
+  if (!_type) {
+    return 1;
+  }
   if (!self || !text) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_adl_word_destruct;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_adl_word_destruct(dx_adl_word* self) {
+static void dx_adl_word_destruct(dx_adl_word* self) {
   DX_UNREFERENCE(self->text);
   self->text = NULL;
 }
@@ -294,7 +318,6 @@ int dx_adl_scanner_construct(dx_adl_scanner* self) {
   self->current = self->start;
   self->kind = dx_adl_word_kind_start_of_input;
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_adl_scanner_destruct;
   return 0;
 }
 
@@ -354,7 +377,7 @@ static int dx_adl_scanner_skip_nls_and_ws(dx_adl_scanner* self) {
   return 0;
 }
 
-void dx_adl_scanner_destruct(dx_adl_scanner* self) {
+static void dx_adl_scanner_destruct(dx_adl_scanner* self) {
   dx_byte_array_uninitialize(&self->text);
 }
 
@@ -618,11 +641,10 @@ int dx_adl_node_construct(dx_adl_node* self, dx_adl_node_kind kind) {
     } break;
   };
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_adl_node_destruct;
   return 0;
 }
 
-void dx_adl_node_destruct(dx_adl_node* self) {
+static void dx_adl_node_destruct(dx_adl_node* self) {
   DX_DEBUG_ASSERT(NULL != self);
   switch (self->kind) {
     case dx_adl_node_kind_error: {
@@ -761,6 +783,7 @@ dx_string* dx_adl_node_get_string(dx_adl_node const* self) {
     dx_set_error(DX_INVALID_OPERATION);
     return NULL;
   }
+  DX_REFERENCE(self->string);
   return self->string;
 }
 
@@ -807,6 +830,10 @@ int dx_adl_node_set_number(dx_adl_node* self, dx_string* number) {
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+DX_DEFINE_OBJECT_TYPE("dx.adl.parser",
+                      dx_adl_parser,
+                      dx_object)
 
 /// @code
 /// value := STRING | NUMBER | map | list
@@ -975,6 +1002,27 @@ static int dx_adl_parser_on_map_0(dx_adl_parser* p, dx_adl_node* map_node) {
     }
   }
   if (!dx_adl_parser_is_word_kind(p, dx_adl_word_kind_right_curly_bracket)) {
+    dx_string* s;
+
+    dx_log("syntactical error: received ", sizeof("syntactical error: received ") - 1);
+
+    s = dx_adl_word_kind_to_string(dx_adl_parser_get_word_kind(p));
+    if (!s) {
+      return 1;
+    }
+    dx_log(dx_string_get_bytes(s), dx_string_get_number_of_bytes(s));
+    DX_UNREFERENCE(s);
+    s = NULL;
+
+    dx_log(", expected ", sizeof(", expected ") - 1);
+    s = dx_adl_word_kind_to_string(dx_adl_word_kind_right_curly_bracket);
+    if (!s) {
+      return 1;
+    }
+    dx_log(dx_string_get_bytes(s), dx_string_get_number_of_bytes(s));
+    DX_UNREFERENCE(s);
+    s = NULL;
+
     return 1;
   }
   if (dx_adl_parser_next(p)) {
@@ -1028,6 +1076,27 @@ static int dx_adl_parser_on_list_0(dx_adl_parser* p, dx_adl_node* list_node) {
     }
   }
   if (!dx_adl_parser_is_word_kind(p, dx_adl_word_kind_right_square_bracket)) {
+    dx_string* s;
+
+    dx_log("syntactical error: received ", sizeof("syntactical error: received ") - 1);
+
+    s = dx_adl_word_kind_to_string(dx_adl_parser_get_word_kind(p));
+    if (!s) {
+      return 1;
+    }
+    dx_log(dx_string_get_bytes(s), dx_string_get_number_of_bytes(s));
+    DX_UNREFERENCE(s);
+    s = NULL;
+
+    dx_log(", expected ", sizeof(", expected ") - 1);
+    s = dx_adl_word_kind_to_string(dx_adl_word_kind_right_square_bracket);
+    if (!s) {
+      return 1;
+    }
+    dx_log(dx_string_get_bytes(s), dx_string_get_number_of_bytes(s));
+    DX_UNREFERENCE(s);
+    s = NULL;
+
     return 1;
   }
   if (dx_adl_parser_next(p)) {
@@ -1058,6 +1127,10 @@ static int dx_adl_parser_next(dx_adl_parser* self) {
 }
 
 int dx_adl_parser_construct(dx_adl_parser* self, dx_adl_scanner* scanner, dx_adl_diagnostics* diagnostics) {
+  dx_rti_type* _type = dx_adl_parser_get_type();
+  if (!_type) {
+    return 1;
+  }
   if (!self || !scanner || !diagnostics) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -1066,11 +1139,11 @@ int dx_adl_parser_construct(dx_adl_parser* self, dx_adl_scanner* scanner, dx_adl
   DX_REFERENCE(self->scanner);
   self->diagnostics = diagnostics;
   DX_REFERENCE(self->diagnostics);
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_adl_parser_destruct;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_adl_parser_destruct(dx_adl_parser* self) {
+static void dx_adl_parser_destruct(dx_adl_parser* self) {
   DX_UNREFERENCE(self->diagnostics);
   self->diagnostics = NULL;
   DX_UNREFERENCE(self->scanner);
@@ -1131,6 +1204,8 @@ dx_adl_node* dx_adl_parser_run(dx_adl_parser* self) {
   }
   return root_node;
 }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #if defined(DX_ADL_PARSER_WITH_TESTS) && DX_ADL_PARSER_WITH_TESTS
 

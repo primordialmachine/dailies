@@ -32,10 +32,8 @@ struct dx_vbinding {
   int (*activate)(dx_vbinding*);
 };
 
-int dx_vbinding_construct(dx_vbinding* vbinding, dx_buffer* buffer);
+int dx_vbinding_construct(dx_vbinding* self, dx_buffer* buffer);
 
-void dx_vbinding_destruct(dx_vbinding* vbinding);
-
-int dx_vbinding_activate(dx_vbinding* vbinding);
+int dx_vbinding_activate(dx_vbinding* self);
 
 #endif // DX_VBINDING_H_INCLUDED

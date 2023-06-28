@@ -50,6 +50,7 @@ list(APPEND ${name}.headers "dx/asset/image.h" "dx/asset/palette.h" "dx/asset/br
 # "adl" folder.
 list(APPEND ${name}.sources "dx/adl/syntactical.c")
 list(APPEND ${name}.headers "dx/adl/syntactical.h")
+list(APPEND ${name}.inlays "dx/adl/word_kind.i")
 
 list(APPEND ${name}.sources "dx/adl/diagnostics.c")
 list(APPEND ${name}.headers "dx/adl/diagnostics.h")

@@ -109,8 +109,8 @@ static _entry* get_or_create_impl(_map* map, bool create, char const* name) {
   return entry;
 }
 
-int dx_cbinding_set_vec3(dx_cbinding* cbinding, char const* name, DX_VEC3 const* v) {
-  _entry* entry = get_or_create_impl((_map*)cbinding->pimpl, true, name);
+int dx_cbinding_set_vec3(dx_cbinding* self, char const* name, DX_VEC3 const* v) {
+  _entry* entry = get_or_create_impl((_map*)self->pimpl, true, name);
   if (!entry) {
     return 1;
   }
@@ -119,8 +119,8 @@ int dx_cbinding_set_vec3(dx_cbinding* cbinding, char const* name, DX_VEC3 const*
   return 0;
 }
 
-int dx_cbinding_set_vec4(dx_cbinding* cbinding, char const* name, DX_VEC4 const* v) {
-  _entry* entry = get_or_create_impl((_map*)cbinding->pimpl, true, name);
+int dx_cbinding_set_vec4(dx_cbinding* self, char const* name, DX_VEC4 const* v) {
+  _entry* entry = get_or_create_impl((_map*)self->pimpl, true, name);
   if (!entry) {
     return 1;
   }
@@ -129,8 +129,8 @@ int dx_cbinding_set_vec4(dx_cbinding* cbinding, char const* name, DX_VEC4 const*
   return 0;
 }
 
-int dx_cbinding_set_mat4(dx_cbinding* cbinding, char const *name, DX_MAT4 const* a) {
-  _entry* entry = get_or_create_impl((_map*)cbinding->pimpl, true, name);
+int dx_cbinding_set_mat4(dx_cbinding* self, char const *name, DX_MAT4 const* a) {
+  _entry* entry = get_or_create_impl((_map*)self->pimpl, true, name);
   if (!entry) {
     return 1;
   }
@@ -139,8 +139,8 @@ int dx_cbinding_set_mat4(dx_cbinding* cbinding, char const *name, DX_MAT4 const*
   return 0;
 }
 
-int dx_cbinding_set_texture_index(dx_cbinding* cbinding, char const* name, size_t i) {
-  _entry* entry = get_or_create_impl((_map*)cbinding->pimpl, true, name);
+int dx_cbinding_set_texture_index(dx_cbinding* self, char const* name, size_t i) {
+  _entry* entry = get_or_create_impl((_map*)self->pimpl, true, name);
   if (!entry) {
     return 1;
   }
@@ -149,35 +149,43 @@ int dx_cbinding_set_texture_index(dx_cbinding* cbinding, char const* name, size_
   return 0;
 }
 
-int dx_cbinding_construct(dx_cbinding* cbinding) {
-  cbinding->pimpl = _create_impl();
-  if (!cbinding->pimpl) {
+DX_DEFINE_OBJECT_TYPE("dx.cbinding",
+                      dx_cbinding,
+                      dx_object)
+
+int dx_cbinding_construct(dx_cbinding* self) {
+  dx_rti_type* _type = dx_cbinding_get_type();
+  if (!_type) {
     return 1;
   }
-  DX_OBJECT(cbinding)->destruct = (void(*)(dx_object*)) & dx_cbinding_destruct;
+  self->pimpl = _create_impl();
+  if (!self->pimpl) {
+    return 1;
+  }
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_cbinding_destruct(dx_cbinding* cbinding) {
-  _destroy_impl(cbinding->pimpl);
-  cbinding->pimpl = NULL;
+static void dx_cbinding_destruct(dx_cbinding* self) {
+  _destroy_impl(self->pimpl);
+  self->pimpl = NULL;
 }
 
 dx_cbinding* dx_cbinding_create() {
-  dx_cbinding* cbinding = DX_CBINDING(dx_object_alloc(sizeof(dx_cbinding)));
-  if (!cbinding) {
+  dx_cbinding* self = DX_CBINDING(dx_object_alloc(sizeof(dx_cbinding)));
+  if (!self) {
     return NULL;
   }
-  if (dx_cbinding_construct(cbinding)) {
-    DX_UNREFERENCE(cbinding);
-    cbinding = NULL;
+  if (dx_cbinding_construct(self)) {
+    DX_UNREFERENCE(self);
+    self = NULL;
     return NULL;
   }
-  return cbinding;
+  return self;
 }
 
-dx_cbinding_iter dx_cbinding_get_iter(dx_cbinding* cbinding) {
-  _map* map = (_map*)cbinding->pimpl;
+dx_cbinding_iter dx_cbinding_get_iter(dx_cbinding* self) {
+  _map* map = (_map*)self->pimpl;
   for (size_t i = 0, n = map->capacity; i < n; ++i) {
     if (NULL != map->buckets[i]) {
       dx_cbinding_iter it = { .a = (void*)i, .b = map->buckets[i], .c = map };
@@ -188,31 +196,31 @@ dx_cbinding_iter dx_cbinding_get_iter(dx_cbinding* cbinding) {
   return it;
 }
 
-int dx_cbinding_iter_next(dx_cbinding_iter* iter) {
-  _map* map = (_map*)iter->c;
-  _entry* entry = (_entry*)iter->b;
+int dx_cbinding_iter_next(dx_cbinding_iter* self) {
+  _map* map = (_map*)self->c;
+  _entry* entry = (_entry*)self->b;
   if (entry) {
     entry = entry->next;
     if (entry) {
       // Found successor in current bucket. Done.
-      iter->b = (void*)entry;
+      self->b = (void*)entry;
       return 0;
     } else {
       // Found NO successor in current bucket. move to next non-empty bucket if any.
-      size_t index = (size_t)iter->a;
+      size_t index = (size_t)self->a;
       index++;
       for (; index < map->capacity && !map->buckets[index]; ++index) {
 
       }
       if (index == map->capacity) {
         // Found no next non-empty bucket. Done.
-        iter->a = (void*)index;
-        iter->b = NULL;
+        self->a = (void*)index;
+        self->b = NULL;
         return 0;
       } else {
         // Found next non-empty bucket. Done.
-        iter->a = (void*)index;
-        iter->b = map->buckets[index];
+        self->a = (void*)index;
+        self->b = map->buckets[index];
         return 0;
       }
     }
@@ -222,13 +230,13 @@ int dx_cbinding_iter_next(dx_cbinding_iter* iter) {
   }
 }
 
-bool dx_cbinding_iter_has_value(dx_cbinding_iter const* iter) {
-  _entry* entry = (_entry*)iter->b;
+bool dx_cbinding_iter_has_value(dx_cbinding_iter const* self) {
+  _entry* entry = (_entry*)self->b;
   return NULL != entry;
 }
 
-uint8_t dx_cbinding_iter_get_tag(dx_cbinding_iter const* iter) {
-  _entry* entry = (_entry*)iter->b;
+uint8_t dx_cbinding_iter_get_tag(dx_cbinding_iter const* self) {
+  _entry* entry = (_entry*)self->b;
   if (!entry) {
     dx_set_error(DX_INVALID_OPERATION);
     return DX_CBINDING_TYPE_EMPTY;
@@ -236,8 +244,8 @@ uint8_t dx_cbinding_iter_get_tag(dx_cbinding_iter const* iter) {
   return entry->tag;
 }
 
-char const* dx_cbinding_iter_get_name(dx_cbinding_iter const* iter) {
-  _entry* entry = (_entry*)iter->b;
+char const* dx_cbinding_iter_get_name(dx_cbinding_iter const* self) {
+  _entry* entry = (_entry*)self->b;
   if (!entry) {
     dx_set_error(DX_INVALID_OPERATION);
     return DX_CBINDING_TYPE_EMPTY;
@@ -245,8 +253,8 @@ char const* dx_cbinding_iter_get_name(dx_cbinding_iter const* iter) {
   return entry->name;
 }
 
-int dx_cbinding_iter_get_vec3(dx_cbinding_iter const* iter, DX_VEC3* v) {
-  _entry* entry = (_entry*)iter->b;
+int dx_cbinding_iter_get_vec3(dx_cbinding_iter const* self, DX_VEC3* v) {
+  _entry* entry = (_entry*)self->b;
   if (!entry) {
     dx_set_error(DX_INVALID_OPERATION);
     return DX_CBINDING_TYPE_EMPTY;
@@ -255,8 +263,8 @@ int dx_cbinding_iter_get_vec3(dx_cbinding_iter const* iter, DX_VEC3* v) {
   return 0;
 }
 
-int dx_cbinding_iter_get_vec4(dx_cbinding_iter const* iter, DX_VEC4* v) {
-  _entry* entry = (_entry*)iter->b;
+int dx_cbinding_iter_get_vec4(dx_cbinding_iter const* self, DX_VEC4* v) {
+  _entry* entry = (_entry*)self->b;
   if (!entry) {
     dx_set_error(DX_INVALID_OPERATION);
     return DX_CBINDING_TYPE_EMPTY;
@@ -265,8 +273,8 @@ int dx_cbinding_iter_get_vec4(dx_cbinding_iter const* iter, DX_VEC4* v) {
   return 0;
 }
 
-int dx_cbinding_iter_get_mat4(dx_cbinding_iter const* iter, DX_MAT4* a) {
-  _entry* entry = (_entry*)iter->b;
+int dx_cbinding_iter_get_mat4(dx_cbinding_iter const* self, DX_MAT4* a) {
+  _entry* entry = (_entry*)self->b;
   if (!entry) {
     dx_set_error(DX_INVALID_OPERATION);
     return DX_CBINDING_TYPE_EMPTY;
@@ -275,8 +283,8 @@ int dx_cbinding_iter_get_mat4(dx_cbinding_iter const* iter, DX_MAT4* a) {
   return 0;
 }
 
-int dx_cbinding_iter_get_texture_index(dx_cbinding_iter const* iter, size_t* i) {
-  _entry* entry = (_entry*)iter->b;
+int dx_cbinding_iter_get_texture_index(dx_cbinding_iter const* self, size_t* i) {
+  _entry* entry = (_entry*)self->b;
   if (!entry) {
     dx_set_error(DX_INVALID_OPERATION);
     return DX_CBINDING_TYPE_EMPTY;

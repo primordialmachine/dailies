@@ -5,8 +5,8 @@ DX_DEFINE_OBJECT_TYPE("dx.context",
                       dx_object)
 
 int dx_context_construct(dx_context* self) {
-  dx_rti_type* type = dx_context_get_type();
-  if (!type) {
+  dx_rti_type* _type = dx_context_get_type();
+  if (!_type) {
     return 1;
   }
   self->bind_texture = NULL;
@@ -15,11 +15,11 @@ int dx_context_construct(dx_context* self) {
   self->create_program = NULL;
   self->create_texture = NULL;
   self->execute_commands = NULL;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_context_destruct;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_context_destruct(dx_context* self)
+static void dx_context_destruct(dx_context* self)
 {/*Intentionally empty.*/}
 
 int dx_context_bind_texture(dx_context* self, dx_size unit, dx_texture* texture) {

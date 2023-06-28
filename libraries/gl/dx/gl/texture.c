@@ -2,6 +2,10 @@
 
 #include "dx/asset/image.h"
 
+DX_DEFINE_OBJECT_TYPE("dx.gl.texture",
+                      dx_gl_texture,
+                      dx_texture)
+
 static int dx_gl_texture_set_data(dx_gl_texture* self, dx_asset_texture* texture) {
   dx_gl_context* context = DX_GL_CONTEXT(DX_TEXTURE(self)->context);
   switch (texture->image->pixel_format) {
@@ -19,6 +23,10 @@ static int dx_gl_texture_set_data(dx_gl_texture* self, dx_asset_texture* texture
 }
 
 int dx_gl_texture_construct(dx_gl_texture* self, dx_gl_context* context) {
+  dx_rti_type* _type = dx_gl_texture_get_type();
+  if (!_type) {
+    return 1;
+  }
   if (dx_texture_construct(DX_TEXTURE(self), DX_CONTEXT(context))) {
     return 1;
   }
@@ -30,7 +38,15 @@ int dx_gl_texture_construct(dx_gl_texture* self, dx_gl_context* context) {
   }
   context->glBindTexture(GL_TEXTURE_2D, self->id);
   // Create the default 8x8 pixels amber texture.
-  dx_asset_image* image = dx_asset_image_create(DX_PIXEL_FORMAT_RGB_U8, 8, 8, &dx_colors_amber);
+  dx_string* name = dx_string_create("<default image>", sizeof("<default image>") - 1);
+  if (!name) {
+    context->glDeleteTextures(1, &self->id);
+    self->id = 0;
+    return 0;
+  }
+  dx_asset_image* image = dx_asset_image_create(name, DX_PIXEL_FORMAT_RGB_U8, 8, 8, &dx_colors_amber);
+  DX_UNREFERENCE(name);
+  name = NULL;
   if (!image) {
     context->glDeleteTextures(1, &self->id);
     self->id = 0;
@@ -65,27 +81,27 @@ int dx_gl_texture_construct(dx_gl_texture* self, dx_gl_context* context) {
     return 1;
   }
   DX_TEXTURE(self)->set_data = (int(*)(dx_texture*, dx_asset_texture*)) & dx_gl_texture_set_data;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*)) & dx_gl_texture_destruct;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_gl_texture_destruct(dx_gl_texture* texture) {
-  if (texture->id) {
-    dx_gl_context* context = DX_GL_CONTEXT(DX_TEXTURE(texture)->context);
-    context->glDeleteBuffers(1, &texture->id);
-    texture->id = 0;
+static void dx_gl_texture_destruct(dx_gl_texture* self) {
+  if (self->id) {
+    dx_gl_context* context = DX_GL_CONTEXT(DX_TEXTURE(self)->context);
+    context->glDeleteBuffers(1, &self->id);
+    self->id = 0;
   }
-  dx_texture_destruct(DX_TEXTURE(texture));
 }
 
 dx_gl_texture* dx_gl_texture_create(dx_gl_context* context) {
-  dx_gl_texture* texture = DX_GL_TEXTURE(dx_object_alloc(sizeof(dx_gl_texture)));
-  if (!texture) {
+  dx_gl_texture* self = DX_GL_TEXTURE(dx_object_alloc(sizeof(dx_gl_texture)));
+  if (!self) {
     return NULL;
   }
-  if (dx_gl_texture_construct(texture, context)) {
-    DX_UNREFERENCE(texture);
+  if (dx_gl_texture_construct(self, context)) {
+    DX_UNREFERENCE(self);
+    self = NULL;
     return NULL;
   }
-  return texture;
+  return self;
 }

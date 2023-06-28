@@ -9,6 +9,7 @@
       },
       mesh : {
         type : 'Mesh',
+        name : 'my.triangle',
         vertexFormat : ['position xyz', 'ambient rgba'],
         generator : 'triangle',
         operations : [
@@ -18,6 +19,7 @@
         ],
         material : {
           type : 'Material',
+          name : 'my.triangle.material',
         },// Mesh.material
       },// MeshInstance.mesh
     },

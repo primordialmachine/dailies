@@ -12,6 +12,7 @@ static inline dx_asset_image* DX_ASSET_IMAGE(void* p) {
 
 /// @brief Construct this image with the specified pixel format, the specified width and height.
 /// @param self A pointer to this image.
+/// @param name A pointer to the ADL name of this image.
 /// @param pixel_format The pixel format of the image.
 /// @param width The width, in pixels, of the image. Can be @a 0.
 /// @param height The height, in pixels, of the image. Can be @a 0.
@@ -22,14 +23,14 @@ static inline dx_asset_image* DX_ASSET_IMAGE(void* p) {
 /// @remarks All pixels are assigned the default pixel value of the specified pixel format.
 /// For DX_PIXEL_FORMAT_RGB this default value is the color "Black" (0, 0, 0).
 int dx_asset_image_construct(dx_asset_image* self,
+                             dx_string* name,
                              DX_PIXEL_FORMAT pixel_format,
                              dx_size width,
                              dx_size height,
                              DX_RGB_U8 const* color);
 
-void dx_asset_image_destruct(dx_asset_image* self);
-
-dx_asset_image* dx_asset_image_create(DX_PIXEL_FORMAT pixel_format,
+dx_asset_image* dx_asset_image_create(dx_string* name,
+                                      DX_PIXEL_FORMAT pixel_format,
                                       dx_size width,
                                       dx_size height,
                                       DX_RGB_U8 const* color);
@@ -81,6 +82,8 @@ int dx_asset_image_fill(dx_asset_image* self,
 
 struct dx_asset_image {
   dx_object _parent;
+  /// @brief A pointer to the name of this ADL image.
+  dx_string* name;
   /// @brief The pixel format.
   DX_PIXEL_FORMAT pixel_format;
   /// @brief The width, in pixels.

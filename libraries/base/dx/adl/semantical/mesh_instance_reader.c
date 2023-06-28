@@ -34,9 +34,13 @@ static dx_object* read(dx_adl_semantical_mesh_instance_reader* self, dx_adl_node
     }
     dx_string* received_type = dx_adl_semantical_read_type(child_node, state->names);
     if (!dx_string_is_equal_to(received_type, NAME(mesh_type))) {
+      DX_UNREFERENCE(received_type);
+      received_type = NULL;
       goto END;
     }
     dx_adl_semantical_reader* mesh_reader = dx_pointer_hashmap_get(&state->readers, received_type);
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
     if (!mesh_reader) {
       goto END;
     }
@@ -97,13 +101,11 @@ int dx_adl_semantical_mesh_instance_reader_construct(dx_adl_semantical_mesh_inst
   }
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_adl_node*, dx_adl_semantical_state*))&read;
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void(*)(dx_object*))&dx_adl_semantical_mesh_instance_reader_destruct;
   return 0;
 }
 
-void dx_adl_semantical_mesh_instance_reader_destruct(dx_adl_semantical_mesh_instance_reader* self) {
-  dx_adl_semantical_reader_destruct(DX_ADL_SEMANTICAL_READER(self));
-}
+static void dx_adl_semantical_mesh_instance_reader_destruct(dx_adl_semantical_mesh_instance_reader* self)
+{/*Intentionally empty.*/}
 
 dx_adl_semantical_mesh_instance_reader* dx_adl_semantical_mesh_instance_reader_create() {
   dx_adl_semantical_mesh_instance_reader* self = DX_ADL_SEMANTICAL_MESH_INSTANCE_READER(dx_object_alloc(sizeof(dx_adl_semantical_mesh_instance_reader)));

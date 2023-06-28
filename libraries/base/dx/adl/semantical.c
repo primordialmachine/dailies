@@ -28,6 +28,8 @@ static dx_asset_mesh_instance* dx_adl_parse_mesh_instance(dx_adl_node* node, dx_
     return NULL;
   }
   if (dx_string_is_equal_to(received_type, NAME(mesh_instance_type))) {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
     dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&state->readers, NAME(mesh_instance_type));
     if (!reader) {
       return NULL;
@@ -35,6 +37,8 @@ static dx_asset_mesh_instance* dx_adl_parse_mesh_instance(dx_adl_node* node, dx_
     dx_asset_mesh_instance* asset = DX_ASSET_MESH_INSTANCE(dx_adl_semantical_reader_read(reader, node, state));
     return asset;
   } else {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
     dx_set_error(DX_SEMANTICAL_ERROR);
     return NULL;
   }
@@ -101,9 +105,13 @@ dx_asset_scene* dx_adl_parse_scene(dx_adl_node* node, dx_adl_semantical_state* s
   }
   dx_string* expected_type = NAME(scene_type);
   if (dx_string_is_equal_to(expected_type, received_type)) {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
     dx_asset_scene* asset = _parse_scene(node, state);
     return asset;
   } else {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
     dx_set_error(DX_SEMANTICAL_ERROR);
     return NULL;
   }

@@ -152,46 +152,13 @@
 DX_DECLARE_ENUMERATION_TYPE("dx.adl.word_kind", dx_adl_word_kind)
 
 enum dx_adl_word_kind {
-
-  /// @brief Value denoting an error instead of a valid word as specified by the ADL lexicals.
-  dx_adl_word_kind_error,
-  /// @brief Value denoting a warning instead of a valid word as specified by the ADL lexicals.
-  dx_adl_word_kind_warning,
-
-  /// @brief The word <code>start_of_input</code>.
-  dx_adl_word_kind_start_of_input,
-  /// @brief The word <code>end of input</code>.
-  dx_adl_word_kind_end_of_input,
-
-  /// @brief The word <code>comma</code>.
-  dx_adl_word_kind_comma,
-
-  /// @brief The word <code>colon</code>:
-  dx_adl_word_kind_colon,
-  
-  /// @brief The word <code>left parenthesis</code>.
-  dx_adl_word_kind_left_parenthesis,
-  /// @brief The word <code>right parenthesis</code>.
-  dx_adl_word_kind_right_parenthesis,
-  
-  /// @brief The word <code>left curly bracket</code>.
-  dx_adl_word_kind_left_curly_bracket,
-  /// @brief The word <code>right curly bracket</code>.
-  dx_adl_word_kind_right_curly_bracket,
-
-  /// @brief The word <code>left square bracket</code>.
-  dx_adl_word_kind_left_square_bracket,
-  /// @brief The word <code>right square bracket</code>.
-  dx_adl_word_kind_right_square_bracket,
-
-  /// @brief The type of the words <code>string</code>.
-  dx_adl_word_kind_string,
-  /// @brief The word <code>name</code>.
-  dx_adl_word_kind_name,
-  /// @brief The word <code>number</code>.
-  dx_adl_word_kind_number,
-
+#define DEFINE(SYMBOL, STRING) \
+  SYMBOL, 
+#include "dx/adl/word_kind.i"
+#undef DEFINE
 };
+
+dx_string* dx_adl_word_kind_to_string(dx_adl_word_kind self);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -212,10 +179,6 @@ struct dx_adl_word {
 /// @param kind The kind of the word.
 /// @param text The text of the word.
 int dx_adl_word_construct(dx_adl_word* self, dx_adl_word_kind kind, dx_string* text);
-
-/// @brief Destruct this word.
-/// @param self A pointer to this word.
-void dx_adl_word_destruct(dx_adl_word* self);
 
 /// @brief Create this word with the specified word kind and the specified word text.
 /// @param kind The kind of the word.
@@ -254,10 +217,6 @@ struct dx_adl_scanner {
 /// @success The scanner was assigned the empty input and is in the start state w.r.t. the specified input.
 /// @failure This function has set the the error variable.
 int dx_adl_scanner_construct(dx_adl_scanner* self);
-
-/// @brief Destruct this scanner.
-/// @param self A pointer to this scanner.
-void dx_adl_scanner_destruct(dx_adl_scanner* self);
 
 /// @brief Create this scanner with an empty input.
 /// @return A pointer to the scanner on success. The null pointer on failure.
@@ -342,10 +301,6 @@ struct dx_adl_node {
 /// - #dx_adl_node_kind_list: the empty list
 /// @failure This function has set the error variable.
 int dx_adl_node_construct(dx_adl_node* self, dx_adl_node_kind kind);
-
-/// @brief Destruct this ADL node.
-/// @param self A pointer to this ADL node.
-void dx_adl_node_destruct(dx_adl_node* self);
 
 /// @brief Create this ADL node with the specified type.
 /// @param kind The kind of this ADL node.
@@ -437,6 +392,7 @@ dx_size dx_adl_node_list_get_size(dx_adl_node* self);
 /// @brief Get the string value of this ADL node.
 /// @param self A pointer to this ADL node.
 /// @return The string value on success. The null pointer on failure.
+/// @success The caller acquired a reference to the returned dx_string object.
 /// @failure This function has set the the error variable. In particular, the following error codes are set:
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_OPERATION this node is not of node kind #dx_adl_node_kind_string.
@@ -497,10 +453,6 @@ struct dx_adl_parser {
 /// @param diagnostics A pointer to the underlaying diagnostics.
 /// @success The parser was assigned the empty input and is in the start state w.r.t. the specified input.
 int dx_adl_parser_construct(dx_adl_parser* self, dx_adl_scanner* scanner, dx_adl_diagnostics* diagnostics);
-
-/// @brief Destruct this scanner.
-/// @param self A pointer to this parser.
-void dx_adl_parser_destruct(dx_adl_parser* self);
 
 /// @brief Create this parser with an empty input.
 /// @param scanner A pointer to the underlaying scanner.

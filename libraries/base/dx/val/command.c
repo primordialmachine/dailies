@@ -98,7 +98,7 @@ dx_command* dx_command_create_viewport(float l, float b, float w, float h) {
   return command;
 }
 
-void dx_command_destruct(dx_command* command) {
+static void dx_command_destruct(dx_command* command) {
   switch (command->kind) {
     case DX_COMMAND_KIND_DRAW: {
       DX_UNREFERENCE(command->draw_command.program);
@@ -134,7 +134,7 @@ int dx_command_list_construct(dx_command_list* command_list) {
   return 0;
 }
 
-void dx_command_list_destruct(dx_command_list* command_list) {
+static void dx_command_list_destruct(dx_command_list* command_list) {
   while (command_list->size > 0) {
     dx_command* element = command_list->elements[--command_list->size];
     DX_UNREFERENCE(element);
@@ -197,37 +197,37 @@ static int dx_compute_new_allocated_capacity(size_t old_capacity, size_t additio
   return 0;
 }
 
-int dx_command_list_append(dx_command_list* command_list, dx_command* command) {
-  if (command_list->size == command_list->capacity) {
+int dx_command_list_append(dx_command_list* self, dx_command* command) {
+  if (self->size == self->capacity) {
     size_t new_capacity = 0;
-    if (dx_compute_new_allocated_capacity(command_list->capacity, 1, SIZE_MAX / sizeof(dx_command*), &new_capacity)) {
+    if (dx_compute_new_allocated_capacity(self->capacity, 1, SIZE_MAX / sizeof(dx_command*), &new_capacity)) {
       return 1;
     }
-    dx_command** new_elements = dx_memory_reallocate(command_list->elements, sizeof(dx_command*) * new_capacity);
+    dx_command** new_elements = dx_memory_reallocate(self->elements, sizeof(dx_command*) * new_capacity);
     if (!new_elements) {
       return 1;
     }
-    command_list->capacity = new_capacity;
-    command_list->elements = new_elements;
+    self->capacity = new_capacity;
+    self->elements = new_elements;
   }
-  command_list->elements[command_list->size] = command;
-  command_list->size++;
+  self->elements[self->size] = command;
+  self->size++;
   DX_REFERENCE(command);
   return 0;
 }
 
-size_t dx_command_list_get_size(dx_command_list const* command_list) {
-  return command_list->size;
+size_t dx_command_list_get_size(dx_command_list const* self) {
+  return self->size;
 }
 
-dx_command* dx_command_list_get_at(dx_command_list const* command_list, size_t index) {
-  if (!command_list) {
+dx_command* dx_command_list_get_at(dx_command_list const* self, size_t index) {
+  if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return NULL;
   }
-  if (index >= command_list->size) {
+  if (index >= self->size) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return NULL;
   }
-  return command_list->elements[index];
+  return self->elements[index];
 }

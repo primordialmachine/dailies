@@ -27,8 +27,6 @@ struct dx_adl_semantical_reader {
 
 int dx_adl_semantical_reader_construct(dx_adl_semantical_reader* self);
 
-void dx_adl_semantical_reader_destruct(dx_adl_semantical_reader* self);
-
 dx_object* dx_adl_semantical_reader_read(dx_adl_semantical_reader* self,
                                          dx_adl_node* node,
                                          dx_adl_semantical_state* state);
@@ -46,7 +44,9 @@ static inline dx_adl_semantical_state* DX_ADL_SEMANTICAL_STATE(void* p) {
 
 struct dx_adl_semantical_state {
   dx_object _parent;
-  /// @brief Map from names (dx_string) to readers.
+  /// @brief Map from names (dx_string) to assets (dx_object).
+  dx_pointer_hashmap assets;
+  /// @brief Map from names (dx_string) to readers (dx_adl_semantical_reader).
   dx_pointer_hashmap readers;
   /// @brief The scene object that is being built.
   dx_asset_scene* scene;
@@ -55,8 +55,6 @@ struct dx_adl_semantical_state {
 };
 
 int dx_adl_semantical_state_construct(dx_adl_semantical_state* self);
-
-void dx_adl_semantical_state_destruct(dx_adl_semantical_state* self);
 
 dx_adl_semantical_state* dx_adl_semantical_state_create();
 

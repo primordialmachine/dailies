@@ -7,6 +7,10 @@
 #include "dx/val/program_text.h"
 #include "dx/val/command.h"
 
+DX_DEFINE_OBJECT_TYPE("dx.gl.context",
+                      dx_gl_context,
+                      dx_object)
+
 static int bind_texture(dx_gl_context* ctx, size_t unit, dx_gl_texture* texture) {
   if (texture) {
     ctx->glActiveTexture(GL_TEXTURE0 + unit);
@@ -111,35 +115,38 @@ static int execute_commands(dx_gl_context* ctx, dx_command_list* commands) {
   return 0;
 }
 
-int dx_gl_context_construct(dx_gl_context* ctx, void *(*link)(char const *name)) {
-  if (dx_context_construct(DX_CONTEXT(ctx))) {
+int dx_gl_context_construct(dx_gl_context* self, void *(*link)(char const *name)) {
+  dx_rti_type* _type = dx_gl_context_get_type();
+  if (!_type) {
     return 1;
   }
-#define DEFINE(TYPE, NAME) (ctx)->NAME = NULL;
+  if (dx_context_construct(DX_CONTEXT(self))) {
+    return 1;
+  }
+#define DEFINE(TYPE, NAME) (self)->NAME = NULL;
 #include "dx/gl/functions.i"
 #undef DEFINE
 
 #define DEFINE(TYPE, NAME) \
-  (ctx)->NAME = (TYPE)link(#NAME); \
-  if (!(ctx)->NAME) { \
+  (self)->NAME = (TYPE)link(#NAME); \
+  if (!(self)->NAME) { \
     dx_log("unable to link " #NAME "\n", sizeof("unable to link " #NAME "\n")); \
     return 1; \
   }
 #include "dx/gl/functions.i"
 #undef DEFINE
-  DX_CONTEXT(ctx)->bind_texture = (int(*)(dx_context*, size_t, dx_texture*)) & bind_texture;
-  DX_CONTEXT(ctx)->create_buffer = (dx_buffer* (*)(dx_context*)) & create_buffer;
-  DX_CONTEXT(ctx)->create_vbinding = (dx_vbinding* (*)(dx_context*, DX_VERTEX_FORMAT, dx_buffer*)) & create_vbinding;
-  DX_CONTEXT(ctx)->create_program = (dx_program* (*)(dx_context*, dx_program_text*)) & create_program;
-  DX_CONTEXT(ctx)->create_texture = (dx_texture * (*)(dx_context*)) & create_texture;
-  DX_CONTEXT(ctx)->execute_commands = (int (*)(dx_context*,dx_command_list*)) & execute_commands;
-  DX_OBJECT(ctx)->destruct = (void(*)(dx_object*)) & dx_gl_context_destruct;
+  DX_CONTEXT(self)->bind_texture = (int(*)(dx_context*, size_t, dx_texture*)) & bind_texture;
+  DX_CONTEXT(self)->create_buffer = (dx_buffer* (*)(dx_context*)) & create_buffer;
+  DX_CONTEXT(self)->create_vbinding = (dx_vbinding* (*)(dx_context*, DX_VERTEX_FORMAT, dx_buffer*)) & create_vbinding;
+  DX_CONTEXT(self)->create_program = (dx_program* (*)(dx_context*, dx_program_text*)) & create_program;
+  DX_CONTEXT(self)->create_texture = (dx_texture * (*)(dx_context*)) & create_texture;
+  DX_CONTEXT(self)->execute_commands = (int (*)(dx_context*,dx_command_list*)) & execute_commands;
+  DX_OBJECT(self)->type = _type;
   return 0;
 }
 
-void dx_gl_context_destruct(dx_gl_context* ctx) {
-#define DEFINE(TYPE, NAME) (ctx)->NAME = NULL;
+static void dx_gl_context_destruct(dx_gl_context* self) {
+#define DEFINE(TYPE, NAME) (self)->NAME = NULL;
 #include "dx/gl/functions.i"
 #undef DEFINE
-  dx_context_destruct(DX_CONTEXT(ctx));
 }

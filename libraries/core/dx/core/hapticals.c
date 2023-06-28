@@ -62,13 +62,11 @@ int dx_input_msg_construct(dx_input_msg* self, dx_input_msg_kind kind) {
   self->kind = kind;
   DX_MSG(self)->flags = DX_MSG_TYPE_INPUT;
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void (*)(dx_object*)) & dx_input_msg_destruct;
   return 0;
 }
 
-void dx_input_msg_destruct(dx_input_msg* self) {
-  dx_msg_destruct(DX_MSG(self));
-}
+static void dx_input_msg_destruct(dx_input_msg* self)
+{/*Intentionally empty.*/}
 
 dx_input_msg_kind dx_input_msg_get_kind(dx_input_msg* self) {
   return self->kind;
@@ -92,13 +90,11 @@ int dx_keyboard_key_msg_construct(dx_keyboard_key_msg* self, uint8_t action, dx_
   self->key = key;
   self->modifiers = modifiers;
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void (*)(dx_object*)) & dx_keyboard_key_msg_destruct;
   return 0;
 }
 
-void dx_keyboard_key_msg_destruct(dx_keyboard_key_msg* self) {
-  dx_input_msg_destruct(DX_INPUT_MSG(self));
-}
+static void dx_keyboard_key_msg_destruct(dx_keyboard_key_msg* self)
+{/*Intentionally empty.*/}
 
 uint8_t dx_keyboard_key_msg_get_action(dx_keyboard_key_msg* self) {
   return self->action;
@@ -141,13 +137,11 @@ int dx_mouse_button_msg_construct(dx_mouse_button_msg* self, uint8_t action, dx_
   self->x = x;
   self->y = y;
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void (*)(dx_object*)) & dx_mouse_button_msg_destruct;
   return 0;
 }
 
-void dx_mouse_button_msg_destruct(dx_mouse_button_msg* self) {
-  dx_input_msg_destruct(DX_INPUT_MSG(self));
-}
+static void dx_mouse_button_msg_destruct(dx_mouse_button_msg* self)
+{/*Intentionally empty.*/}
 
 uint8_t dx_mouse_button_msg_get_action(dx_mouse_button_msg* self) {
   return self->action;
@@ -189,13 +183,11 @@ int dx_mouse_pointer_msg_construct(dx_mouse_pointer_msg* self, uint8_t action, u
   self->x = x;
   self->y = y;
   DX_OBJECT(self)->type = _type;
-  DX_OBJECT(self)->destruct = (void (*)(dx_object*)) & dx_mouse_pointer_msg_destruct;
   return 0;
 }
 
-void dx_mouse_pointer_msg_destruct(dx_mouse_pointer_msg* self) {
-  dx_input_msg_destruct(DX_INPUT_MSG(self));
-}
+static void dx_mouse_pointer_msg_destruct(dx_mouse_pointer_msg* self)
+{/*Intentionally empty.*/}
 
 uint8_t dx_mouse_pointer_msg_get_action(dx_mouse_pointer_msg* self) {
   return self->action;

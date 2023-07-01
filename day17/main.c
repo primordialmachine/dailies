@@ -31,7 +31,7 @@ static dx_scene* g_scenes[2] = { NULL, NULL };
 
 static int on_msg(dx_msg* msg);
 
-static int on_render(dx_context* context, int canvas_width, int canvas_height);
+static int on_render_scene(dx_context* context, dx_f32 delta_seconds, int canvas_width, int canvas_height);
 
 static int run();
 
@@ -114,11 +114,11 @@ static int on_msg(dx_msg* msg) {
 }
 
 static int on_startup_scene(dx_context* context) {
-  g_scenes[0] = DX_SCENE(dx_mesh_viewer_scene_create("cube"));
+  g_scenes[0] = DX_SCENE(dx_mesh_viewer_scene_create("./assets/cube.adl"));
   if (!g_scenes[0]) {
     return 1;
   }
-  g_scenes[1] = DX_SCENE(dx_mesh_viewer_scene_create("octahedron"));
+  g_scenes[1] = DX_SCENE(dx_mesh_viewer_scene_create("./assets/octahedron.adl"));
   if (!g_scenes[1]) {
     DX_UNREFERENCE(g_scenes[0]);
     g_scenes[0] = NULL;
@@ -162,7 +162,7 @@ static int on_shutdown_scene(dx_context* context) {
   return 0;
 }
 
-static int on_render_scene(dx_context* context, float delta_seconds, int canvas_width, int canvas_height) {
+static int on_render_scene(dx_context* context, dx_f32 delta_seconds, int canvas_width, int canvas_height) {
   if (dx_scene_render(g_scenes[g_scene_index], context, delta_seconds, canvas_width, canvas_height)) {
     return 1;
   }
@@ -236,7 +236,7 @@ static int run() {
       dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
       return 1;
     }
-    if (on_render_scene(ctx, ((float)delta)/1000.f, canvas_width, canvas_height)) {
+    if (on_render_scene(ctx, ((dx_f32)delta)/1000.f, canvas_width, canvas_height)) {
       dx_gl_wgl_leave_frame();
       on_shutdown_scene(ctx);
       dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));

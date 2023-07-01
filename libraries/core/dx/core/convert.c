@@ -14,7 +14,7 @@ static inline bool is_digit(char const* current, char const* end);
 /// @param p A pointer to the bytes. 
 /// @param n The number of Bytes.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 static int dx_parse_flit(char const* p, dx_size n);
 
 static inline bool is_digit(char const* current, char const* end) {
@@ -486,8 +486,8 @@ int dx_convert_utf8bytes_to_i64(char const* p, dx_size n, dx_i64* target) {
   if (negative) {
     do {
       //
-      static const dx_i64 BASE = 10;
-      static const dx_i64 MIN1 = DX_I64_LEAST + 8; // 9223372036854775808 / 10 = 922337203685477580.8 = 922337203685477580.
+      static dx_i64 const BASE = 10;
+      static dx_i64 const MIN1 = DX_I64_LEAST + 8; // 9223372036854775808 / 10 = 922337203685477580.8 = 922337203685477580.
                                                    // 922337203685477580 * 10 = 9223372036854775800 is no overflow.
       if (value == MIN1) {
         dx_set_error(DX_CONVERSION_FAILED);
@@ -495,8 +495,8 @@ int dx_convert_utf8bytes_to_i64(char const* p, dx_size n, dx_i64* target) {
       }
       value = value * BASE;
       //
-      static const dx_i64 MIN2 = DX_I64_LEAST;
-      dx_i64 x = *current - '0';
+      static dx_i64 const MIN2 = DX_I64_LEAST;
+      dx_i64 x = ((dx_i64)*current) - ((dx_i64)'0');
       if (value < MIN2 + x) {
         dx_set_error(DX_CONVERSION_FAILED);
         return 1;
@@ -508,8 +508,8 @@ int dx_convert_utf8bytes_to_i64(char const* p, dx_size n, dx_i64* target) {
   } else {
     do {
       //
-      static const dx_i64 BASE = 10;
-      static const dx_i64 MAX1 = DX_I64_GREATEST - 7; // 9223372036854775807 / 10 = 922337203685477580.7 = 922337203685477580.
+      static dx_i64 const BASE = 10;
+      static dx_i64 const MAX1 = DX_I64_GREATEST - 7; // 9223372036854775807 / 10 = 922337203685477580.7 = 922337203685477580.
                                                       // 922337203685477580 * 10 = 9223372036854775800 is no overflow.
       if (value == MAX1) {
         dx_set_error(DX_CONVERSION_FAILED);
@@ -517,8 +517,8 @@ int dx_convert_utf8bytes_to_i64(char const* p, dx_size n, dx_i64* target) {
       }
       value = value * BASE;
       //
-      static const dx_i64 MAX2 = DX_I64_GREATEST;
-      dx_i64 x = *current - '0';
+      static dx_i64 const MAX2 = DX_I64_GREATEST;
+      dx_i64 x = ((dx_i64)*current) - ((dx_i64)'0');
       if (MAX2 - x < value) {
         dx_set_error(DX_CONVERSION_FAILED);
         return 1;
@@ -560,8 +560,8 @@ int dx_convert_utf8bytes_to_n64(char const* p, dx_size n, dx_n64* target) {
   }
   do {
     //
-    static const dx_n64 BASE = 10;
-    static const dx_n64 MAX1 = DX_N64_GREATEST - 5; // 18446744073709551615	/ 10 = 1844674407370955161.5 = 1844674407370955161.
+    static dx_n64 const BASE = 10;
+    static dx_n64 const MAX1 = DX_N64_GREATEST - 5; // 18446744073709551615	/ 10 = 1844674407370955161.5 = 1844674407370955161.
                                                     // 1844674407370955161 * 10 = 18446744073709551610 is no overflow.
     if (value == MAX1) {
       dx_set_error(DX_CONVERSION_FAILED);
@@ -569,8 +569,8 @@ int dx_convert_utf8bytes_to_n64(char const* p, dx_size n, dx_n64* target) {
     }
     value = value * BASE;
     //
-    static const dx_n64 MAX2 = DX_N64_GREATEST;
-    dx_n64 x = *current - '0';
+    static dx_n64 const MAX2 = DX_N64_GREATEST;
+    dx_n64 x = ((dx_n64)*current) - (dx_n64)'0';
     if (MAX2 - x < value) {
       dx_set_error(DX_CONVERSION_FAILED);
       return 1;

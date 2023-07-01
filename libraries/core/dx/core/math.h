@@ -23,20 +23,20 @@ extern DX_RGB_U8 const dx_colors_amber;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-// Symbolic constant for float representation of PI.
+// Symbolic constant for the dx_f32 representation of PI.
 #define DX_PI_F32 3.1415926f
 
 // @brief Convert an angle in degrees into the corresponding angle in radians.
 // @param a The angle in degrees.
 // @return The corresponding angle in radians.
-static inline float dx_deg_to_rad(float x) {
+static inline dx_f32 dx_deg_to_rad(dx_f32 x) {
   return (x / 180.f) * DX_PI_F32;
 }
 
 // @brief Clamp a value to the range [0,1].
 // @param x The value to be clamped.
 // @return x clamped.
-static inline float dx_clamp(float x) {
+static inline dx_f32 dx_clamp(dx_f32 x) {
   if (x < 0.f) return 0.f;
   else if (x > 1.f) return 1.f;
   else return x;
@@ -45,16 +45,16 @@ static inline float dx_clamp(float x) {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 typedef struct DX_VEC2 {
-  float e[2];
+  dx_f32 e[2];
 } DX_VEC2;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 typedef struct DX_VEC3 {
-  float e[3];
+  dx_f32 e[3];
 } DX_VEC3;
 
-static inline void dx_vec3_set(DX_VEC3* v, float x, float y, float z) {
+static inline void dx_vec3_set(DX_VEC3* v, dx_f32 x, dx_f32 y, dx_f32 z) {
   v->e[0] = x;
   v->e[1] = y;
   v->e[2] = z;
@@ -63,7 +63,7 @@ static inline void dx_vec3_set(DX_VEC3* v, float x, float y, float z) {
 // get the squared length of a vector
 // @param v the vector
 // @return the squared length of the vector
-float dx_vec3_sql(DX_VEC3 const* v);
+dx_f32 dx_vec3_sql(DX_VEC3 const* v);
 
 // Compute a normalized vector.
 // @param v the vector receiving the normalized vector
@@ -109,10 +109,10 @@ void dx_vec3_cross(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v);
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 typedef struct DX_VEC4 {
-  float e[4];
+  dx_f32 e[4];
 } DX_VEC4;
 
-static inline void dx_vec4_set(DX_VEC4* v, float x, float y, float z, float w) {
+static inline void dx_vec4_set(DX_VEC4* v, dx_f32 x, dx_f32 y, dx_f32 z, dx_f32 w) {
   v->e[0] = x;
   v->e[1] = y;
   v->e[2] = z;
@@ -128,7 +128,7 @@ static inline void dx_vec4_set(DX_VEC4* v, float x, float y, float z, float w) {
 /// The object's values represent the addend (aka the 2nd operand).
 /// @remarks @a w, @a u, and @a v all may refer to the same object.
 /// @post <code>*w/<code> was assigned the values of the sum vector.
-void dx_vec4_add4(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v);
+void dx_vec4_add4(DX_VEC4* w, DX_VEC4 const* u, DX_VEC4 const* v);
 
 /// @ingroup math
 /// @brief Compute the difference of two vectors.
@@ -139,9 +139,9 @@ void dx_vec4_add4(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v);
 /// The object's values represent hte vector that is the the subtrahend (aka the 2nd operand).
 /// @remarks @a w, @a u, and @a v all may refer to the same object.
 /// @post <code>*w/<code> was assigned the values of the difference vector.
-void dx_vec4_sub4(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v);
+void dx_vec4_sub4(DX_VEC4* w, DX_VEC4 const* u, DX_VEC4 const* v);
 
-static inline void dx_vec4_lerp(DX_VEC4 const* u, DX_VEC4 const* v, float t, DX_VEC4* w) {
+static inline void dx_vec4_lerp(DX_VEC4 const* u, DX_VEC4 const* v, dx_f32 t, DX_VEC4* w) {
   t = dx_clamp(t);
   if (t == 0.f) {
     *w = *u;
@@ -157,39 +157,39 @@ static inline void dx_vec4_lerp(DX_VEC4 const* u, DX_VEC4 const* v, float t, DX_
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-// A 4x4 single precision floating point matrix POD.
+// A 4x4 dx_f32 matrix POD.
 typedef struct DX_MAT4 {
   // index i,j denotes i-th row and j-th colmn
-  float e[4][4];
+  dx_f32 e[4][4];
 } DX_MAT4;
 
 // assign this matrix the values of an identity matrix
 void dx_mat4_set_identity(DX_MAT4* m);
 
 // assign this matrix the values of a translation matrix
-void dx_mat4_set_translate(DX_MAT4* m, float x, float y, float z);
+void dx_mat4_set_translate(DX_MAT4* m, dx_f32 x, dx_f32 y, dx_f32 z);
 
 // assign this matrix the values of transformation matrix representing
 // a counter-clockwise rotation around the x-axis by the specified number of degrees.
 // @param m A pointer to this matrix.
 // @param a The angle of rotation, in degrees.
-void dx_mat4_set_rotate_x(DX_MAT4* a, float x);
+void dx_mat4_set_rotate_x(DX_MAT4* a, dx_f32 x);
 
 // assign this matrix the values of transformation matrix representing
 // a counter-clockwise rotation around the y-axis by the specified number of degrees.
 // @param m A pointer to this matrix.
 // @param a The angle of rotation, in degrees.
-void dx_mat4_set_rotate_y(DX_MAT4* a, float x);
+void dx_mat4_set_rotate_y(DX_MAT4* a, dx_f32 x);
 
 // assign this matrix the values of an orthographic projection matrix such that
 // - the positive z-axis points out of the screen (negative z-axis points into the screen)
 // - the positive x-axis points to the right
 // - the positive y-axis points to the top
-void dx_mat4_set_ortho(DX_MAT4* m, float left, float right, float bottom, float top, float near, float far);
+void dx_mat4_set_ortho(DX_MAT4* m, dx_f32 left, dx_f32 right, dx_f32 bottom, dx_f32 top, dx_f32 near, dx_f32 far);
 
 // assign this matrix the value of perspective projection matrix such that
 // - the positve
-void dx_mat4_set_perspective(DX_MAT4* m, float field_of_vision, float aspect_ratio, float near, float far);
+void dx_mat4_set_perspective(DX_MAT4* m, dx_f32 field_of_vision, dx_f32 aspect_ratio, dx_f32 near, dx_f32 far);
 
 /// Compute the product of two matrices.
 /// @param c Pointer to a DX_MAT4 object.

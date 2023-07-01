@@ -1,5 +1,8 @@
 ---
 title: "About"
+format:
+  html:
+    sidebar: false
 ---
 
 About this site

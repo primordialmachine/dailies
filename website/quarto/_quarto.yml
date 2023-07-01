@@ -3,8 +3,14 @@ project:
   type: website
   output-dir: .render
 
+format:
+  html:
+    theme: cosmo
+    css: custom-css/style.css
+
 website:
   title: "Primordial Machine"
+  favicon: ./favicon.ico
   navbar:
     left:
       - href: index.qmd
@@ -12,12 +18,23 @@ website:
       - href: "https://develop.primordialmachine.com/forums/"
         target: "_blank"
         text: Forum
-      - href: documentation/ddl-specification/index.qmd
+      - href: documentation/ddl-specification/specification.qmd
         text: "DDL Specification"
-      - href: documentation/adl-specification/index.qmd
+      - href: documentation/adl-specification/specification.qmd
         text: "ADL Specification"
       - about.qmd
-
-format:
-  html:
-    theme: cosmo
+  sidebar:
+    - id: "ddl-adl"
+      text: "DDL and ADL Specification"
+      style: floating
+      align: left
+      contents:
+        - text: DDL Specification
+          href: documentation/ddl-specification/specification.qmd
+        - text: ADL Specification
+          href: documentation/adl-specification/specification.qmd
+        - text: ADL Predefined Elements
+          href: documentation/adl-specification/predefined-elements.qmd
+          contents:
+            - documentation/adl-specification/mesh.qmd  
+            - documentation/adl-specification/meshInstance.qmd

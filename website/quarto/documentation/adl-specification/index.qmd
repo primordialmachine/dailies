@@ -1,7 +1,0 @@
----
-title: "Asset Definition Language"
-subtitle: "Language Specification"
----
-
-# Asset Definition Language Version 1
-This document is the manual for version 1 of the *Asset Definition Language* (*ADL*) which is used to describe audial, haptical, visual aspects of games.

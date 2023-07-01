@@ -106,7 +106,7 @@ void dx_log_p(void const* p) {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-bool dx_almost_equal_f32(float a, float b, int method, float epsilon) {
+bool dx_almost_equal_f32(dx_f32 a, dx_f32 b, int method, dx_f32 epsilon) {
   if (isnan(a) && isnan(b)) {
     return true;
   }

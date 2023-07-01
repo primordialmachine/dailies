@@ -59,8 +59,8 @@ dx_configure_warnings(${name})
 
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${name} dailies.day15_to_day19)
-target_link_libraries(${name} dailies.day15_to_day19.gl)
+target_link_libraries(${name} dailies.engine)
+target_link_libraries(${name} dailies.val.gl)
 
 find_package(Doxygen)
 

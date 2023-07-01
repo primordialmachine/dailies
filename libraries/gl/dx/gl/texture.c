@@ -54,7 +54,7 @@ int dx_gl_texture_construct(dx_gl_texture* self, dx_gl_context* context) {
   }
   context->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   context->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+  dx_f32 borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
   context->glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
   context->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   context->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

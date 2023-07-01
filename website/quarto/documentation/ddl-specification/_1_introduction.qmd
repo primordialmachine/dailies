@@ -1,0 +1,5 @@
+# Introduction
+This document is the manual for version 1 of the *Data Definition Language* (*DDL*)
+which is a data representation language that uses human-readable text to store  and
+transmit data objects consisting of aggregate values (maps and lists) as well    as
+scalar values (boolean, number, string, void).

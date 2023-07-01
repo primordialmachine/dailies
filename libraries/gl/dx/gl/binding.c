@@ -33,36 +33,36 @@ static int dx_gl_binding_construct(dx_gl_binding* self, DX_VERTEX_FORMAT vertex_
   ctx->glBindBuffer(GL_ARRAY_BUFFER, buffer->id);
   switch (self->vertex_format) {
   case DX_VERTEX_FORMAT_POSITION_XYZ: {
-    size_t stride = 3 * sizeof(float);
+    size_t stride = 3 * sizeof(dx_f32);
     size_t offset = 0;
     
     ctx->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)(offset));
     ctx->glEnableVertexAttribArray(0);
-    offset += 3 * sizeof(float);
+    offset += 3 * sizeof(dx_f32);
   } break;
   case DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_RGBA: {
-    size_t stride = 3 * sizeof(float) + 4 * sizeof(float);
+    size_t stride = 3 * sizeof(dx_f32) + 4 * sizeof(dx_f32);
     size_t offset = 0;
     
     ctx->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)(offset));
     ctx->glEnableVertexAttribArray(0);
-    offset += 3 * sizeof(float);
+    offset += 3 * sizeof(dx_f32);
     
     ctx->glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride, (void*)(offset));
     ctx->glEnableVertexAttribArray(1);
-    offset += 4 * sizeof(float);
+    offset += 4 * sizeof(dx_f32);
   } break;
   case DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_UV: {
-    size_t stride = 3 * sizeof(float) + 2 * sizeof(float);
+    size_t stride = 3 * sizeof(dx_f32) + 2 * sizeof(dx_f32);
     size_t offset = 0;
 
     ctx->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)(offset));
     ctx->glEnableVertexAttribArray(0);
-    offset += 3 * sizeof(float);
+    offset += 3 * sizeof(dx_f32);
 
     ctx->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(offset));
     ctx->glEnableVertexAttribArray(1);
-    offset += 2 * sizeof(float);
+    offset += 2 * sizeof(dx_f32);
   } break;
   case DX_VERTEX_FORMAT_AMBIENT_RGBA:
   default: {

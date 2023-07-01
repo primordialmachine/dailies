@@ -1,6 +1,31 @@
 {
   type : 'Scene',
-  meshInstances : [
+  elements : [
+    {
+      type : 'ViewerInstance',
+      viewer : {
+        type : 'Viewer',
+        name : 'my.viewer',
+        source : {
+          type : 'Vector3',
+          x : 0,
+          y : 0,
+          z : 1,
+        },
+        target : {
+          type : 'Vector3',
+          x : 0,
+          y : 0,
+          z : 0,
+        },
+        up : {
+          type : 'Vector3',
+          x : 0,
+          y : 1,
+          z : 0,
+        },
+      },// viewer.Viewer
+    },// ViewerInstance
     {
       type : 'MeshInstance',
       transformation : {
@@ -11,12 +36,12 @@
         type : 'Mesh',
         name : 'my.quadriliteral',
         vertexFormat : ['position xyz', 'ambient rgba'],
+        generator : 'quadriliteral',
         operations : [
           {
             type : 'MeshOperations.SetVertexColors'
           }
         ],
-        generator : 'quadriliteral',
         material : {
           type : 'Material',
           name : 'my.triangle.material',

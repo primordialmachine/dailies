@@ -89,7 +89,7 @@ static inline dx_input_msg* DX_INPUT_MSG(void* p) {
 /// @param type The type of this input message.
 /// Must be one of #DX_INPUT_MSG_KIND_KEYBOARD_KEY, #DX_INPUT_MSG_KIND_MOUSE_BUTTON, or #DX_INPUT_MSG_KIND_MOUSE_POINTER.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 int dx_input_msg_construct(dx_input_msg* self, dx_input_msg_kind kind);
 
 dx_input_msg_kind dx_input_msg_get_kind(dx_input_msg* self);
@@ -118,7 +118,7 @@ static inline dx_keyboard_key_msg* DX_KEYBOARD_KEY_MSG(void* p) {
 /// @param action The action of the key. Must be #DX_KEYBOARD_KEY_ACTION_PRESSED or #DX_KEYBOARD_KEY_ACTION_RELEASED.
 /// @param key The key.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 int dx_keyboard_key_msg_construct(dx_keyboard_key_msg* self, uint8_t action, dx_keyboard_key key, uint8_t modifiers);
 
 uint8_t dx_keyboard_key_msg_get_action(dx_keyboard_key_msg* self);

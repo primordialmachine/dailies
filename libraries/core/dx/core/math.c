@@ -5,9 +5,6 @@
 // sinf, cosf
 #include <math.h>
 
-// FLT_EPSILON
-#include <float.h>
-
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 DX_RGB_U8 const dx_colors_capri = { 0, 191, 255 };
@@ -18,21 +15,21 @@ DX_RGB_U8 const dx_colors_amber = { 255, 192, 0 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-float dx_vec3_sql(DX_VEC3 const* u) {
+dx_f32 dx_vec3_sql(DX_VEC3 const* u) {
   return (u->e[0] * u->e[0])
     + (u->e[1] * u->e[1])
     + (u->e[2] * u->e[2]);
 }
 
 void dx_vec3_norm(DX_VEC3* u, DX_VEC3 const* v) {
-  float sql = dx_vec3_sql(v);
+  dx_f32 sql = dx_vec3_sql(v);
   if (sql == 0.f) {
     u->e[0] = 0.f;
     u->e[1] = 0.f;
     u->e[2] = 0.f;
     return;
   }
-  float l = sqrtf(sql);
+  dx_f32 l = sqrtf(sql);
   u->e[0] = v->e[0] / l;
   u->e[1] = v->e[1] / l;
   u->e[2] = v->e[2] / l;
@@ -51,7 +48,7 @@ void dx_vec3_sub3(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v) {
 }
 
 void dx_vec3_cross(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v) {
-  float t[3];
+  dx_f32 t[3];
   t[0] = u->e[1] * v->e[2] - u->e[2] * v->e[1];
   t[1] = u->e[2] * v->e[0] - u->e[0] * v->e[2];
   t[2] = u->e[0] * v->e[1] - u->e[1] * v->e[0];
@@ -62,14 +59,14 @@ void dx_vec3_cross(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v) {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-void dx_vec4_add4(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v) {
+void dx_vec4_add4(DX_VEC4* w, DX_VEC4 const* u, DX_VEC4 const* v) {
   w->e[0] = u->e[0] + v->e[0];
   w->e[1] = u->e[1] + v->e[1];
   w->e[2] = u->e[2] + v->e[2];
   w->e[3] = u->e[3] + v->e[3];
 }
 
-void dx_vec4_sub4(DX_VEC3* w, DX_VEC3 const* u, DX_VEC3 const* v) {
+void dx_vec4_sub4(DX_VEC4* w, DX_VEC4 const* u, DX_VEC4 const* v) {
   w->e[0] = u->e[0] - v->e[0];
   w->e[1] = u->e[1] - v->e[1];
   w->e[2] = u->e[2] - v->e[2];
@@ -104,7 +101,7 @@ void dx_mat4_set_identity(DX_MAT4* m) {
   m->e[3][3] = 1.f;
 }
 
-void dx_mat4_set_translate(DX_MAT4* m, float x, float y, float z) {
+void dx_mat4_set_translate(DX_MAT4* m, dx_f32 x, dx_f32 y, dx_f32 z) {
   // column #1
   m->e[0][0] = 1.f;
   m->e[1][0] = 0.f;
@@ -130,10 +127,10 @@ void dx_mat4_set_translate(DX_MAT4* m, float x, float y, float z) {
   m->e[3][3] = 1.f;
 }
 
-void dx_mat4_set_rotate_x(DX_MAT4* a, float x) {
+void dx_mat4_set_rotate_x(DX_MAT4* a, dx_f32 x) {
   x = dx_deg_to_rad(x);
-  float c = cosf(x);
-  float s = sinf(x);
+  dx_f32 c = cosf(x);
+  dx_f32 s = sinf(x);
 
   // column #1
   a->e[0][0] = 1.f;
@@ -160,10 +157,10 @@ void dx_mat4_set_rotate_x(DX_MAT4* a, float x) {
   a->e[3][3] = 1.f;
 }
 
-void dx_mat4_set_rotate_y(DX_MAT4* a, float x) {
+void dx_mat4_set_rotate_y(DX_MAT4* a, dx_f32 x) {
   x = dx_deg_to_rad(x);
-  float c = cosf(x);
-  float s = sinf(x);
+  dx_f32 c = cosf(x);
+  dx_f32 s = sinf(x);
 
   // column #1
   a->e[0][0] = c;
@@ -190,14 +187,14 @@ void dx_mat4_set_rotate_y(DX_MAT4* a, float x) {
   a->e[3][3] = 1.f;
 }
 
-void dx_mat4_set_ortho(DX_MAT4* m, float left, float right, float bottom, float top, float near, float far) {
-  float a = right - left;
-  float b = top  - bottom;
-  float c = far - near;
+void dx_mat4_set_ortho(DX_MAT4* m, dx_f32 left, dx_f32 right, dx_f32 bottom, dx_f32 top, dx_f32 near, dx_f32 far) {
+  dx_f32 a = right - left;
+  dx_f32 b = top  - bottom;
+  dx_f32 c = far - near;
   
-  float u = -(right + left) / a;
-  float v = -(top + bottom) / b;
-  float w = -(far + near) / c;
+  dx_f32 u = -(right + left) / a;
+  dx_f32 v = -(top + bottom) / b;
+  dx_f32 w = -(far + near) / c;
   
   // column #1
   m->e[0][0] = 2.f / a;
@@ -224,9 +221,9 @@ void dx_mat4_set_ortho(DX_MAT4* m, float left, float right, float bottom, float 
   m->e[3][3] = 1.f;
 }
 
-void dx_mat4_set_perspective(DX_MAT4* m, float field_of_vision, float aspect_ratio, float near, float far) {
+void dx_mat4_set_perspective(DX_MAT4* m, dx_f32 field_of_vision, dx_f32 aspect_ratio, dx_f32 near, dx_f32 far) {
   field_of_vision = field_of_vision * (DX_PI_F32 / 180.f); // rad(x) = x / 360 * 2 * PI = x * (PI * / 180)
-  float f = 1.f / tanf(field_of_vision / 2.f); // cot(x) = 1 / tan(x)
+  dx_f32 f = 1.f / tanf(field_of_vision / 2.f); // cot(x) = 1 / tan(x)
   
   // column #1
   m->e[0][0] = f / aspect_ratio;
@@ -264,7 +261,7 @@ void dx_mat4_mul3(DX_MAT4* c, DX_MAT4 const* a, DX_MAT4 const* b) {
       }
     }
   } else {
-    float t[4][4];
+    dx_f32 t[4][4];
 
     for (size_t i = 0; i < 4; ++i) {
       for (size_t j = 0; j < 4; ++j) {
@@ -324,7 +321,7 @@ void dx_mat4_set_look_at(DX_MAT4* a, DX_VEC3 const* source, DX_VEC3 const* targe
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 void dx_transform_point(DX_VEC3* u, DX_VEC3 const* v, DX_MAT4 const* m) {
-  float e[3];
+  dx_f32 e[3];
   
   e[0] = m->e[0][0] * v->e[0]
        + m->e[0][1] * v->e[1]

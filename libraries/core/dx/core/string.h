@@ -20,40 +20,40 @@ dx_string* dx_string_printf(dx_string* format, ...);
 /// @param bytes A pointer to an array of @a number_of_bytes Bytes.
 /// @param number_of_bytes The number of Bytes in the array pointed to by @a bytes.
 /// @return A pointer to the string on success. A null pointer on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 dx_string* dx_string_create(char const* p, size_t n);
 
 /// @brief Get a pointer to the Bytes of this string.
 /// @param self A pointer to this string.
 /// @return A pointer to the Bytes of the string on success. A null pointer on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 void const* dx_string_get_bytes(dx_string const* self);
 
 /// @brief Get the number of Bytes of this string.
 /// @param self A pointer to this string.
 /// @return The number of Bytes of this string. This number might be @a 0.
 /// @a 0 is also returned if an error occurred. 
-/// @failure This function has set the error variable.
+/// @default-failure
 size_t dx_string_get_number_of_bytes(dx_string const* self);
 
 /// @brief Get if the string contains an UTF-8 symbol.
 /// @param self A pointer to this string.
 /// @param symbol The UTF-8 symbol.
 /// @return @a true if the string contains the symbol. @a false if the string does not contain the symbol or an error occurred.
-/// @failure This function has set the error variable.
+/// @default-failure
 bool dx_string_contains_symbol(dx_string const* self, uint32_t symbol);
 
 /// @brief Get if this string is equal to another string.
 /// @param self A pointer to this string.
 /// @param other A pointer to the other string.
 /// @return @a true if this string is equal to the other string. @a false otherwise. @a false is also returned on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 bool dx_string_is_equal_to(dx_string const* self, dx_string const* other);
 
 /// @brief Get the hash value of this string.
 /// @param self A pointer to this string.
 /// @return The hash value of this string. This may be @a 0. @a 0 is also returned on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 size_t dx_string_get_hash_value(dx_string const* self);
 
 struct dx_string {

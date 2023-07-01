@@ -11,7 +11,7 @@
 /// @param n The number of Bytes to copy.
 /// @return The zero value on success. A non-zero value on failure.
 /// @warning The objects denoted by <code>(p,n)</code> and <code>(q,n)</code> must not overlap.
-/// @failure This function has set the error variable.
+/// @default-failure
 int dx_memory_copy(void* p, void const* q, dx_size n);
 
 /// @brief Assign the values of an object to another object.
@@ -20,19 +20,19 @@ int dx_memory_copy(void* p, void const* q, dx_size n);
 /// @param n The number of Bytes to copy.
 /// @return The zero value on success. A non-zero value on failure.
 /// @warning The object denoted by <code>(p,n)</code> and <code>(q,n)</code> may overlap.
-/// @failure This function has set the error variable.
+/// @default-failure
 int dx_memory_move(void* p, void const* q, dx_size n);
 
 /// @brief Assign the values of an object block the zero values.
 /// @param p A pointer to the memory block.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 int dx_memory_zero(void* p, dx_size n);
 
 /// @brief Allocate an object.
 /// @param n The size of the object. The size may be @a 0.
 /// @return A pointer to the object on success. The null pointer on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 void* dx_memory_allocate(dx_size n);
 
 /// @brief Reallocate an object.
@@ -44,7 +44,7 @@ void* dx_memory_allocate(dx_size n);
 /// was called). The first <code>min(x,y)</code> Bytes of the new object and the old object
 /// are equal where <code>x</code> is the length of the old object and <code>y</code>
 /// is the length of the new object.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// The old memory block was not modified.
 void* dx_memory_reallocate(void* p, dx_size n);
 

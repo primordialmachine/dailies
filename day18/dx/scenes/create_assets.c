@@ -1,10 +1,7 @@
 #include "dx/scenes/create_assets.h"
 
-#include "dx/asset/palette.h"
 #include "dx/adl/syntactical.h"
 #include "dx/adl/semantical.h"
-// strlen
-#include <string.h>
 
 static dx_adl_parser* _create_parser() {
   dx_adl_diagnostics* diagnostics = dx_adl_diagnostics_create();
@@ -25,7 +22,7 @@ static dx_adl_parser* _create_parser() {
   return parser;
 }
 
-dx_adl_node* _parse(char const* p, size_t n) {
+static dx_adl_node* _parse(char const* p, size_t n) {
   dx_adl_parser* parser = _create_parser();
   if (!parser) {
     return NULL;

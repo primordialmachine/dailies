@@ -1,0 +1,16 @@
+---
+title: "Data Definition Language"
+subtitle: "Language Specification"
+format:
+  html:
+    number-sections: true
+    toc: true
+    toc-location: body
+    sidebar: true
+---
+
+{{< include _1_introduction.qmd >}}
+{{< include _2_grammars.qmd >}}
+{{< include _3_lexical_structure.qmd >}}
+{{< include _4_syntactical_structure.qmd >}}
+{{< include _5_types.qmd >}}

@@ -1,0 +1,12 @@
+---
+title: "Asset Definition Language : Predefined Elements"
+format:
+  html:
+    number-sections: true
+    toc: true
+    toc-location: body
+    sidebar: true
+---
+
+# Asset Definition Language Version 1: Predefined Elements.
+Predefined elements are built-in into the Asset Definition Language.

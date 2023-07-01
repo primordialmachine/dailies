@@ -19,7 +19,7 @@ struct dx_object_array {
 /// @param self A pointer to this dx_object_array object.
 /// @param initial_capacity The initialc capacity.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_ALLOCATION_FAILED @a initial_capacity is too big
 /// - #DX_ALLOCATION_FAILED an allocation failed
@@ -33,7 +33,7 @@ void dx_object_array_uninitialize(dx_object_array* self);
 /// @param self A pointer to this dx_object_array object.
 /// @param additional_capacity The amount to increase the capacity by.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_ALLOCATION_FAILED @a additional_capacity is too big
 /// - #DX_ALLOCATION_FAILED an allocation failed
@@ -49,7 +49,7 @@ dx_object_array_increase_capacity
 /// @param self A pointer to this dx_object_array object.
 /// @param required_free_capacitiy The required free capacity.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_ALLOCATION_FAILED @a required_free_capacity is too big
 /// - #DX_ALLOCATION_FAILED an allocation failed
@@ -64,7 +64,7 @@ dx_object_array_ensure_free_capacity
 /// @param self A pointer to this dx_object_array object.
 /// @param pointer The element.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a pointer is a null pointer
 /// - #DX_ALLOCATION_FAILED an allocation failed
@@ -79,7 +79,7 @@ dx_object_array_append
 /// @param self A pointer to this dx_object_array object.
 /// @param pointer The element.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a pointer is a null pointer
 /// - #DX_ALLOCATION_FAILED an allocation failed
@@ -95,7 +95,7 @@ dx_object_array_prepend
 /// @param pointer The element.
 /// @param index The index.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a pointer is a null pointer
 /// - #DX_INVALID_ARGUMENT @a index is greater than the size of this dx_object_array object
@@ -113,7 +113,7 @@ dx_object_array_insert
 /// @param index The index.
 /// @return The pointer at the specified index on success. This might be the null pointer.
 /// The null pointer is also returned on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 dx_object*
 dx_object_array_get_at
   (
@@ -124,7 +124,7 @@ dx_object_array_get_at
 /// @brief Get the size, in elements.
 /// @param self A pointer to this dx_object_array object.
 /// @return The size on success. The size may be zero. The zero value is also returned on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 dx_size
 dx_object_array_get_size
@@ -135,7 +135,7 @@ dx_object_array_get_size
 /// @brief Get the capacity, in elements.
 /// @param self A pointer to this dx_object_array object.
 /// @return The capacity on success. The capacity may be zero. The zero value is also returned on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 dx_size
 dx_object_array_get_capacity
@@ -146,7 +146,7 @@ dx_object_array_get_capacity
 /// @brief Get the free capacity, in elements.
 /// @param self A pointer to this dx_object_array object.
 /// @return The free capacity on success. The free capacity may be zero. The zero value is also returned on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 dx_size
 dx_object_array_get_free_capacity
@@ -157,7 +157,7 @@ dx_object_array_get_free_capacity
 /// @brief Remove all elements.
 /// @param self A pointer to this dx_object_array object.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 int
 dx_object_array_clear

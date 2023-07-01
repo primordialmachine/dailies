@@ -1,0 +1,9 @@
+---
+title: "mesh"
+format:
+  html:
+    sidebar: false
+---
+
+# `mesh`
+A mesh.

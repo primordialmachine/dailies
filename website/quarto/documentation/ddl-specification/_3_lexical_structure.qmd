@@ -1,0 +1,167 @@
+# Lexical Structure
+
+## word
+The goal symbol `word` is
+```
+word : whitespace | newline
+     | delimiters
+     | boolean | number | string | void
+     | name
+     | comment
+delimiters : left_curly_bracket | right_curly_bracket
+           | left_square_bracket | right_square_bracket
+           | comma
+           | colon
+```
+
+## whitespace
+The word <code>whitespace</code> is
+```
+whitespace : '\t' | ' '
+```
+
+## newline
+The word <code>newline</code> is
+```
+newline : '\\n' | '\\r' | '\\n\\r' | '\\r\\n'
+```
+## comments
+The language supports both single-line comments and multi-line comments.
+A `comment_block` is either a `single_line_comment` or a `multi_line_comment`
+```
+comment : single_line_comment
+        | multi_line_comment
+```
+A `single_line_comment` consists of one or more consecutive `single_line_comment_line` words.
+```
+single_line_comment : single_line_comment_line+
+```
+
+A `single_line_comment_line` starts with with zero or more `whitespace` words followed by double forward slash `//`.
+It extends to the end of the line.
+```
+single_line_comment_line : whitespace* '//' /* any sequence of characters except for newline */ newline?
+```
+
+A `multi_line_comment` is opened by a `/*` and closed by `*/`.
+Inbetween there is the `multi_line_comment_body`.
+```
+multi_line_comment : `/*` multi_line_comment_line* `*/`
+```
+A `multi_line_comment_line` consists of a sequence of any character except for the sub-sequence `*/`. 
+```
+multi_line_comment_block : `/*` multi_line_comment_body `*/`
+multi_line_comment_body : *any sequence of characters except for `*/` */
+```
+
+This implies:
+- `//` has no special meaning either comment.
+- `/*` and `*/` have no special meaning in single-line comments.
+- Multi-line comments do not test.
+ 
+## digit
+The word <code>digit</code> is
+```
+digit : ['0'-'9']
+```
+
+## parentheses
+The words <code>left_parenthesis</code> and <code>right_parenthesis</code>, respectively, are
+```
+left_parenthesis : '('
+right_parenthesis : ')'
+```
+
+## curly brackets
+The words <code>left_curly_bracket</code> and <code>right_curly_bracket</code>, respectively, are
+```
+left_curly_bracket : '{'
+right_curly_bracket : '}'
+```
+ 
+## colon
+The word <code>colon</code> is
+```
+colon : ':'
+```
+ 
+## single quote
+The word <code>single_quote</code> is
+```
+single_quote : '\''
+```
+
+## double quote
+The word <code>double_quote</code> is
+```
+double_quote : '"'
+``` 
+
+## square brackets
+The words <code>left_square_bracket</code> and <code>right_square_bracket</code>, respectively, are
+```
+left_square_bracket : '['
+right_square_bracket : ']'
+```
+
+## alphabetic
+The word <code>alphabetic</code> contains the letters of the alphabet in small case and capital case.
+```
+alphabetic : 'a'|'b'|'c'|'d'|'e'|'f'|'g'|'h'|'i'|'j'|'k'|'l'|'m'|'n'|'o'|'p'|'q'|'r'|'s'|'t'|'u'|'v'|'w'|'x'|'y'|'z'
+           | 'A'|'B'|'C'|'D'|'E'|'F'|'G'|'H'|'I'|'J'|'K'|'L'|'M'|'N'|'O'|'P'|'Q'|'R'|'S'|'T'|'U'|'V'|'W'|'X'|'Y'|'Z'
+```
+
+## alphanumeric
+The word <code>alphanumeric</code> is reserved for future use.
+
+## comma
+The word <code>comma</code> is
+```
+comma : ','
+```
+
+## underscore
+The word <code>underscore</code> is
+```
+underscore : '_'
+```
+
+## name
+The word <code>name</code> is
+```
+name : {underscore}, alphabetic, {alphabetic|digit|underscore}
+```
+
+## number
+The word <code>number</code> is
+```
+number : integer_number
+       | real_number
+integer_number : ['+' | '-'], digit, {digit}
+real_number : [ '+' | '-'], '.', digit, {digit}, [exponent]
+            | [ '+' | '-' ] digit, {digit} ['.', {digit}] [exponent]
+exponent : ('e'|'E'), ['+' | '-'], digit, {digit}
+```
+
+## string
+The word <code>string</code> is
+```
+string : single_quoted_string
+       | double_quoted_string
+
+double_quoted_string : double_quote, {double_quoted_string_character}, double_quote
+single_quoted_string : single_quote, {single_quited_string_character}, single_quote
+
+double_qoted_string_character : /*any character except for newline and double_quote*/
+                              | '\n' | '\r' | '\\' | '\"'
+single_quoted_string_character : /*any character except for newline and single quote*/
+                               | '\n' | '\r' | '\\' | "\'"
+```
+
+## boolean, void
+The words `boolean` and `void`, respectively, are
+```
+boolean : 'true'
+        | 'false'
+void : 'void'
+```

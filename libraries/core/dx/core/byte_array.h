@@ -20,7 +20,7 @@ typedef struct dx_byte_array {
 /// @brief Initialize this dx_byte_array object.
 /// @param self A pointer to this dx_byte_array object.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_ALLOCATION_FAILED an allocation failed
 int dx_byte_array_initialize(dx_byte_array* self);
@@ -33,7 +33,7 @@ void dx_byte_array_uninitialize(dx_byte_array* self);
 /// @param bytes A pointer to a <code>char</code> variable.
 /// @param number_of_bytes A pointer to <code>dx_size</code> variable.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a bytes is a null pointer
 /// - #DX_INVALID_ARGUMENT @a number_of_bytes is a null pointer
@@ -48,7 +48,7 @@ int dx_byte_array_steal(dx_byte_array* self, char **bytes, dx_size *number_of_by
 /// @param self A pointer to this dx_byte_array object.
 /// @param additional The amount to increase the capacity by.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_ALLOCATION_FAILED @a additional_capacity is too big
 /// - #DX_ALLOCATION_FAILED an allocation failed
@@ -59,7 +59,7 @@ int dx_byte_array_increase_capacity(dx_byte_array* self, dx_size additional);
 /// @param self A pointer to this dx_byte_array object.
 /// @param required The required free capacity.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_ALLOCATION_FAILED @a required_free_capacity is too big
 /// - #DX_ALLOCATION_FAILED an allocation failed
@@ -70,7 +70,7 @@ int dx_byte_array_ensure_free_capacity(dx_byte_array* self, dx_size required);
 /// @param bytes A pointer to an array of @a number_of_bytes Bytes.
 /// @param number_of_bytes The number of Bytes in the array pointed to by @a bytes.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a bytes is a null pointer
 /// - #DX_ALLOCATION_FAILED an allocation failed
@@ -82,7 +82,7 @@ int dx_byte_array_prepend(dx_byte_array* self, char const* bytes, dx_size number
 /// @param bytes A pointer to an array of @a number_of_bytes Bytes.
 /// @param number_of_bytes The number of Bytes in the array pointed to by @a bytes.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a bytes is a null pointer
 /// - #DX_ALLOCATION_FAILED an allocation failed
@@ -95,7 +95,7 @@ int dx_byte_array_append(dx_byte_array* self, char const* bytes, dx_size number_
 /// @param bytes A pointer to an array of @a number_of_bytes Bytes.
 /// @param number_of_bytes The number of Bytes in the array pointed to by @a bytes.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a bytes is a null pointer
 /// - #DX_INVALID_ARGUMENT @a index is greater than the size of this dx_byte_array object
@@ -106,7 +106,7 @@ int dx_byte_array_insert(dx_byte_array* self, dx_size index, char const* bytes, 
 /// @brief Get the size, in elements.
 /// @param self A pointer to this dx_byte_array object.
 /// @return The size on success. The size may be zero. The zero value is also returned on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 dx_size dx_byte_array_get_size(dx_byte_array const* self);
 
@@ -119,21 +119,21 @@ void* dx_byte_array_get_bytes(dx_byte_array* self);
 /// @brief Get the capacity, in elements.
 /// @param self A pointer to this dx_byte_array object.
 /// @return The capacity on success. The capacity may be zero. The zero value is also returned on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 dx_size dx_byte_array_get_capacity(dx_byte_array const* self);
 
 /// @brief Get the free capacity, in elements.
 /// @param self A pointer to this dx_byte_array object.
 /// @return The free capacity on success. The free capacity may be zero. The zero value is also returned on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 dx_size dx_byte_array_get_free_capacity(dx_byte_array const* self);
 
 /// @brief Clear this Byte object.
 /// @param self A pointer to this dx_byte_array object.
 /// @return The zero value on success. A non-zero value on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 int dx_byte_array_clear(dx_byte_array* self);
 

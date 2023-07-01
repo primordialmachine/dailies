@@ -42,7 +42,7 @@ dx_bool dx_rti_type_is_object(dx_rti_type* type);
 /// @return A pointer to the dx_rti_type object representing the type on success. The null pointer on failure.
 /// @undefined The runtime type system is not initialized.
 /// @undefined @a p/@a n is not a valid type name.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// In particular, the following error codes are returned:
 /// - #DX_ALLOCATION_FAILED an allocation failed
 /// - #DX_EXISTS a type of the same name already exists
@@ -65,13 +65,12 @@ dx_rti_type* dx_rti_create_fundamental(char const *p, size_t n, void(*on_type_de
     return _##C_NAME##_type; \
   }
 
-
 /// @brief Used to register enumeration types.
 /// @param p, n An UTF-8 string. Must be a valid type name.
 /// @return A pointer to the dx_rti_type object representing the type on success. The null pointer on failure.
 /// @undefined The runtime type system is not initialized.
 /// @undefined @a p/@a n is not a valid type name.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// In particular, the following error codes are returned:
 /// - #DX_ALLOCATION_FAILED an allocation failed
 /// - #DX_EXISTS a type of the same name already exists
@@ -102,7 +101,7 @@ dx_rti_type* dx_rti_create_enumeration(char const* p, size_t n, void(*on_type_de
 /// @return A pointer to the dx_rti_type object representing the type on success. The null pointer on failure.
 /// @undefined The runtime type system is not initialized.
 /// @undefined @a p/@a n is not a valid type name.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// In particular, the following error codes are returned:
 /// - #DX_ALLOCATION_FAILED an allocation failed
 /// - #DX_EXISTS a type of the same name already exists
@@ -132,6 +131,15 @@ dx_rti_type* dx_rti_create_object(char const* p, size_t n, void (*on_type_destro
     } \
     return _##C_NAME##_type; \
   }
+
+/// @brief Get if a type is a lower than or equal to another type.
+/// @param x The first type.
+/// @param y The second type.
+/// @return @a true if the first type is lower than or equal to the second type.
+/// @a false otherwise.
+/// @a false is also returned on failure.
+/// @default-failure
+bool dx_rti_type_is_leq(dx_rti_type* x, dx_rti_type* y);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

@@ -284,6 +284,36 @@ dx_rti_type* dx_rti_create_object(char const* p, size_t n, void (*on_type_destro
   return (dx_rti_type*)type;
 }
 
+static inline bool _dx_rti_type_is_leq(_dx_rti_type* x, _dx_rti_type* y) {
+  if (!x || !y) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return false;
+  }
+  // If the x is an enumeration type or a fundamental type,
+  // then it is lower than or equal to y only if x and y are the same type.
+  if ((_DX_RTI_TYPE_NODE_FLAGS_ENUMERATION == (x->flags & _DX_RTI_TYPE_NODE_FLAGS_ENUMERATION)) ||
+      (_DX_RTI_TYPE_NODE_FLAGS_FUNDAMENTAL == (x->flags & _DX_RTI_TYPE_NODE_FLAGS_FUNDAMENTAL))) {
+    return x == y;
+  }
+  // Otherwise x is an object type.
+  // It can be lower than or equal to y only if y is also an object type.
+  if (0 == (x->flags & _DX_RTI_TYPE_NODE_FLAGS_OBJECT)) {
+    return false;
+  }
+  _dx_rti_type* z = x;
+  do {
+    if (z == y) {
+      return true;
+    }
+    z = _DX_RTI_TYPE(z->object.parent);
+  } while (z != NULL);
+  return false;
+}
+
+bool dx_rti_type_is_leq(dx_rti_type* x, dx_rti_type* y) {
+  return _dx_rti_type_is_leq(_DX_RTI_TYPE(x), _DX_RTI_TYPE(y));
+}
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 static dx_rti_type* g_dx_object_type = NULL;

@@ -1,0 +1,6 @@
+RewriteEngine On
+
+RewriteCond %{REQUEST_URI} !^/files
+RewriteCond %{REQUEST_URI} !^/forums
+RewriteCond %{REQUEST_URI} !index/
+RewriteRule (.*) /index/$1 [L]

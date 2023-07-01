@@ -8,13 +8,13 @@
 /// @ingroup os
 /// @brief Get the page size.
 /// @return The page size on success. @a 0 on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 size_t dx_os_get_page_size();
 
 /// @ingroup os
 /// @brief Get the number of CPU cores.
 /// @return The number of cores on success. @a 0 on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 size_t dx_os_get_number_of_cores();
 
 /// @ingroup os

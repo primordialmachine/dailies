@@ -113,21 +113,21 @@ int dx_pointer_hashmap_remove(dx_pointer_hashmap* self, dx_pointer_hashmap_key k
 /// @brief Get the size, in elements.
 /// @param self A pointer to this hashmap.
 /// @return The size on success. The size may be zero. The zero value is also returned on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 dx_size dx_pointer_hashmap_get_size(dx_pointer_hashmap const* self);
 
 /// @brief Get the capacity, in elements.
 /// @param self A pointer to this hashmap.
 /// @return The capacity on success. The capacity may be zero. The zero value is also returned on failure.
-/// @failure This function has set the error variable.In particular the following error codes are set
+/// @default-failureIn particular the following error codes are set
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 dx_size dx_pointer_hashmap_get_capacity(dx_pointer_hashmap const* self);
 
 /// @brief Get the free capacity, in elements.
 /// @param self A pointer to this hashmap.
 /// @return The free capacity on success. The free capacity may be zero. The zero value is also returned on failure.
-/// @failure This function has set the error variable. In particular the following error codes are set
+/// @default-failure In particular the following error codes are set
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 dx_size dx_pointer_hashmap_get_free_capacity(dx_pointer_hashmap const* self);
 
@@ -173,15 +173,15 @@ void dx_pointer_hashmap_iterator_uninitialize(dx_pointer_hashmap_iterator* self)
 int dx_pointer_hashmap_iterator_next(dx_pointer_hashmap_iterator* self);
 
 /// @return @a true if this pointer hashmap iterator has an entry. @a false if it does not have an entry. @a false is also returned on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 bool dx_pointer_hashmap_iterator_has_entry(dx_pointer_hashmap_iterator* self);
 
 /// @return The key on success. A null pointer is also returned on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 void* dx_pointer_hashmap_iterator_get_value(dx_pointer_hashmap_iterator* self);
 
 /// @return The key on success. A null pointer is also returned on failure.
-/// @failure This function has set the error variable.
+/// @default-failure
 void* dx_pointer_hashmap_iterator_get_key(dx_pointer_hashmap_iterator* self);
 
 int dx_pointer_hashmap_iterator_remove(dx_pointer_hashmap_iterator* self);

@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 
-set(name "dailies.day15_to_day19.gl")
+set(name "dailies.val.gl")
 
 
 set(${name}.inlays "")
@@ -50,7 +50,7 @@ target_include_directories(${name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(${name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${name} "dailies.day15_to_day19")
+target_link_libraries(${name} "dailies.engine")
 
 find_package(Doxygen)
 

@@ -133,7 +133,7 @@ int dx_allocator_statistics_on_block_deallocated(dx_allocator_statistics* statis
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
 	}
-	size_t number_of_kilo_bytes = 0;
+  dx_size number_of_kilo_bytes = 0;
 	while (number_of_bytes > 1000) {
 		number_of_bytes -= 1000;
 		number_of_kilo_bytes += 1;

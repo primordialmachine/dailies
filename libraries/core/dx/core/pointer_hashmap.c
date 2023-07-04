@@ -6,9 +6,9 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static dx_size dx_get_best_array_size(dx_size current, dx_size additional, size_t least, size_t greatest, bool saturate);
+static dx_size dx_get_best_array_size(dx_size current, dx_size additional, dx_size least, dx_size greatest, bool saturate);
 
-static dx_size dx_get_best_array_size(dx_size current, dx_size additional, size_t least, size_t greatest, bool saturate) {
+static dx_size dx_get_best_array_size(dx_size current, dx_size additional, dx_size least, dx_size greatest, bool saturate) {
   dx_error old_error = dx_get_error();
   if (least > greatest) {
     dx_set_error(DX_INVALID_ARGUMENT);
@@ -18,12 +18,12 @@ static dx_size dx_get_best_array_size(dx_size current, dx_size additional, size_
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  size_t new = current;
+  dx_size new = current;
   if (new < least) {
     new = least;
   }
   new = current + additional;
-  size_t new1 = dx_next_power_of_two_sz(new);
+  dx_size new1 = dx_next_power_of_two_sz(new);
   if (dx_get_error()) {
     dx_set_error(old_error);
   }
@@ -165,8 +165,8 @@ struct _dx_impl {
 
 #define _DX_IMPL_GREATEST_CAPACITY (DX_SIZE_GREATEST / sizeof(_dx_impl_bucket))
 
-static _dx_impl_node** _dx_impl_allocate_bucket_array(size_t n) {
-  size_t overflow;
+static _dx_impl_node** _dx_impl_allocate_bucket_array(dx_size n) {
+  dx_size overflow;
   dx_size n_bytes = dx_mul_sz(n, sizeof(_dx_impl_bucket), &overflow);
   if (overflow) {
     dx_set_error(DX_ALLOCATION_FAILED);
@@ -188,18 +188,18 @@ static int _dx_impl_set_capacity(_dx_impl* self, dx_size new_capacity) {
     return 1;
   }
   dx_size old_capacity = self->capacity;
-  _dx_impl_node** old_buckets = self->buckets;
-  _dx_impl_node** new_buckets = _dx_impl_allocate_bucket_array(new_capacity);
+  _dx_impl_bucket* old_buckets = self->buckets;
+  _dx_impl_bucket* new_buckets = _dx_impl_allocate_bucket_array(new_capacity);
   if (!new_buckets) {
     dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
   for (dx_size i = 0; i < old_capacity; ++i) {
-    _dx_impl_node** old_bucket = &self->buckets[i];
+    _dx_impl_bucket* old_bucket = &old_buckets[i];
     while (*old_bucket) {
       _dx_impl_node* node = *old_bucket;
       *old_bucket = node->next;
-      dx_size new_hash_index = node->hash_value % self->capacity;
+      dx_size new_hash_index = node->hash_value % new_capacity;
       node->next = new_buckets[new_hash_index];
       new_buckets[new_hash_index] = node;
     }
@@ -226,7 +226,7 @@ static inline int _dx_impl_initialize(_dx_impl* self, DX_POINTER_HASHMAP_CONFIGU
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  static size_t const INITIAL_CAPACITY = 8;
+  static dx_size const INITIAL_CAPACITY = 8;
   self->buckets = _dx_impl_allocate_bucket_array(INITIAL_CAPACITY);
   if (!self->buckets) {
     return 1;

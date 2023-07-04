@@ -1,0 +1,15 @@
+## Grammar Notation
+Productions are written in `fixed with` fonts.
+
+A production is defined by its left-hand side, followed by a colon `:`, followed by its right-hand side definition.
+The left hand side is the name of the non-terminal defined by the production.
+The right hand side is one of the 
+
+The syntax `[x]` on the right-hand side of a production denotes zero or more occurrences of `x`.
+The syntax `{x}` on the right-hand side of a productino denotes zero or one occurrences of `x`.
+
+A shebang followed by a hexadecimal number denotes the code point of a Unicode character.
+
+In certain cases the right-hand side is replaced by a comment describing the right-hand.
+
+The empty string is denoted by `epsilon`.

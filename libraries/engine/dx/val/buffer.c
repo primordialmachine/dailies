@@ -18,6 +18,6 @@ static void dx_buffer_destruct(dx_buffer* self) {
   self->context = NULL;
 }
 
-int dx_buffer_set_data(dx_buffer* self, void const* p, size_t n) {
+int dx_buffer_set_data(dx_buffer* self, void const* p, dx_size n) {
   return self->set_data(self, p, n);
 }

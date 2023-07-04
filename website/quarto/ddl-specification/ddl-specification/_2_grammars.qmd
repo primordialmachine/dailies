@@ -1,0 +1,23 @@
+# Grammars
+This section describes context-free grammars used in this specification to define the lexical and syntactical structure of a program.
+
+## Context-free Grammars
+A context-free grammar consists of a number of productions.
+Each production has an abstract symbol called a nonterminal as its left-hand side, and a sequence of one or more nonterminal and terminal symbols as its right-hand side.
+For each grammar, the terminal symbols are drawn from a specified alphabet.
+
+Starting from a sentence consisting of a single distinguished nonterminal, called the goal symbol, a given context-free grammar specifies a language, namely,
+the set of possible sequences of terminal symbols that can result from repeatedly replacing any nonterminal in the sequence with a right-hand side of a production for which the nonterminal is the left-hand side. 
+
+## Lexical Grammar
+A lexical grammar for the DDL language has its terminal symbols the characters of the Unicode character set.
+It defines a set of productions, starting from the goal symbol `word`, that describe how sequences of Unicode characters are
+translated into a sequence of words.
+Only UTF-8 sequences of length 1 are support in version 1 of this language.
+
+## Syntactical Grammar
+A syntactical grammar for the DDL language has its terminal symbols the words defined by the lexical grammar.
+It defines a set of productions, starting from the goal symbol `sentence`, that describes how sequences of words
+are translated into a sentence.
+
+{{< include ddl-specification/_2_3_grammar_notation.qmd >}}

@@ -23,7 +23,7 @@ static bool g_quit = false;
 
 static dx_msg_queue *g_msg_queue  = NULL;
 
-static size_t g_scene_index = 0;
+static dx_size g_scene_index = 0;
 
 static dx_scene* g_scenes[2] = { NULL, NULL };
 
@@ -31,7 +31,7 @@ static dx_scene* g_scenes[2] = { NULL, NULL };
 
 static int on_msg(dx_msg* msg);
 
-static int on_render_scene(dx_context* context, dx_f32 delta_seconds, int canvas_width, int canvas_height);
+static int on_render_scene(dx_context* context, dx_f32 delta_seconds, dx_i32 canvas_width, dx_i32 canvas_height);
 
 static int run();
 
@@ -87,7 +87,7 @@ static int on_msg(dx_msg* msg) {
   switch (dx_msg_get_flags(msg)) {
   case DX_MSG_TYPE_EMIT: {
     dx_emit_msg* emit_msg = DX_EMIT_MSG(msg);
-    char const* p; size_t n;
+    char const* p; dx_size n;
     if (dx_emit_msg_get(emit_msg, &p, &n)) {
       return 1;
     }
@@ -162,7 +162,7 @@ static int on_shutdown_scene(dx_context* context) {
   return 0;
 }
 
-static int on_render_scene(dx_context* context, dx_f32 delta_seconds, int canvas_width, int canvas_height) {
+static int on_render_scene(dx_context* context, dx_f32 delta_seconds, dx_i32 canvas_width, dx_i32 canvas_height) {
   if (dx_scene_render(g_scenes[g_scene_index], context, delta_seconds, canvas_width, canvas_height)) {
     return 1;
   }

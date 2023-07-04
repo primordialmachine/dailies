@@ -394,7 +394,7 @@ dx_adl_scanner* dx_adl_scanner_create() {
   return self;
 }
 
-int dx_adl_scanner_set(dx_adl_scanner* self, char const* p, size_t l) {
+int dx_adl_scanner_set(dx_adl_scanner* self, char const* p, dx_size l) {
   self->start = p;
   self->end = p + l;
   self->current = p;
@@ -569,7 +569,7 @@ static void on_added(dx_object** a);
 
 static void on_removed(dx_object** a);
 
-static size_t on_hash_key(dx_object** a);
+static dx_size on_hash_key(dx_object** a);
 
 static bool on_compare_keys(dx_object** a, dx_object** b);
 
@@ -583,7 +583,7 @@ static void on_removed(dx_object** a) {
   DX_UNREFERENCE(*a);
 }
 
-static size_t on_hash_key(dx_object** a) {
+static dx_size on_hash_key(dx_object** a) {
   return dx_string_get_hash_value(DX_STRING(*a));
 }
 
@@ -613,7 +613,7 @@ int dx_adl_node_construct(dx_adl_node* self, dx_adl_node_kind kind) {
     case dx_adl_node_kind_map: {
       static DX_POINTER_HASHMAP_CONFIGURATION const configuration = {
         .compare_keys_callback = (bool(*)(void**,void**)) &on_compare_keys,
-        .hash_key_callback = (size_t(*)(void**)) & on_hash_key,
+        .hash_key_callback = (dx_size(*)(void**)) & on_hash_key,
         .key_added_callback = (void(*)(void**)) &on_added,
         .key_removed_callback = (void(*)(void**)) &on_removed,
         .value_added_callback = (void(*)(void**)) &on_added,
@@ -1163,7 +1163,7 @@ dx_adl_parser* dx_adl_parser_create(dx_adl_scanner* scanner, dx_adl_diagnostics*
   return self;
 }
 
-int dx_adl_parser_set(dx_adl_parser* self, char const* p, size_t l) {
+int dx_adl_parser_set(dx_adl_parser* self, char const* p, dx_size l) {
   return dx_adl_scanner_set(self->scanner, p, l);
 }
 

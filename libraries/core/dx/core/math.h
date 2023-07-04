@@ -1,3 +1,6 @@
+/// @file dx/core/math.h
+/// @copyright Copyright (c) 2022-2023 Michael Heilmann. All rights reserved.
+/// @author Michael Heilmann (michaelheilmann@primordialmachine.com)
 #if !defined(DX_MATH_H_INCLUDED)
 #define DX_MATH_H_INCLUDED
 
@@ -181,15 +184,39 @@ void dx_mat4_set_rotate_x(DX_MAT4* a, dx_f32 x);
 // @param a The angle of rotation, in degrees.
 void dx_mat4_set_rotate_y(DX_MAT4* a, dx_f32 x);
 
-// assign this matrix the values of an orthographic projection matrix such that
+/// Assign a DX_MAT4 object the values of an orthographic projection matrix such that
+/// - the positive z-axis points out of the screen (negative z-axis points into the screen)
+/// - the positive x-axis points to the right
+/// - the positive y-axis points to the top
+void dx_mat4_set_ortho(DX_MAT4* m, dx_f32 left, dx_f32 right, dx_f32 bottom, dx_f32 top, dx_f32 near, dx_f32 far);
+
+/// @brief Assignt a DX_MAT4 object the values of a perspective project matrix such that
 // - the positive z-axis points out of the screen (negative z-axis points into the screen)
 // - the positive x-axis points to the right
 // - the positive y-axis points to the top
-void dx_mat4_set_ortho(DX_MAT4* m, dx_f32 left, dx_f32 right, dx_f32 bottom, dx_f32 top, dx_f32 near, dx_f32 far);
-
-// assign this matrix the value of perspective projection matrix such that
-// - the positve
-void dx_mat4_set_perspective(DX_MAT4* m, dx_f32 field_of_vision, dx_f32 aspect_ratio, dx_f32 near, dx_f32 far);
+/// @param field_of_view_y
+/// The field of vision angle, in degrees, along the y-axis.
+/// In other terms: The angle, in degrees, in between a plane passing through the camera position as well as the top of your screen and another plane passing through the camera position and the bottom of your screen. 
+/// The bigger this angle is, the more you can see of the world - but at the same time, the objects you can see will become smaller.
+/// @param aspect_ratio The aspect ratio, that is, the ratio of the width to the height.
+/// An aspect ratio of x means that the width is x times the height.
+/// @param near The distance of the near clipping plane.
+/// @param far The distance of the far clipping plane.
+/// @remarks
+/// This function creates the following matrix
+/// \f[
+/// \begin{matrix}
+/// \frac{f}{aspectRatio} & 0 &                          0 &                                       0 \\
+/// 0                     & f &                          0 &                                       0 \\
+/// 0                     & 0 &  \frac{far+near}{near-far} & \frac{2 \cdot far \cdot near}{near-far} \\
+/// 0                     & 0 &                         -1 &                                       0 \\
+/// \end{matrix}
+/// \f]
+/// where
+/// \f[
+/// f = \cot\left(\frac{fieldOfVision}{2}\right)
+/// \f]
+void dx_mat4_set_perspective(DX_MAT4* m, dx_f32 field_of_view_y, dx_f32 aspect_ratio, dx_f32 near, dx_f32 far);
 
 /// Compute the product of two matrices.
 /// @param c Pointer to a DX_MAT4 object.

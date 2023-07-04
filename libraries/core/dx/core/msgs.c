@@ -100,7 +100,7 @@ dx_emit_msg* dx_emit_msg_create(char const* p, dx_size n) {
   return self;
 }
 
-int dx_emit_msg_get(dx_emit_msg* self, char const** p, size_t* n) {
+int dx_emit_msg_get(dx_emit_msg* self, char const** p, dx_size* n) {
   *p = self->p;
   *n = self->n;
   return 0;

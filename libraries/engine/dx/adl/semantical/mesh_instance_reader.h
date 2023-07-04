@@ -3,7 +3,7 @@
 
 #include "dx/adl/semantical/state.h"
 
-DX_DECLARE_OBJECT_TYPE("dx.adl.semantical_mesh_instance_reader",
+DX_DECLARE_OBJECT_TYPE("dx.adl.semantical.mesh_instance_reader",
                        dx_adl_semantical_mesh_instance_reader,
                        dx_adl_semantical_reader)
 

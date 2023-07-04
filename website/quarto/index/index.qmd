@@ -1,0 +1,13 @@
+---
+title: "Primordial Machine"
+format:
+  html:
+    sidebar: false
+---
+
+This is the starting page of Primordial Machine's development section.
+Visit our forums, our GithHub repository.
+On this site, you also find the documentation of our standard tools and download links to prebuilt programs.
+
+As the source code of this site includes documentation that is specifically published via this site,
+the source code of this site is included in the GitHub repository.

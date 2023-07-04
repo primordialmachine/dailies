@@ -1,0 +1,17 @@
+---
+title: "Primordial Machine - Mathematical Foundations"
+subtitle: "Specification"
+format:
+  html:
+    toc: true
+    toc-title: Contents
+    toc-location: left
+    sidebar: false
+---
+
+This is the supplementary *Mathematical Foundations*. (short: *DDL*).
+
+As the source code of this site includes documentation that is specifically published via this site,
+the source code of this site is included in the GitHub repository.
+
+{{< include mathematical-foundations/trigonometric-functions.qmd >}}

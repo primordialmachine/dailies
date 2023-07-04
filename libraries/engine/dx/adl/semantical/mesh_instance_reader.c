@@ -10,11 +10,12 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
   DX_DEBUG_ASSERT(NULL != name);
   return name;
 }
+
 #define NAME(name) _get_name(state->names, dx_semantical_name_index_##name)
 
 static dx_object* read(dx_adl_semantical_mesh_instance_reader*, dx_adl_node* node, dx_adl_semantical_state*);
 
-DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_mesh_instance_reader",
+DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.mesh_instance_reader",
                       dx_adl_semantical_mesh_instance_reader,
                       dx_adl_semantical_reader)
 

@@ -1,0 +1,45 @@
+project:
+  title: "Primordial Machine :: Data Definition Language Specification"
+  type: website
+  output-dir: ./../.upload/ddl-specification
+
+format:
+  html:
+    theme: cosmo
+    css: custom-css/style.css
+
+website:
+  title: "Primordial Machine :: Data Definition Language Specification"
+  favicon: ./favicon.ico
+  navbar:
+    search: true
+    left:
+      - text: "Home"
+        href: "https://develop.primordialmachine.com/"
+      - text: "Forum"
+        href: "https://develop.primordialmachine.com/forums/"
+        target: "_blank"
+      - href: "https//github.com/primordialmachine/primordialmachine"
+        target: "_blank"
+        text: GitHub
+      - sidebar:publications
+      - about.qmd
+ 
+  sidebar:
+    - id: "publications"
+      title: "Publications"
+      style: "docked"
+      contents:
+      - href: https://develop.primordialmachine.com/ddl-specification
+        text: "DDL Specification"
+      - href: https://develop.primordialmachine.com/adl-specification
+        text: "ADL Specification"
+      - href: https://develop.primordialmachine.com/mathematical-foundations
+        text: "Mathematical Foundations"
+    #
+    - title: "DDL Specification"
+      style: floating
+      align: left
+      contents:
+        - text: DDL Specification
+          href: index.qmd

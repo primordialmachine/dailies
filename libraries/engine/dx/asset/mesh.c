@@ -175,7 +175,7 @@ dx_asset_mesh* dx_asset_mesh_create(dx_string* name, dx_string* specifier, DX_VE
   return self;
 }
 
-int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, void** bytes, size_t* number_of_bytes) {
+int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, void** bytes, dx_size* number_of_bytes) {
   switch (vertex_format) {
   case DX_VERTEX_FORMAT_POSITION_XYZ: {
     void* p = dx_memory_allocate(self->number_of_vertices * sizeof(DX_VEC3));
@@ -183,7 +183,7 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
       return 1;
     }
     char* q = (char*)p;
-    for (size_t i = 0, n = self->number_of_vertices; i < n; ++i) {
+    for (dx_size i = 0, n = self->number_of_vertices; i < n; ++i) {
       *((DX_VEC3*)q) = self->vertices.xyz[i];
       q += sizeof(DX_VEC3);
     }
@@ -197,7 +197,7 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
       return 1;
     }
     char* q = (char*)p;
-    for (size_t i = 0, n = self->number_of_vertices; i < n; ++i) {
+    for (dx_size i = 0, n = self->number_of_vertices; i < n; ++i) {
       *((DX_VEC4*)q) = self->vertices.ambient_rgba[i];
       q += sizeof(DX_VEC4);
     }
@@ -211,7 +211,7 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
       return 1;
     }
     char* q = (char*)p;
-    for (size_t i = 0, n = self->number_of_vertices; i < n; ++i) {
+    for (dx_size i = 0, n = self->number_of_vertices; i < n; ++i) {
       *((DX_VEC3*)q) = self->vertices.xyz[i];
       q += sizeof(DX_VEC3);
       *((DX_VEC4*)q) = self->vertices.ambient_rgba[i];
@@ -227,7 +227,7 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
       return 1;
     }
     char* q = (char*)p;
-    for (size_t i = 0, n = self->number_of_vertices; i < n; ++i) {
+    for (dx_size i = 0, n = self->number_of_vertices; i < n; ++i) {
       *((DX_VEC3*)q) = self->vertices.xyz[i];
       q += sizeof(DX_VEC3);
       *((DX_VEC2*)q) = self->vertices.ambient_uv[i];
@@ -244,7 +244,7 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
   return 0;
 }
 
-int dx_asset_mesh_transform_range(dx_asset_mesh* self, DX_MAT4 const* a, size_t i, size_t n) {
+int dx_asset_mesh_transform_range(dx_asset_mesh* self, DX_MAT4 const* a, dx_size i, dx_size n) {
   if (!self || !a) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -253,7 +253,7 @@ int dx_asset_mesh_transform_range(dx_asset_mesh* self, DX_MAT4 const* a, size_t 
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  for (size_t j = i, m = i + n; j < m; ++j) {
+  for (dx_size j = i, m = i + n; j < m; ++j) {
     dx_transform_point(&self->vertices.xyz[j], &self->vertices.xyz[j], a);
   }
   return 0;
@@ -280,7 +280,7 @@ int dx_asset_mesh_append_quadriliteral(dx_asset_mesh* self) {
   t[3] = (DX_VEC2){ 0.f, 1.f };
   c[3] = (DX_VEC4){ 1.f, 1.f, 1.f, 1.f };
 
-  size_t i = self->number_of_vertices;
+  dx_size i = self->number_of_vertices;
   if (resize_vertex_arrays(self, false, i + 6)) {
     return 1;
   }
@@ -333,7 +333,7 @@ int dx_asset_mesh_append_vertex(dx_asset_mesh* self,
                                 DX_VEC4 const* ambient_rgba,
                                 DX_VEC2 const* ambient_uv)
 {
-  size_t i = self->number_of_vertices;
+  dx_size i = self->number_of_vertices;
   if (resize_vertex_arrays(self, false, i + 1)) {
     return 1;
   }
@@ -351,7 +351,7 @@ void dx_asset_mesh_set_mesh_ambient_rgba(dx_asset_mesh* self, DX_VEC4 const* val
   self->mesh.ambient_rgba = *value;
 }
 
-int dx_asset_mesh_append_range(dx_asset_mesh* self, size_t i, size_t n) {
+int dx_asset_mesh_append_range(dx_asset_mesh* self, dx_size i, dx_size n) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -360,11 +360,11 @@ int dx_asset_mesh_append_range(dx_asset_mesh* self, size_t i, size_t n) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  size_t j = self->number_of_vertices;
+  dx_size j = self->number_of_vertices;
   if (resize_vertex_arrays(self, false, j + n)) {
     return 1;
   }
-  for (size_t k = 0; k < n; ++k) {
+  for (dx_size k = 0; k < n; ++k) {
     self->vertices.xyz[j + k] = self->vertices.xyz[i + k];
     self->vertices.ambient_rgba[j + k] = self->vertices.ambient_rgba[i + k];
     self->vertices.ambient_uv[j + k] = self->vertices.ambient_uv[i + k];

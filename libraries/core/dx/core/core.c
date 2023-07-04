@@ -55,7 +55,7 @@ dx_reference_counter dx_reference_counter_decrement(dx_reference_counter* refere
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-void dx_log(char const *p, size_t n) {
+void dx_log(char const *p, dx_size n) {
   if (!p || !n) {
     return;
   } else {
@@ -173,7 +173,7 @@ dx_size dx_hash_f32(dx_f32 x) {
       return x > 0.0f ? -1 : -2;
     }
     case FP_NAN: {
-      return (size_t)-3;
+      return (dx_size)-3;
     }
     case FP_ZERO: {
       return 0;
@@ -194,7 +194,7 @@ dx_size dx_hash_f64(dx_f64 x) {
       return x > 0.0 ? -1 : -2;
     }
     case FP_NAN: {
-      return (size_t)-3;
+      return (dx_size)-3;
     }
     case FP_ZERO: {
       return 0;

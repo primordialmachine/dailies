@@ -221,9 +221,9 @@ void dx_mat4_set_ortho(DX_MAT4* m, dx_f32 left, dx_f32 right, dx_f32 bottom, dx_
   m->e[3][3] = 1.f;
 }
 
-void dx_mat4_set_perspective(DX_MAT4* m, dx_f32 field_of_vision, dx_f32 aspect_ratio, dx_f32 near, dx_f32 far) {
-  field_of_vision = field_of_vision * (DX_PI_F32 / 180.f); // rad(x) = x / 360 * 2 * PI = x * (PI * / 180)
-  dx_f32 f = 1.f / tanf(field_of_vision / 2.f); // cot(x) = 1 / tan(x)
+void dx_mat4_set_perspective(DX_MAT4* m, dx_f32 field_of_view_y, dx_f32 aspect_ratio, dx_f32 near, dx_f32 far) {
+  field_of_view_y = field_of_view_y * (DX_PI_F32 / 180.f); // rad(x) = x / 360 * 2 * PI = x * (PI * / 180)
+  dx_f32 f = 1.f / tanf(field_of_view_y / 2.f); // cot(x) = 1 / tan(x)
   
   // column #1
   m->e[0][0] = f / aspect_ratio;
@@ -246,16 +246,16 @@ void dx_mat4_set_perspective(DX_MAT4* m, dx_f32 field_of_vision, dx_f32 aspect_r
   // column #4
   m->e[0][3] = 0.f;
   m->e[1][3] = 0.f;
-  m->e[2][3] = (2.f * far * near) / (near - far);
+  m->e[2][3] = (2.f * far * near) / (near - far); // - (2 far near) / (far - near)
   m->e[3][3] = 0.f;
 }
 
 void dx_mat4_mul3(DX_MAT4* c, DX_MAT4 const* a, DX_MAT4 const* b) {
   if (c!= a && c != b) {
-    for (size_t i = 0; i < 4; ++i) {
-      for (size_t j = 0; j < 4; ++j) {
+    for (dx_size i = 0; i < 4; ++i) {
+      for (dx_size j = 0; j < 4; ++j) {
         c->e[i][j] = 0.f;
-        for (size_t k = 0; k < 4; ++k) {
+        for (dx_size k = 0; k < 4; ++k) {
           c->e[i][j] += a->e[i][k] * b->e[k][j];
         }
       }
@@ -263,16 +263,16 @@ void dx_mat4_mul3(DX_MAT4* c, DX_MAT4 const* a, DX_MAT4 const* b) {
   } else {
     dx_f32 t[4][4];
 
-    for (size_t i = 0; i < 4; ++i) {
-      for (size_t j = 0; j < 4; ++j) {
+    for (dx_size i = 0; i < 4; ++i) {
+      for (dx_size j = 0; j < 4; ++j) {
         t[i][j] = 0.f;
-        for (size_t k = 0; k < 4; ++k) {
+        for (dx_size k = 0; k < 4; ++k) {
           t[i][j] += a->e[i][k] * b->e[k][j];
         }
       }
     }
-    for (size_t i = 0; i < 4; ++i) {
-      for (size_t j = 0; j < 4; ++j) {
+    for (dx_size i = 0; i < 4; ++i) {
+      for (dx_size j = 0; j < 4; ++j) {
         c->e[i][j] = t[i][j];
       }
     }

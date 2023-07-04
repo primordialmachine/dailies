@@ -79,7 +79,7 @@ dx_string* dx_string_printf(dx_string* format, ...) {
   return string;
 }
 
-int dx_string_construct(dx_string* self, char const* bytes, size_t number_of_bytes) {
+int dx_string_construct(dx_string* self, char const* bytes, dx_size number_of_bytes) {
   if (!self || !bytes) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -89,7 +89,7 @@ int dx_string_construct(dx_string* self, char const* bytes, size_t number_of_byt
   return 0;
 }
 
-dx_string* dx_string_create(char const *bytes, size_t number_of_bytes) {
+dx_string* dx_string_create(char const *bytes, dx_size number_of_bytes) {
   if (SIZE_MAX - sizeof(dx_string) < number_of_bytes) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return NULL;
@@ -110,7 +110,7 @@ void const* dx_string_get_bytes(dx_string const* self) {
   return self->bytes;
 }
 
-size_t dx_string_get_number_of_bytes(dx_string const* self) {
+dx_size dx_string_get_number_of_bytes(dx_string const* self) {
   return self->number_of_bytes;
 }
 
@@ -125,7 +125,7 @@ size_t dx_string_get_number_of_bytes(dx_string const* self) {
 /// The zero value on failure.
 /// The function fails if there is an encoding error.
 /// @failure This function has set the error variable to #DX_DECODING_FAILED.
-static size_t classify(uint8_t x) {
+static dx_size classify(uint8_t x) {
   if ((x & 0x80) == 0x00) {
     // To determine if the first Byte is in the range 0xxx xxxx,
     // mask the Byte with 1000 0000 / 0x80. If the result is 0,
@@ -162,11 +162,11 @@ typedef struct y_utf8_it {
   bool error;
 } y_utf8_it;
 
-int y_utf8_decode(y_utf8_it* it, size_t* n, uint32_t* p) {
+int y_utf8_decode(y_utf8_it* it, dx_size* n, uint32_t* p) {
   if (it->error || it->current == it->end) {
     return 1;
   }
-  size_t l = classify(*it->current);
+  dx_size l = classify(*it->current);
   if (!l) {
     it->error = true;
     return 1;
@@ -205,7 +205,7 @@ bool dx_string_contains_symbol(dx_string const* self, uint32_t symbol) {
                    .end = (uint8_t*)self->bytes + self->number_of_bytes,
                    .error = false };
   uint32_t p;
-  size_t n;
+  dx_size n;
   while (!y_utf8_decode(&it, &n, &p)) {
     if (p == symbol) {
       return true;
@@ -225,7 +225,7 @@ bool dx_string_is_equal_to(dx_string const* self, dx_string const* other) {
   return !memcmp(self->bytes, other->bytes, self->number_of_bytes);
 }
 
-size_t dx_string_get_hash_value(dx_string const* self) {
+dx_size dx_string_get_hash_value(dx_string const* self) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 0;
@@ -235,7 +235,7 @@ size_t dx_string_get_hash_value(dx_string const* self) {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-int dx_str_to_i64(char const* p, size_t l, int64_t* v) {
+int dx_str_to_i64(char const* p, dx_size l, int64_t* v) {
   if (!p || !v) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -262,7 +262,7 @@ int dx_str_to_i64(char const* p, size_t l, int64_t* v) {
   return 0;
 }
 
-int dx_str_to_u64(char const* p, size_t l, uint64_t* v) {
+int dx_str_to_u64(char const* p, dx_size l, uint64_t* v) {
   if (!p || !v) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;

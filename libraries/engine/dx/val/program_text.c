@@ -22,7 +22,7 @@ int dx_program_text_construct_from_file(dx_program_text* program_text, dx_progra
     return 1;
   }
 
-  char* bytes; size_t number_of_bytes;
+  char* bytes; dx_size number_of_bytes;
   if (dx_get_file_contents(path1->bytes, &bytes, &number_of_bytes)) {
     DX_UNREFERENCE(path1);
     path1 = NULL;

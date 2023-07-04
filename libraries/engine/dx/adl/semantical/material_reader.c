@@ -19,9 +19,9 @@ static dx_asset_texture* _read_texture(dx_adl_node* node, dx_adl_semantical_stat
 
 static dx_asset_material* _read_material(dx_adl_node* node, dx_adl_semantical_state* state);
 
-static dx_object* read(dx_adl_semantical_material_reader* self, dx_adl_node* node, dx_adl_semantical_state*);
+static dx_object* read(dx_adl_semantical_material_reader* self, dx_adl_node* node, dx_adl_semantical_state* state);
 
-DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_material_reader",
+DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.material_reader",
                       dx_adl_semantical_material_reader,
                       dx_adl_semantical_reader)
 

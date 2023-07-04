@@ -122,7 +122,7 @@ static dx_pointer_hashmap* g_types;
 int dx_rti_initialize() {
   static DX_POINTER_HASHMAP_CONFIGURATION const configuration = {
    .compare_keys_callback = (bool(*)(dx_pointer_hashmap_key*,dx_pointer_hashmap_key*)) & _dx_rti_type_name_compare_keys_callback,
-   .hash_key_callback = (size_t(*)(dx_pointer_hashmap_key*)) &_dx_rti_type_name_hash_key_callback,
+   .hash_key_callback = (dx_size(*)(dx_pointer_hashmap_key*)) &_dx_rti_type_name_hash_key_callback,
    .key_added_callback = (void(*)(dx_pointer_hashmap_key*)) &_dx_rti_type_name_reference_callback,
    .key_removed_callback = (void(*)(dx_pointer_hashmap_key*)) &_dx_rti_type_name_unreference_callback,
    .value_added_callback = (void(*)(dx_pointer_hashmap_value*)) &_dx_rti_type_reference_callback,
@@ -158,7 +158,7 @@ dx_bool dx_rti_type_is_object(dx_rti_type* type) {
   return _DX_RTI_TYPE_NODE_FLAGS_OBJECT == (_DX_RTI_TYPE(type)->flags & _DX_RTI_TYPE_NODE_FLAGS_OBJECT);
 }
 
-dx_rti_type* dx_rti_create_fundamental(char const* p, size_t n, void (*on_type_destroyed)(), dx_size value_size) {
+dx_rti_type* dx_rti_create_fundamental(char const* p, dx_size n, void (*on_type_destroyed)(), dx_size value_size) {
   _dx_rti_type_name* name = _dx_rti_type_name_create(p, n);
   if (!name) {
     return NULL;
@@ -197,7 +197,7 @@ dx_rti_type* dx_rti_create_fundamental(char const* p, size_t n, void (*on_type_d
   return NULL;
 }
 
-dx_rti_type* dx_rti_create_enumeration(char const* p, size_t n, void (*on_type_destroyed)()) {
+dx_rti_type* dx_rti_create_enumeration(char const* p, dx_size n, void (*on_type_destroyed)()) {
   _dx_rti_type_name* name = _dx_rti_type_name_create(p, n);
   if (!name) {
     return NULL;
@@ -235,7 +235,7 @@ dx_rti_type* dx_rti_create_enumeration(char const* p, size_t n, void (*on_type_d
   return NULL;
 }
 
-dx_rti_type* dx_rti_create_object(char const* p, size_t n, void (*on_type_destroyed)(), dx_size value_size, dx_rti_type* parent, void (*destruct)(void*)) {
+dx_rti_type* dx_rti_create_object(char const* p, dx_size n, void (*on_type_destroyed)(), dx_size value_size, dx_rti_type* parent, void (*destruct)(void*)) {
   _dx_rti_type_name* name = _dx_rti_type_name_create(p, n);
   if (!name) {
     return NULL;

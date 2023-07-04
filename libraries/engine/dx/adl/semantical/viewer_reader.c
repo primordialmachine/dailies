@@ -1,9 +1,10 @@
 #include "dx/adl/semantical/viewer_reader.h"
 
+#include "dx/asset/optics.h"
 #include "dx/asset/viewer.h"
 #include "dx/adl/semantical/read.h"
 
-static inline dx_string* _get_name(dx_adl_semantical_names* names, size_t index) {
+static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index) {
   DX_DEBUG_ASSERT(NULL != names);
   DX_DEBUG_ASSERT(index < DX_SEMANTICAL_NAMES_NUMBER_OF_NAMES);
   dx_string* name = names->names[index];
@@ -19,9 +20,31 @@ static dx_object* read(dx_adl_semantical_viewer_reader*,
                        dx_adl_node* node,
                        dx_adl_semantical_state*);
 
-DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_viewer_reader",
+DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.viewer_reader",
                       dx_adl_semantical_viewer_reader,
                       dx_adl_semantical_reader)
+
+static dx_asset_optics* _read_optics(dx_adl_node* node, dx_adl_semantical_state* state) {
+  dx_string* received_type = dx_adl_semantical_read_type(node, state);
+  if (!received_type) {
+    return NULL;
+  }
+  if (dx_string_is_equal_to(received_type, NAME(optics_orthographic_type)) ||
+      dx_string_is_equal_to(received_type, NAME(optics_perspective_type))) {
+    dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&state->readers, received_type);
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
+    if (!reader) {
+      return NULL;
+    }
+    return DX_ASSET_OPTICS(dx_adl_semantical_reader_read(reader, node, state));
+  } else {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
+    dx_set_error(DX_SEMANTICAL_ERROR);
+    return NULL;
+  }
+}
 
 static dx_object* read(dx_adl_semantical_viewer_reader* self, dx_adl_node* node, dx_adl_semantical_state* state) {
   dx_asset_viewer* viewer_value = NULL;
@@ -100,6 +123,29 @@ static dx_object* read(dx_adl_semantical_viewer_reader* self, dx_adl_node* node,
       viewer_value->up = *value;
       dx_memory_deallocate(value);
       value = NULL;
+    }
+  }
+  // optics
+  {
+    dx_adl_node* child_node = dx_adl_node_map_get(node, NAME(optics_key));
+    if (child_node) {
+      dx_asset_optics* optics = _read_optics(child_node, state);
+      if (!optics) {
+        DX_UNREFERENCE(viewer_value);
+        viewer_value = NULL;
+        return NULL;
+      }
+      if (viewer_value->optics) {
+        DX_UNREFERENCE(viewer_value->optics);
+        viewer_value->optics = NULL;
+      }
+      viewer_value->optics = optics;
+    } else {
+      if (dx_get_error() != DX_NOT_FOUND) {
+        DX_UNREFERENCE(viewer_value);
+        viewer_value = NULL;
+        return NULL;
+      }
     }
   }
   return DX_OBJECT(viewer_value);

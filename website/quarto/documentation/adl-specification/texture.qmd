@@ -1,9 +1,0 @@
----
-title: "texture"
-format:
-  html:
-    sidebar: false
----
-
-# `texture`
-A texture.

@@ -70,10 +70,10 @@ uint32_t dx_add_u32(uint32_t a, uint32_t b, uint32_t* c);
 uint64_t dx_add_u64(uint64_t a, uint64_t b, uint64_t* c);
 
 /// @ingroup core
-/// Compute the sum of two <code>size_t</code> values and return the low and the high word of the result separatly.
+/// Compute the sum of two <code>dx_size</code> values and return the low and the high word of the result separatly.
 /// @param a The augend/first summand.
 /// @param b The addend/second summand.
-/// @param [out] c A pointer to a <code>size_t</variable>.
+/// @param [out] c A pointer to a <code>dx_size</variable>.
 /// @return
 /// The low word of the sum.
 /// @success
@@ -82,8 +82,8 @@ uint64_t dx_add_u64(uint64_t a, uint64_t b, uint64_t* c);
 /// @failure
 /// This function cannot fail.
 /// @warning
-/// If <code>c</code> does not point to a <code>size_t</code> variable, the behavior of this function is undefined.
-size_t dx_add_sz(size_t a, size_t b, size_t* c);
+/// If <code>c</code> does not point to a <code>dx_size</code> variable, the behavior of this function is undefined.
+dx_size dx_add_sz(dx_size a, dx_size b, dx_size* c);
 
 #if defined(DX_SAFE_ADD_NX_WITH_TESTS) && 1 == DX_SAFE_ADD_NX_WITH_TESTS
 

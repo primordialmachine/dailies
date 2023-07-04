@@ -1,7 +1,7 @@
 #include "dx/asset/mesh/generators.h"
 
 int dx_asset_mesh_on_triangle(dx_asset_mesh* mesh) {
-  static size_t const number_of_vertices = 3;
+  static dx_size const number_of_vertices = 3;
   static DX_VEC3 const xyz[] = {
     { -0.5f, -0.5f, 0.f, },
     { +0.5f, -0.5f, 0.f, },
@@ -18,7 +18,7 @@ int dx_asset_mesh_on_triangle(dx_asset_mesh* mesh) {
     { 1.f, 0.f, },
     { 0.f, 1.f, },
   };
-  for (size_t i = 0, n = number_of_vertices; i < n; ++i) {
+  for (dx_size i = 0, n = number_of_vertices; i < n; ++i) {
     if (dx_asset_mesh_append_vertex(mesh, &xyz[i], &ambient_rgba[i], &ambient_uv[i])) {
       return 1;
     }
@@ -34,7 +34,7 @@ int dx_asset_mesh_on_cube(dx_asset_mesh* mesh) {
   dx_mat4_set_translate(&t, 0, 0, +0.5f);
 
   DX_MAT4 r;
-  size_t i = 0;
+  dx_size i = 0;
   // front face
   dx_asset_mesh_append_quadriliteral(mesh);
   dx_asset_mesh_transform_range(mesh, &t, i, 6);
@@ -104,7 +104,7 @@ int dx_asset_mesh_on_octahedron(dx_asset_mesh* mesh) {
   DX_MAT4 t;
 
   DX_MAT4 r;
-  size_t i = 0;
+  dx_size i = 0;
 
   static DX_VEC4 const WHITE = { 1.f, 1.f, 1.f, 1.f };
 

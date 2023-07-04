@@ -8,6 +8,6 @@
 /// @param adl_text A pointer to the ADL program text describing the scene asset.
 /// @param adl_text_length The length of the program text pointed to by @a adl_text.
 /// @return A pointer to the scene asset on success. The null pointer on failure.
-dx_asset_scene* _create_scene_from_text(char const* adl_text, size_t adl_text_length);
+dx_asset_scene* _create_scene_from_text(char const* adl_text, dx_size adl_text_length);
 
 #endif // DX_SCENES_CREATE_ASSETS_H_INCLUDED

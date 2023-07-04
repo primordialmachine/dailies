@@ -1,0 +1,2 @@
+### `meshInstance`
+A mesh instance.

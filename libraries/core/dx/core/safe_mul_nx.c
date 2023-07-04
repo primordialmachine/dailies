@@ -86,7 +86,7 @@ uint64_t dx_mul_u64(uint64_t x, uint64_t y, uint64_t* z) {
   return lo;
 }
 
-size_t dx_mul_sz(size_t a, size_t b, size_t* c) {
+dx_size dx_mul_sz(dx_size a, dx_size b, dx_size* c) {
 #if defined(_M_X64)
   return dx_mul_u64(a, b, c);
 #elif defined(_M_IX86)
@@ -124,7 +124,7 @@ size_t dx_mul_sz(size_t a, size_t b, size_t* c) {
 /// 
 static dx_n8 get_msbs_n8(dx_n8 x, dx_n8 n) {
   dx_n8 mask = 0;
-  for (size_t i = 8; i > 8 - n; --i) {
+  for (dx_size i = 8; i > 8 - n; --i) {
     mask |= ((dx_n8)1) << (i - 1);
   }
   return (x & mask) >> (8 - n);
@@ -132,7 +132,7 @@ static dx_n8 get_msbs_n8(dx_n8 x, dx_n8 n) {
 
 static dx_n16 get_msbs_n16(dx_n16 x, dx_n8 n) {
   dx_n16 mask = 0;
-  for (size_t i = 16; i > 16 - n; --i) {
+  for (dx_size i = 16; i > 16 - n; --i) {
     mask |= ((dx_n16)1) << (i - 1);
   }
   return (x & mask) >> (16 - n);
@@ -140,7 +140,7 @@ static dx_n16 get_msbs_n16(dx_n16 x, dx_n8 n) {
 
 static dx_n32 get_msbs_n32(dx_n32 x, dx_n8 n) {
   dx_n32 mask = 0;
-  for (size_t i = 32; i > 32 - n; --i) {
+  for (dx_size i = 32; i > 32 - n; --i) {
     mask |= ((dx_n32)1) << (i - 1);
   }
   return (x & mask) >> (32 - n);
@@ -148,7 +148,7 @@ static dx_n32 get_msbs_n32(dx_n32 x, dx_n8 n) {
 
 static dx_n64 get_msbs_n64(dx_n64 x, dx_n8 n) {
   dx_n64 mask = 0;
-  for (size_t i = 64; i > 64 - n; --i) {
+  for (dx_size i = 64; i > 64 - n; --i) {
     mask |= ((dx_n64)1) << (i - 1);
   }
   return (x & mask) >> (64 - n);

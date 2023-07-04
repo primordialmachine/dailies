@@ -1,0 +1,21 @@
+---
+title: "Primordial Machine - Data Definition Language"
+subtitle: "Specification"
+format:
+  html:
+    toc: true
+    toc-title: Contents
+    toc-location: left
+    sidebar: false
+---
+
+This is the specification of the *Asset Definition Language* (short: *ADL*).
+
+As the source code of this site includes documentation that is specifically published via this site,
+the source code of this site is included in the GitHub repository.
+
+{{< include ddl-specification/_1_introduction.qmd >}}
+{{< include ddl-specification/_2_grammars.qmd >}}
+{{< include ddl-specification/_3_lexical_structure.qmd >}}
+{{< include ddl-specification/_4_syntactical_structure.qmd >}}
+{{< include ddl-specification/_5_types_and_values.qmd >}}

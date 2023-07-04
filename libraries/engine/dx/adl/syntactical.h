@@ -229,7 +229,7 @@ dx_adl_scanner* dx_adl_scanner_create();
 /// @param l The number of Bytes in the array pointed to by @a p.
 /// @success The scanner was assigned the input and is in the start state w.r.t. the specified input.
 /// @failure This function has set the the error variable.
-int dx_adl_scanner_set(dx_adl_scanner* self, char const* p, size_t l);
+int dx_adl_scanner_set(dx_adl_scanner* self, char const* p, dx_size l);
 
 /// @brief Compute the next word.
 /// @param self A pointer to this scanner.
@@ -247,7 +247,7 @@ char const* dx_adl_scanner_get_word_text_bytes(dx_adl_scanner const* self);
 /// @param self A pointer to this scanner.
 /// @return The length, in Bytes, of the UTF-8 string. This may be @a 0. @a 0 is also returned on failure.
 /// @failure This function has set the the error variable.
-size_t dx_adl_scanner_get_word_text_number_of_bytes(dx_adl_scanner const* self);
+dx_size dx_adl_scanner_get_word_text_number_of_bytes(dx_adl_scanner const* self);
 
 /// @brief Get the type of the current token.
 /// @param self A pointer to this scanner.
@@ -466,7 +466,7 @@ dx_adl_parser* dx_adl_parser_create(dx_adl_scanner* scanner, dx_adl_diagnostics*
 /// @param p A pointer to an array of @a l Bytes.
 /// @param l The number of Bytes in the array pointed to by @a p.
 /// @success The parser was assigned the input and is in the start state w.r.t. the specified input.
-int dx_adl_parser_set(dx_adl_parser* self, char const* p, size_t l);
+int dx_adl_parser_set(dx_adl_parser* self, char const* p, dx_size l);
 
 /// @brief Get if the current word is of the specified word type.
 /// @param self A pointer to this parser.

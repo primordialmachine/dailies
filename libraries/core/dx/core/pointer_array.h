@@ -153,7 +153,7 @@ void*
 dx_pointer_array_get_at
   (
     dx_pointer_array* self,
-    size_t index
+    dx_size index
   );
 
 /// @brief Get the size, in elements.

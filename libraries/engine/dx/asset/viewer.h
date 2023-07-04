@@ -5,6 +5,7 @@
 #define DX_ASSET_VIEWER_H_INCLUDED
 
 #include "dx/core.h"
+typedef struct dx_asset_optics dx_asset_optics;
 
 DX_DECLARE_OBJECT_TYPE("dx.asset.viewer",
                        dx_asset_viewer,
@@ -16,6 +17,9 @@ static inline dx_asset_viewer* DX_ASSET_VIEWER(void* p) {
 
 struct dx_asset_viewer {
   dx_object _parent;
+  /// @brief A pointer to the optics of this viewer.
+  /// @default dx_asset_optics_perspective with default values.
+  dx_asset_optics* optics;
   /// @brief A pointer to the ADL name of this viewer.
   dx_string* name;
   DX_VEC3 source;

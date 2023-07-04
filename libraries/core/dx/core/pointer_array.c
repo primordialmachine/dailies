@@ -12,9 +12,9 @@ static dx_size const GREATEST_CAPACITY = DX_SIZE_GREATEST / sizeof(void *);
 /// @brief The least capacity, in elements, of a pointer array.
 static dx_size const LEAST_CAPACITY = 0;
 
-static dx_size dx_get_best_array_size(dx_size current, dx_size additional, size_t least, size_t greatest, bool saturate);
+static dx_size dx_get_best_array_size(dx_size current, dx_size additional, dx_size least, dx_size greatest, bool saturate);
 
-static dx_size dx_get_best_array_size(dx_size current, dx_size additional, size_t least, size_t greatest, bool saturate) {
+static dx_size dx_get_best_array_size(dx_size current, dx_size additional, dx_size least, dx_size greatest, bool saturate) {
   dx_error old_error = dx_get_error();
   if (least > greatest) {
     dx_set_error(DX_INVALID_ARGUMENT);
@@ -24,12 +24,12 @@ static dx_size dx_get_best_array_size(dx_size current, dx_size additional, size_
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  size_t new = current;
+  dx_size new = current;
   if (new < least) {
     new = least;
   }
   new = current + additional;
-  size_t new1 = dx_next_power_of_two_sz(new);
+  dx_size new1 = dx_next_power_of_two_sz(new);
   if (dx_get_error()) {
     dx_set_error(old_error);
   }
@@ -61,7 +61,7 @@ dx_pointer_array_initialize
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  size_t overflow;
+  dx_size overflow;
   dx_size initial_capacity_bytes = dx_mul_sz(initial_capacity, sizeof(dx_pointer_array_element), &overflow);
   if (overflow) {
     dx_set_error(DX_ALLOCATION_FAILED);
@@ -106,12 +106,12 @@ dx_pointer_array_increase_capacity
     return 0;
   }
   dx_set_error(DX_NO_ERROR);
-  size_t new_capacity = dx_get_best_array_size(self->capacity, additional_capacity, LEAST_CAPACITY, GREATEST_CAPACITY, true);
+  dx_size new_capacity = dx_get_best_array_size(self->capacity, additional_capacity, LEAST_CAPACITY, GREATEST_CAPACITY, true);
   if (dx_get_error()) {
     return 1;
   }
-  size_t overflow;
-  size_t new_capacity_bytes = dx_mul_sz(new_capacity, sizeof(dx_pointer_array_element), &overflow);
+  dx_size overflow;
+  dx_size new_capacity_bytes = dx_mul_sz(new_capacity, sizeof(dx_pointer_array_element), &overflow);
   if (overflow) {
     dx_set_error(DX_ALLOCATION_FAILED);
     return 1;  
@@ -140,7 +140,7 @@ dx_pointer_array_ensure_free_capacity
   if (available_free_capacity > required_free_capacity) {
     return 0;
   }
-  size_t additional_capacity = required_free_capacity - available_free_capacity;
+  dx_size additional_capacity = required_free_capacity - available_free_capacity;
   return dx_pointer_array_increase_capacity(self, additional_capacity);
 }
 
@@ -204,7 +204,7 @@ dx_pointer_array_insert
   return 0;
 }
 
-dx_pointer_array_element dx_pointer_array_get_at(dx_pointer_array* self, size_t index) {
+dx_pointer_array_element dx_pointer_array_get_at(dx_pointer_array* self, dx_size index) {
   if (!self || index >= self->size) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return NULL;

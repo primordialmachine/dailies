@@ -14,11 +14,11 @@ static inline dx_buffer* DX_BUFFER(void* p) {
 struct dx_buffer {
   dx_object _parent;
   dx_context* context;
-  int (*set_data)(dx_buffer*, void const*, size_t);
+  int (*set_data)(dx_buffer*, void const*, dx_size);
 };
 
 int dx_buffer_construct(dx_buffer* buffer, dx_context* context);
 
-int dx_buffer_set_data(dx_buffer* buffer, void const* p, size_t n);
+int dx_buffer_set_data(dx_buffer* buffer, void const* p, dx_size n);
 
 #endif // DX_BUFFER_H_INCLUDED

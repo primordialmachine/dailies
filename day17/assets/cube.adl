@@ -24,6 +24,9 @@
           y : 1,
           z : 0,
         },
+        optics : {
+          type : 'Optics.Perspective'
+        },
       },// viewer.Viewer
     },// ViewerInstance
     {
@@ -49,8 +52,8 @@
               width : 2048,
               height : 2048,
               color : { type : 'ColorInstance', reference : 'malachite' },
-              brush : {
-                type : 'CheckerboardBrush',
+              operations : {
+                type : 'ImageOperations.CheckerboardPatternFill',
                 numberOfCheckers : {
                   horizontal : 16,
                   vertical : 16,
@@ -63,7 +66,7 @@
                   first : { type : 'ColorInstance', reference : 'malachite' },
                   second : { type : 'ColorInstance', reference : 'amber' },
                 },
-              },// Image.brush
+              },// Image.operations
             },// Texture.image
           },// Material.ambientTexture
         },// Mesh.material

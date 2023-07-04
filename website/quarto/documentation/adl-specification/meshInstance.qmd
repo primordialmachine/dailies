@@ -1,9 +1,0 @@
----
-title: "meshInstance"
-format:
-  html:
-    sidebar: false
----
-
-# `meshInstance`
-A mesh instance.

@@ -2,6 +2,8 @@
 
 // string
 #include <string.h>
+#include "dx/asset/image_operations/color_fill.h"
+#include "dx/asset/image_operations/checkerboard_pattern_fill.h"
 
 DX_DEFINE_OBJECT_TYPE("dx.asset.image",
                       dx_asset_image,
@@ -23,9 +25,9 @@ static dx_size get_bytes_per_pixel(DX_PIXEL_FORMAT pixel_format);
 
 static void fill_rgb_u8(void* pixels, OFFSET2 fill_offset, EXTEND2 fill_extend, EXTEND2 image_extend, DX_RGB_U8 const* color);
 
-static int on_solid(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, DX_ASSET_SOLID_BRUSH const* brush);
+static int on_color_fill_image_operation(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, dx_asset_image_operations_color_fill* image_operation);
 
-static int on_checkerboard(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, DX_ASSET_CHECKERBOARD_BRUSH const* brush);
+static int on_checkerboard_pattern_fill_image_operation(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, dx_asset_image_operations_checkerboard_pattern_fill* image_operation);
 
 static dx_size get_bytes_per_pixel(DX_PIXEL_FORMAT pixel_format) {
   switch (pixel_format) {
@@ -151,11 +153,11 @@ dx_asset_image* dx_asset_image_create(dx_string* name,
   return self;
 }
 
-static int on_solid(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, DX_ASSET_SOLID_BRUSH const* brush) {
+static int on_color_fill_image_operation(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, dx_asset_image_operations_color_fill* image_operation) {
   switch (self->pixel_format) {
   case DX_PIXEL_FORMAT_RGB_U8: {
     EXTEND2 image_size = { .width = self->width, .height = self->height };
-    fill_rgb_u8(self->pixels, offset, extend, image_size, &(brush->color));
+    fill_rgb_u8(self->pixels, offset, extend, image_size, &(image_operation->color));
   } break;
   default: {
     dx_set_error(DX_INVALID_ARGUMENT);
@@ -165,10 +167,24 @@ static int on_solid(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, DX_ASS
   return 0;
 }
 
-static int on_checkerboard(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, DX_ASSET_CHECKERBOARD_BRUSH const* brush) {
-  for (dx_size y = 0; y < brush->number_of_checkers.vertical; ++y) {
-    dx_size t = offset.top + y * brush->checker_size.vertical,
-           h = brush->checker_size.vertical;
+static int on_checkerboard_pattern_fill_image_operation(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, dx_asset_image_operations_checkerboard_pattern_fill* image_operation) {
+  dx_asset_image_operations_color_fill* first = dx_asset_image_operations_color_fill_create();
+  dx_asset_image_operations_color_fill_set_color(first, &image_operation->first_checker_color);
+  dx_asset_image_operations_color_fill* second = dx_asset_image_operations_color_fill_create();
+  dx_asset_image_operations_color_fill_set_color(second, &image_operation->second_checker_color);
+  if (dx_get_error()) {
+    if (second) {
+      DX_UNREFERENCE(second);
+      second = NULL;
+    }
+    if (first) {
+      DX_UNREFERENCE(first);
+      first = NULL;
+    }
+  }
+  for (dx_size y = 0; y < image_operation->number_of_checkers_vertical; ++y) {
+    dx_size t = offset.top + y * image_operation->checker_size_vertical,
+            h = image_operation->checker_size_vertical;
     // Fast clip.
     if (t + h > offset.top + extend.height) {
       continue;
@@ -178,9 +194,9 @@ static int on_checkerboard(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend,
       dx_size delta = (t + h) - (offset.top + extend.height);
       h -= delta;
     }
-    for (dx_size x = 0; x < brush->number_of_checkers.horizontal; ++x) {
-      dx_size l = offset.left + x * brush->checker_size.horizontal,
-             w = brush->checker_size.horizontal;
+    for (dx_size x = 0; x < image_operation->number_of_checkers_horizontal; ++x) {
+      dx_size l = offset.left + x * image_operation->checker_size_horizontal,
+              w = image_operation->checker_size_horizontal;
       // Fast clip.
       if (l > offset.left + extend.width) {
         continue;
@@ -192,39 +208,42 @@ static int on_checkerboard(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend,
       }
       int even_x = x % 2 == 0;
       int even_y = y % 2 == 0;
-      DX_ASSET_SOLID_BRUSH brush_1;
-      brush_1._parent.flags = DX_ASSET_BRUSH_FLAGS_SOLID;
       if (even_x != even_y) {
-        brush_1.color = brush->checker_colors.first;
+        dx_asset_image_apply(self, l, t, w, h, DX_ASSET_IMAGE_OPERATION(first));
       } else {
-        brush_1.color = brush->checker_colors.second;
+        dx_asset_image_apply(self, l, t, w, h, DX_ASSET_IMAGE_OPERATION(second));
       }
-      dx_asset_image_fill(self, l, t, w, h, (DX_ASSET_BRUSH const*)&brush_1);
     }
   }
+  DX_UNREFERENCE(second);
+  second = NULL;
+  DX_UNREFERENCE(first);
+  first = NULL;
   return 0;
 }
 
-int dx_asset_image_fill(dx_asset_image* self,
-                        dx_size left,
-                        dx_size top,
-                        dx_size width,
-                        dx_size height,
-                        DX_ASSET_BRUSH const* brush) {
-  switch (brush->flags) {
-  case DX_ASSET_BRUSH_FLAGS_SOLID: {
+int dx_asset_image_apply(dx_asset_image* self,
+                         dx_size left,
+                         dx_size top,
+                         dx_size width,
+                         dx_size height,
+                         dx_asset_image_operation* image_operation) {
+  if (dx_rti_type_is_leq(DX_OBJECT(image_operation)->type, dx_asset_image_operations_color_fill_get_type())) {
     OFFSET2 offset = { .left = left, .top = top };
     EXTEND2 extend = { .width = width, .height = height };
-    return on_solid(self, offset, extend, (DX_ASSET_SOLID_BRUSH const*)brush);
-  } break;
-  case DX_ASSET_BRUSH_FLAGS_CHECKBERBOARD: {
-    OFFSET2 offset = { .left = left, .top = top };
-    EXTEND2 extend = { .width = width, .height = height };
-    return on_checkerboard(self, offset, extend, (DX_ASSET_CHECKERBOARD_BRUSH const*)brush);
-  } break;
-  default: {
-    dx_set_error(DX_INVALID_ARGUMENT);
+    return on_color_fill_image_operation(self, offset, extend, DX_ASSET_IMAGE_OPERATIONS_COLOR_FILL(image_operation));
+  }
+  if (dx_get_error()) {
     return 1;
-  } break;
-  };
+  }
+  if (dx_rti_type_is_leq(DX_OBJECT(image_operation)->type, dx_asset_image_operations_checkerboard_pattern_fill_get_type())) {
+    OFFSET2 offset = { .left = left, .top = top };
+    EXTEND2 extend = { .width = width, .height = height };
+    return on_checkerboard_pattern_fill_image_operation(self, offset, extend, DX_ASSET_IMAGE_OPERATIONS_CHECKERBOARD_PATTERN_FILL(image_operation));
+  }
+  if (dx_get_error()) {
+    return 1;
+  }
+  dx_set_error(DX_INVALID_ARGUMENT);
+  return 1;
 }

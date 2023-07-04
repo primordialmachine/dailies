@@ -31,7 +31,7 @@ int dx_adl_semantical_names_construct(dx_adl_semantical_names* self) {
   return 0;
 ERROR:
   if (self->names) {
-    for (size_t i = 0, n = dx_semantical_name_index_z_key + 1; i < n; ++i) {
+    for (dx_size i = 0, n = dx_semantical_name_index_z_key + 1; i < n; ++i) {
       if (self->names[i]) {
         DX_UNREFERENCE(self->names[i]);
         self->names[i] = NULL;
@@ -46,7 +46,7 @@ ERROR:
 }
 
 static void dx_adl_semantical_names_destruct(dx_adl_semantical_names* self) {
-  for (size_t i = 0, n = DX_SEMANTICAL_NAMES_NUMBER_OF_NAMES; i < n; ++i) {
+  for (dx_size i = 0, n = DX_SEMANTICAL_NAMES_NUMBER_OF_NAMES; i < n; ++i) {
     DX_DEBUG_ASSERT(self->names[i]);
     DX_UNREFERENCE(self->names[i]);
     self->names[i] = NULL;

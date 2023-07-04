@@ -2,9 +2,12 @@
 #define DX_ASSET_IMAGE_H_INCLUDED
 
 #include "dx/core.h"
+typedef struct dx_asset_image_operation dx_asset_image_operation;
 
 /// @brief An image asset.
-DX_DECLARE_OBJECT_TYPE("dx.asset.image", dx_asset_image, dx_object)
+DX_DECLARE_OBJECT_TYPE("dx.asset.image",
+                       dx_asset_image,
+                       dx_object)
 
 static inline dx_asset_image* DX_ASSET_IMAGE(void* p) {
   return (dx_asset_image*)p;
@@ -35,50 +38,20 @@ dx_asset_image* dx_asset_image_create(dx_string* name,
                                       dx_size height,
                                       DX_RGB_U8 const* color);
 
-// A brush that fills its area with a single color.
-#define DX_ASSET_BRUSH_FLAGS_SOLID (0)
-// A brush that fills its area with a checkerboard pattern.
-#define DX_ASSET_BRUSH_FLAGS_CHECKBERBOARD (1)
-
-typedef struct DX_ASSET_BRUSH {
-  uint8_t flags;
-} DX_ASSET_BRUSH;
-
-typedef struct DX_ASSET_SOLID_BRUSH {
-  DX_ASSET_BRUSH _parent;
-  DX_RGB_U8 color;
-} DX_ASSET_SOLID_BRUSH;
-
-typedef struct DX_ASSET_CHECKERBOARD_BRUSH {
-  DX_ASSET_BRUSH _parent;
-  struct {
-    dx_size horizontal;
-    dx_size vertical;
-  } number_of_checkers;
-  struct {
-    dx_size horizontal;
-    dx_size vertical;
-  } checker_size;
-  struct {
-    DX_RGB_U8 first;
-    DX_RGB_U8 second;
-  } checker_colors;
-} DX_ASSET_CHECKERBOARD_BRUSH;
-
-/// @brief Fill the specified area of this image using the specified brush.
+/// @brief Apply to the specified area the specified image operation.
 /// @param self A pointer to this image.
 /// @param left The left border of the area to fill.
 /// @param top The top border of the area to fill.
 /// @param width The width of the area to fill.
 /// @param height The height of the area to fill.
-/// @param brush A pointer to the brush.
+/// @param image_operation A pointer to the image operation.
 /// @return The zero value on success. A non-zero value on failure.
-int dx_asset_image_fill(dx_asset_image* self,
-                        dx_size left,
-                        dx_size top,
-                        dx_size width,
-                        dx_size height,
-                        DX_ASSET_BRUSH const* brush);
+int dx_asset_image_apply(dx_asset_image* self,
+                         dx_size left,
+                         dx_size top,
+                         dx_size width,
+                         dx_size height,
+                         dx_asset_image_operation* image_operation);
 
 struct dx_asset_image {
   dx_object _parent;

@@ -46,7 +46,7 @@ dx_bool dx_rti_type_is_object(dx_rti_type* type);
 /// In particular, the following error codes are returned:
 /// - #DX_ALLOCATION_FAILED an allocation failed
 /// - #DX_EXISTS a type of the same name already exists
-dx_rti_type* dx_rti_create_fundamental(char const *p, size_t n, void(*on_type_destroyed)(), dx_size value_size);
+dx_rti_type* dx_rti_create_fundamental(char const *p, dx_size n, void(*on_type_destroyed)(), dx_size value_size);
 
 #define DX_DECLARE_FUNDAMENTAL_TYPE(NAME, C_NAME) \
   dx_rti_type* C_NAME##_get_type(); \
@@ -74,7 +74,7 @@ dx_rti_type* dx_rti_create_fundamental(char const *p, size_t n, void(*on_type_de
 /// In particular, the following error codes are returned:
 /// - #DX_ALLOCATION_FAILED an allocation failed
 /// - #DX_EXISTS a type of the same name already exists
-dx_rti_type* dx_rti_create_enumeration(char const* p, size_t n, void(*on_type_destroyed)());
+dx_rti_type* dx_rti_create_enumeration(char const* p, dx_size n, void(*on_type_destroyed)());
 
 #define DX_DECLARE_ENUMERATION_TYPE(NAME, C_NAME) \
   dx_rti_type* C_NAME##_get_type(); \
@@ -105,7 +105,7 @@ dx_rti_type* dx_rti_create_enumeration(char const* p, size_t n, void(*on_type_de
 /// In particular, the following error codes are returned:
 /// - #DX_ALLOCATION_FAILED an allocation failed
 /// - #DX_EXISTS a type of the same name already exists
-dx_rti_type* dx_rti_create_object(char const* p, size_t n, void (*on_type_destroyed)(), dx_size value_size, dx_rti_type* parent, void (*destruct)(void*));
+dx_rti_type* dx_rti_create_object(char const* p, dx_size n, void (*on_type_destroyed)(), dx_size value_size, dx_rti_type* parent, void (*destruct)(void*));
 
 #define DX_DECLARE_OBJECT_TYPE(NAME, C_NAME, C_PARENT_NAME) \
   dx_rti_type* C_NAME##_get_type(); \

@@ -22,7 +22,7 @@ int dx_context_construct(dx_context* self) {
 static void dx_context_destruct(dx_context* self)
 {/*Intentionally empty.*/}
 
-int dx_context_bind_texture(dx_context* self, dx_size unit, dx_texture* texture) {
+int dx_context_bind_texture(dx_context* self, dx_size unit, dx_val_texture* texture) {
   return self->bind_texture(self, unit, texture);
 }
 
@@ -38,7 +38,7 @@ dx_program* dx_context_create_program(dx_context* self, dx_program_text* program
   return self->create_program(self, program_text);
 }
 
-dx_texture* dx_context_create_texture(dx_context* self) {
+dx_val_texture* dx_context_create_texture(dx_context* self) {
   return self->create_texture(self);
 }
 

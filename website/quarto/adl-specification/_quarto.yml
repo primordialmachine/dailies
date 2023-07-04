@@ -1,0 +1,46 @@
+project:
+  title: "Primordial Machine :: Asset Definition Language Specification"
+  type: website
+  output-dir: ./../.upload/adl-specification
+
+format:
+  html:
+    theme: cosmo
+    css: custom-css/style.css
+
+website:
+  title: "Primordial Machine :: Asset Definition Language Specification"
+  favicon: ./favicon.ico
+  navbar:
+    search: true
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "Forum"
+        href: "https://develop.primordialmachine.com/forums/"
+        target: "_blank"
+      - href: "https//github.com/primordialmachine/primordialmachine"
+        target: "_blank"
+        text: GitHub
+      - sidebar:publications
+      - about.qmd
+ 
+  sidebar:
+    - id: "publications"
+      title: "Publications"
+      style: "docked"
+      contents:
+      - href: https://develop.primordialmachine.com/ddl-specification
+        text: "DDL Specification"
+      - href: https://develop.primordialmachine.com/adl-specification
+        text: "ADL Specification"
+      - href: https://develop.primordialmachine.com/mathematical-foundations
+        text: "Mathematical Foundations"
+    #
+    - title: "ADL Specification"
+      style: floating
+      align: left
+      contents:
+        - text: DDL Specification
+          href: index.qmd
+

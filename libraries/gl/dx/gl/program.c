@@ -165,7 +165,7 @@ static int dx_gl_program_bind(dx_gl_program* program, dx_cbinding* cbinding) {
       ctx->glUniformMatrix4fv(location, 1, GL_TRUE, &(a.e[0][0]));
     } break;
     case DX_CBINDING_TYPE_TEXTURE_INDEX: {
-      size_t i;
+      dx_size i;
       if (dx_cbinding_iter_get_texture_index(&it, &i)) {
         return 1;
       }

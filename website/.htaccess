@@ -2,5 +2,8 @@ RewriteEngine On
 
 RewriteCond %{REQUEST_URI} !^/files
 RewriteCond %{REQUEST_URI} !^/forums
+RewriteCond %{REQUEST_URI} !^/ddl-specification
+RewriteCond %{REQUEST_URI} !^/adl-specification
+RewriteCond %{REQUEST_URI} !^/mathematical-foundations
 RewriteCond %{REQUEST_URI} !index/
 RewriteRule (.*) /index/$1 [L]

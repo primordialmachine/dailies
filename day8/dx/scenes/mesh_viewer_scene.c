@@ -10,6 +10,7 @@
 #include "dx/scenes/create_assets.h"
 #include "dx/val/viewer.h"
 #include "dx/adl/syntactical.h"
+#include "dx/asset/optics.h"
 
 DX_DEFINE_OBJECT_TYPE("dx.mesh_viewer_scene",
                       dx_mesh_viewer_scene,
@@ -95,10 +96,10 @@ static int viewer_push_constants(dx_mesh_viewer_scene* self, dx_cbinding* cbindi
 
 // The initial position of the viewer.
 // Must be different from TARGET.
-static DX_VEC3 const SOURCE = { 0.f, 0.f, 3.f };
+static DX_VEC3 const SOURCE = { 0.f, 0.f, 1.f };
 
-// Rotate viewer with 25 degrees per second counter-clockwise around the y-axis.
-static dx_f32 const degrees_per_second = 25.f;
+// Rotate viewer with 0 degrees per second counter-clockwise around the y-axis.
+static dx_f32 const degrees_per_second = 0.f;
 
 static int update_viewer(dx_mesh_viewer_scene* self) {
   dx_val_viewer* viewer = DX_VAL_VIEWER(dx_object_array_get_at(&self->viewers, dx_object_array_get_size(&self->viewers) - 1));
@@ -234,8 +235,27 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* self, dx_context* 
   return 0;
 }
 
-static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* self, dx_context* context, dx_f32 delta_seconds, int canvas_width, int canvas_height) {
-  dx_mat4_set_perspective(&self->projection_matrix, 60.f, (dx_f32)canvas_width / (dx_f32)canvas_height, +0.1f, 100.f);
+static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* self, dx_context* context, dx_f32 delta_seconds, dx_i32 canvas_width, dx_i32 canvas_height) {
+  dx_asset_optics* optics = DX_ASSET_OPTICS(dx_asset_optics_orthographic_create());
+  if (!optics) {
+    return 1;
+  }
+  if (dx_rti_type_is_leq(DX_OBJECT(optics)->type, dx_asset_optics_perspective_get_type())) {
+    dx_asset_optics_perspective* optics1 = DX_ASSET_OPTICS_PERSPECTIVE(optics);
+    dx_mat4_set_perspective(&self->projection_matrix, 60.f, (dx_f32)canvas_width / (dx_f32)canvas_height,
+                            optics1->near, optics1->far);
+  } else if (dx_rti_type_is_leq(DX_OBJECT(optics)->type, dx_asset_optics_orthographic_get_type())) {
+    dx_asset_optics_orthographic* optics1 = DX_ASSET_OPTICS_ORTHOGRAPHIC(optics);
+    dx_mat4_set_ortho(&self->projection_matrix, -1, +1, -1, +1, optics1->near, optics1->far);
+  } else {
+    DX_UNREFERENCE(optics);
+    optics = NULL;
+    return 1;
+  }
+
+  DX_UNREFERENCE(optics);
+  optics = NULL;
+  
   update_viewer(self);
 
   dx_f32 degrees = degrees_per_second * delta_seconds;
@@ -313,7 +333,7 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* self, char const* name)
   self->commands = NULL;
 
   DX_SCENE(self)->startup = (int (*)(dx_scene*, dx_context*)) & dx_mesh_viewer_scene_startup;
-  DX_SCENE(self)->render = (int (*)(dx_scene*, dx_context*, dx_f32, int, int)) & dx_mesh_viewer_scene_render;
+  DX_SCENE(self)->render = (int (*)(dx_scene*, dx_context*, dx_f32, dx_i32, dx_i32)) & dx_mesh_viewer_scene_render;
   DX_SCENE(self)->shutdown = (int (*)(dx_scene*, dx_context*)) dx_mesh_viewer_scene_shutdown;
 
   DX_OBJECT(self)->type = _type;

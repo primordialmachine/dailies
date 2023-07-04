@@ -4,7 +4,7 @@
   #include <intrin.h>
 #endif
 
-size_t dx_count_leading_zeroes_n8(dx_n8 x) {
+dx_size dx_count_leading_zeroes_n8(dx_n8 x) {
   // Maps a value from 0000 (0x0) to 1111 (0xf) the value's number of leading bits.
   static const short lookup[16] = {
     4, //  0: 0000
@@ -29,7 +29,7 @@ size_t dx_count_leading_zeroes_n8(dx_n8 x) {
   return upper ? lookup[upper] : 4 + lookup[lower];
 }
 
-size_t dx_count_leading_zeroes_n16(dx_n16 x) {
+dx_size dx_count_leading_zeroes_n16(dx_n16 x) {
   dx_n16 t;
   t = (x & 0xff00) >> 8;
   if (t) return dx_count_leading_zeroes_n8((dx_n8)t);
@@ -37,7 +37,7 @@ size_t dx_count_leading_zeroes_n16(dx_n16 x) {
   return 8 + dx_count_leading_zeroes_n8((dx_n8)t);  
 }
 
-size_t dx_count_leading_zeroes_n32(dx_n32 x) {
+dx_size dx_count_leading_zeroes_n32(dx_n32 x) {
 #if defined(_MSC_VER)
   unsigned long n;
   if (_BitScanReverse(&n, x)) {
@@ -56,7 +56,7 @@ size_t dx_count_leading_zeroes_n32(dx_n32 x) {
 #endif
 }
 
-size_t dx_count_leading_zeroes_n64(dx_n64 x) {
+dx_size dx_count_leading_zeroes_n64(dx_n64 x) {
   uint32_t hi = (x & 0xffffffff00000000) >> 32;
   uint32_t lo = (x & 0x00000000ffffffff) >> 0;
   if (hi) {

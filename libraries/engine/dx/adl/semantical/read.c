@@ -2,7 +2,7 @@
 
 #include "dx/adl/semantical/state.h"
 
-static inline dx_string* _get_name(dx_adl_semantical_names* names, size_t index) {
+static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index) {
   DX_DEBUG_ASSERT(NULL != names);
   DX_DEBUG_ASSERT(index < DX_SEMANTICAL_NAMES_NUMBER_OF_NAMES);
   dx_string* name = names->names[index];

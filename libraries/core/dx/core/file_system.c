@@ -9,7 +9,7 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-int dx_get_file_contents(char const *path, char **bytes, size_t *number_of_bytes) {
+int dx_get_file_contents(char const *path, char **bytes, dx_size*number_of_bytes) {
   dx_byte_array byte_array;
   if (dx_byte_array_initialize(&byte_array)) {
     return 1;
@@ -49,7 +49,7 @@ int dx_get_file_contents(char const *path, char **bytes, size_t *number_of_bytes
     }
   }
   
-  char *bytes_1; size_t number_of_bytes_1;
+  char *bytes_1; dx_size number_of_bytes_1;
   if (dx_byte_array_steal(&byte_array, &bytes_1, &number_of_bytes_1)) {
     dx_byte_array_uninitialize(&byte_array);
     return 1;

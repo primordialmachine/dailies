@@ -3,10 +3,13 @@
 #include "dx/adl/syntactical.h"
 
 #include "dx/adl/semantical/image_reader.h"
+#include "dx/adl/semantical/image_operations_checkerboard_pattern_fill_reader.h"
+#include "dx/adl/semantical/image_operations_color_fill_reader.h"
 #include "dx/adl/semantical/material_reader.h"
 #include "dx/adl/semantical/mesh_instance_reader.h"
 #include "dx/adl/semantical/mesh_operations_reader.h"
 #include "dx/adl/semantical/mesh_reader.h"
+#include "dx/adl/semantical/optics_reader.h"
 #include "dx/adl/semantical/texture_reader.h"
 #include "dx/adl/semantical/viewer_reader.h"
 #include "dx/adl/semantical/viewer_instance_reader.h"
@@ -56,7 +59,7 @@ static bool compare_keys_callback(dx_string** key1, dx_string** key2) {
   return dx_string_is_equal_to(*key1, *key2);
 }
 
-static size_t hash_key_callback(dx_string** key) {
+static dx_size hash_key_callback(dx_string** key) {
   DX_DEBUG_ASSERT(NULL != key);
   DX_DEBUG_ASSERT(NULL != *key);
   return dx_string_get_hash_value(*key);
@@ -90,7 +93,7 @@ DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_state",
                        dx_adl_semantical_state,
                        dx_object)
 
-static inline dx_string* _get_name(dx_adl_semantical_names* names, size_t index) {
+static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index) {
   DX_DEBUG_ASSERT(NULL != names);
   DX_DEBUG_ASSERT(index < DX_SEMANTICAL_NAMES_NUMBER_OF_NAMES);
   dx_string* name = names->names[index];
@@ -191,9 +194,13 @@ int dx_adl_semantical_state_construct(dx_adl_semantical_state* self) {
     }
 
     DEFINE(image)
+    DEFINE(image_operations_checkerboard_pattern_fill)
+    DEFINE(image_operations_color_fill)
     DEFINE(material)
     DEFINE(mesh)
     DEFINE(mesh_instance)
+    DEFINE2(optics_orthographic, dx_adl_semantical_optics_reader)
+    DEFINE2(optics_perspective, dx_adl_semantical_optics_reader)
     DEFINE(texture)
     DEFINE2(mesh_operations_set_vertex_colors, dx_adl_semantical_mesh_operations_reader)
     DEFINE(viewer)

@@ -22,7 +22,7 @@ static dx_adl_parser* _create_parser() {
   return parser;
 }
 
-static dx_adl_node* _parse(char const* p, size_t n) {
+static dx_adl_node* _parse(char const* p, dx_size n) {
   dx_adl_parser* parser = _create_parser();
   if (!parser) {
     return NULL;
@@ -38,7 +38,7 @@ static dx_adl_node* _parse(char const* p, size_t n) {
   return node;
 }
 
-dx_asset_scene* _create_scene_from_text(char const* adl_text, size_t adl_text_length) {
+dx_asset_scene* _create_scene_from_text(char const* adl_text, dx_size adl_text_length) {
   dx_adl_semantical_state* state = dx_adl_semantical_state_create();
   if (!state) {
     return NULL;

@@ -123,13 +123,13 @@ dx_command_list* dx_command_list_create();
 
 int dx_command_list_append(dx_command_list* self, dx_command* command);
 
-size_t dx_command_list_get_size(dx_command_list const* self);
+dx_size dx_command_list_get_size(dx_command_list const* self);
 
-dx_command* dx_command_list_get_at(dx_command_list const* self, size_t index);
+dx_command* dx_command_list_get_at(dx_command_list const* self, dx_size index);
 
 struct dx_command_list {
   dx_object _parent;
-  size_t size, capacity;
+  dx_size size, capacity;
   dx_command** elements;
 };
 

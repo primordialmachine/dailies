@@ -1,0 +1,53 @@
+# Syntactical Structure
+The syntactical grammar describes the translation of the sequence of words compromising a program into sentences.
+The single goal symbol of the syntactical grammar is the `sentence` symbol.
+
+The words whitespace, line_terminator, and comment are removed from the sequence of words before the translation to sentences is performed.
+
+
+The goal word `sentence` is given by
+```
+sentence : value
+```
+
+A `value` is given by
+```
+value : map
+value : list
+value : string
+value : number
+value : boolean
+value : void
+```
+
+A `map` is given by
+```
+map : left_curly_bracket
+      map_body
+      right_curly_bracket
+
+map_body : map_element map_body_rest
+map_body : epsilon
+
+map_body_rest : comma map_element map_body_rest
+map_body_rest : comma
+map_body_rest : epsilon
+
+map_body_element : name colon value
+```
+
+A `list` is given by
+```
+list : left_square_bracket
+       list_body
+       right_square_bracket
+
+list_body : list_element list_body_rest
+list_body : epsilon
+
+list_body_rest : comma list_element list_body_rest
+list_body_rest : comma
+list_body_rest : epsilon
+
+list_element : value
+```

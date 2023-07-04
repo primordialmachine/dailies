@@ -54,7 +54,8 @@ DX_VEC3* dx_adl_semantical_read_vector_3(dx_adl_node* node, dx_adl_semantical_st
 /// @param node A pointer to a map node.
 /// @param name The key.
 /// @param [out] target A pointer to a <code>dx_n8</code> variable.
-/// @return The zero value on success. A non-zero value on failure.
+/// @default-failure
+/// @default-return
 int dx_adl_semantical_read_n8(dx_adl_node* node, dx_string* name, dx_n8* target);
 
 /// @brief Parse
@@ -74,7 +75,8 @@ int dx_adl_semantical_read_sz(dx_adl_node* node, dx_string* name, dx_size* targe
 /// @param node A pointer to a map node.
 /// @param name The key.
 /// @param [out] target A pointer to a <code>dx_f32</code> variable.
-/// @return The zero value on success. A non-zero value on failure.
+/// @default-failure
+/// @default-return
 int dx_adl_semantical_read_f32(dx_adl_node* node, dx_string* name, dx_f32* target);
 
 /// @brief Parse
@@ -84,7 +86,8 @@ int dx_adl_semantical_read_f32(dx_adl_node* node, dx_string* name, dx_f32* targe
 /// @param node A pointer to a map node.
 /// @param name The key.
 /// @param [out] target A pointer to a <code>dx_f64</code> variable.
-/// @return The zero value on success. A non-zero value on failure.
+/// @default-failure
+/// @default-return
 int dx_adl_semantical_read_f64(dx_adl_node* node, dx_string* name, dx_f64* target);
 
 /// @brief Parse

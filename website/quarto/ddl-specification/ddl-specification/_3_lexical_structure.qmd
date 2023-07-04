@@ -1,0 +1,198 @@
+# Lexical Structure
+The lexical grammar describes the translation of Unicode characters into words.
+The single goal symbol of the lexical grammar is the `word` symbol.
+
+## word
+The goal symbol `word` is
+```
+word : delimiters
+word : boolean
+word : number
+word : string
+word : void
+word : name
+word : left_curly_bracket
+word : right_curly_bracket
+word : left_square_bracket
+word : right_square_bracket
+word : comma
+word : colon
+/*whitespace, newline, and comment are not considered the syntactical grammar*/
+word : whitespace
+word : newline
+word : comment
+```
+
+## whitespace
+The word <code>whitespace</code> is
+```
+/* #9 is also known as "CHARACTER TABULATION" */
+whitespace : #9
+/* #20 is also known as "SPACE" */
+whitespace : #20
+```
+
+## line_terminator
+The word <code>line_terminator</code> is
+```
+/* #a is also known as "LINEFEED (LF)" */
+/* #d is also known as "CARRIAGE RETURN (CR)" */
+line_terminator : #a {#d}
+line_terminator : #d {#a} 
+```
+## comments
+The language supports both single-line comments and multi-line comments.
+A `comment_block` is either a `single_line_comment` or a `multi_line_comment`
+```
+comment : single_line_comment
+        | multi_line_comment
+```
+
+A `single_line_comment` starts with two solidus.
+It extends to the end of the line.
+```
+/* #2f is also known as SOLIDUS */
+single_line_comment :
+  #2f #2f
+  /* any sequence of characters except for line_terminator */
+```
+The `line_terminator` is not considered as part of the comment.
+
+A `multi_line_comment` is opened by a solidus and an asterisk and closed by an asterisk and a solidus.
+```
+/* #2f is also known as SOLIDUS */
+/* #2a is also known as ASTERISK */
+multi_line_comment :
+  #2f #2a
+  /* any sequence of characters except except for #2a #2f */
+  #2a #2f
+```
+
+This implies:
+- `//` has no special meaning either comment.
+- `/*` and `*/` have no special meaning in single-line comments.
+- Multi-line comments do not test.
+
+## parentheses
+The words <code>left_parenthesis</code> and <code>right_parenthesis</code>, respectively, are
+```
+/* #28 is also known as "LEFT PARENTHESIS" */
+left_parenthesis : #28
+/* #29 is also known as "RIGHT PARENTHESIS" */
+right_parenthesis : #29
+```
+
+## curly brackets
+The words <code>left_curly_bracket</code> and <code>right_curly_bracket</code>, respectively, are
+```
+/* #7b is also known as "LEFT CURLY BRACKET" */
+left_curly_bracket : #7b
+/* #7d is also known as "RIGHT CURLY BRACKET" */
+right_curly_bracket : #7d
+```
+ 
+## colon
+The word <code>colon</code> is
+```
+/* #3a is also known as "COLON" */
+colon : #3a
+```
+ 
+
+## square brackets
+The words <code>left_square_bracket</code> and <code>right_square_bracket</code>, respectively, are
+```
+/* #5b is also known as "LEFT SQUARE BRACKET" */
+left_square_bracket : #5b
+/* #5d is also known as "RIGHT SQUARE BRACKET" */
+right_square_bracket : #5d
+```
+
+## alphanumeric
+The word <code>alphanumeric</code> is reserved for future use.
+
+## comma
+The word <code>comma</code> is
+```
+/* #2c is also known as "COMMA" */
+comma : #2c
+```
+
+## name
+The word <code>name</code> is
+```
+name : {underscore} alphabetic {name_suffix_character}
+
+/* #41 is also known as "LATIN CAPITAL LETTER A" */
+/* #5a is also known as "LATIN CAPITAL LETTER Z" */
+/* #61 is also known as "LATIN SMALL LETTER A" */
+/* #7a is also known as "LATIN SMALLER LETTER Z" */
+name_suffix_character : /* The unicode characters from #41 to #5a and from #61 to #7a. */
+
+/* #30 is also known as "DIGIT ZERO" */
+/* #39 is also known as "DIGIT NINE" */
+name_suffix_character : /* The unicode characters from #30 to #39. */
+
+/* #5f is also known as "LOW LINE" */
+name_suffix_character : #5f
+```
+
+## number
+The word <code>number</code> is
+```
+number : integer_number
+number : real_number
+integer_number : [sign] digit {digit}
+real_number : [sign] period digit {digit} [exponent]
+real_number : [sign] digit {digit} [period {digit}] [exponent]
+exponent : exponent_prefix [sign] digit {digit}
+
+/* #2b is also known as "PLUS SIGN" */
+sign : '+'
+/* #2d is also known as "MINUS SIGN" */
+sign : '-'
+period : '.'
+/* #65 is also known as "LATIN SMALL LETTER E" */
+exponent_prefix : #65
+/* #45 is also known as "LATIN CAPITAL LETTER E" */
+exponent_prefix : #45
+
+```
+
+## string
+The word <code>string</code> is
+```
+string : single_quoted_string
+stirng : double_quoted_string
+
+double_quoted_string : double_quote {double_quoted_string_character} double_quote
+double_quoted_string_character : /* any character except for newline and double_quote */
+double_quoted_string_character : escape_sequence
+double_quoted_string_character : #5c double_quote
+/* #22 is also known as "QUOTATION MARK" */
+double_quote : #22       
+
+single_quoted_string : single_quote {single_quoted_string_character} single_quote
+single_quoted_string_character : /*any character except for newline and single quote*/
+single_quoted_string_character : escape_sequence
+single_quoted_string_character : #5c single_quote
+/* #27 is also known as "APOSTROPHE" */
+single_quote : #27
+
+/* #5c is also known as "REVERSE SOLIDUS" */ 
+escape_sequence : #5c #5c
+/* #6e is also known as "LATIN SMALL LETTER N" */	
+escape_sequence : #5c #6e
+/* #72 is also known as "LATIN SMALL LETTER R" */
+escape_sequence : #5c #72                 
+```
+
+## boolean, void
+The words `boolean` and `void`, respectively, are
+```
+boolean : true
+boolean : false
+true : #74 #72 #75 #65
+false : #66 #61 #6c #73 #65
+void : #76 #6f # #69 #64
+```

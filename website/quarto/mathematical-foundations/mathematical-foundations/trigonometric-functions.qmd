@@ -1,0 +1,22 @@
+---
+title: "Mathematical Foundations"
+format:
+  html:
+    sidebar: true
+---
+
+# Trigonometric Functions
+The definition of the trigonometric functions explained via the unit circle.
+
+![Trigonometric Functions](mathematical-foundations/trigonometric-functions.svg)
+
+$$
+\begin{gathered}
+\overline{CP} = \sin b\\
+\overline{SP} = \cos b\\
+\overline{DT} = \tan b\\
+\overline{EK} = \cot b\\
+\overline{OT} = \sec b\\
+\overline{OK} = \csc b\\
+\end{gathered}
+$$

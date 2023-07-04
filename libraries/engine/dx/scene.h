@@ -29,7 +29,7 @@ struct dx_scene {
   dx_object _parent;
   dx_context* context;
   int (*startup)(dx_scene* self, dx_context* context);
-  int (*render)(dx_scene* self, dx_context* context, dx_f32 delta_seconds, int canvas_width, int canvas_height);
+  int (*render)(dx_scene* self, dx_context* context, dx_f32 delta_seconds, dx_i32 canvas_width, dx_i32 canvas_height);
   int (*shutdown)(dx_scene* self, dx_context* context);
 };
 
@@ -49,7 +49,7 @@ int dx_scene_startup(dx_scene* self, dx_context* context);
 /// @param delta_seconds The delta, in seconds, the visualization time has advanced.
 /// @param canvas_width, canvas_height The width and height of the canvas.
 /// @return The zero value on success. A non-zero value on failure.
-int dx_scene_render(dx_scene* self, dx_context* context, dx_f32 delta_seconds, int canvas_width, int canvas_height);
+int dx_scene_render(dx_scene* self, dx_context* context, dx_f32 delta_seconds, dx_i32 canvas_width, dx_i32 canvas_height);
 
 /// @brief Callback. Invoked by the execution environment.
 /// @param self A pointer to this scene.

@@ -13,7 +13,7 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
 
 #define NAME(name) _get_name(state->names, dx_semantical_name_index_##name)
 
-DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_viewer_instance_reader",
+DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.viewer_instance_reader",
                       dx_adl_semantical_viewer_instance_reader,
                       dx_adl_semantical_reader)
 

@@ -11,7 +11,7 @@ DX_DEFINE_OBJECT_TYPE("dx.gl.context",
                       dx_gl_context,
                       dx_object)
 
-static int bind_texture(dx_gl_context* ctx, size_t unit, dx_gl_texture* texture) {
+static int bind_texture(dx_gl_context* ctx, dx_size unit, dx_gl_texture* texture) {
   if (texture) {
     ctx->glActiveTexture(GL_TEXTURE0 + unit);
     ctx->glBindTexture(GL_TEXTURE_2D, texture->id);
@@ -43,7 +43,7 @@ static dx_gl_texture* create_texture(dx_gl_context* ctx) {
 }
 
 static int execute_commands(dx_gl_context* ctx, dx_command_list* commands) {
-  for (size_t i = 0, n = dx_command_list_get_size(commands); i < n; ++i) {
+  for (dx_size i = 0, n = dx_command_list_get_size(commands); i < n; ++i) {
     dx_command* command = dx_command_list_get_at(commands, i);
     switch (command->kind) {
     case DX_COMMAND_KIND_CLEAR_COLOR: {
@@ -135,11 +135,11 @@ int dx_gl_context_construct(dx_gl_context* self, void *(*link)(char const *name)
   }
 #include "dx/gl/functions.i"
 #undef DEFINE
-  DX_CONTEXT(self)->bind_texture = (int(*)(dx_context*, size_t, dx_texture*)) & bind_texture;
+  DX_CONTEXT(self)->bind_texture = (int(*)(dx_context*, dx_size, dx_val_texture*)) & bind_texture;
   DX_CONTEXT(self)->create_buffer = (dx_buffer* (*)(dx_context*)) & create_buffer;
   DX_CONTEXT(self)->create_vbinding = (dx_vbinding* (*)(dx_context*, DX_VERTEX_FORMAT, dx_buffer*)) & create_vbinding;
   DX_CONTEXT(self)->create_program = (dx_program* (*)(dx_context*, dx_program_text*)) & create_program;
-  DX_CONTEXT(self)->create_texture = (dx_texture * (*)(dx_context*)) & create_texture;
+  DX_CONTEXT(self)->create_texture = (dx_val_texture * (*)(dx_context*)) & create_texture;
   DX_CONTEXT(self)->execute_commands = (int (*)(dx_context*,dx_command_list*)) & execute_commands;
   DX_OBJECT(self)->type = _type;
   return 0;

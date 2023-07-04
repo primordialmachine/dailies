@@ -1,0 +1,7 @@
+/*
+ * Remove the bullets from the entries in the table of contents.
+ *
+ */
+#TOC ul {
+  list-style: none;  
+}

@@ -10,30 +10,29 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
   DX_DEBUG_ASSERT(NULL != name);
   return name;
 }
+
 #define NAME(name) _get_name(state->names, dx_semantical_name_index_##name)
 
 static dx_object* read(dx_adl_semantical_mesh_operations_reader*, dx_adl_node* node, dx_adl_semantical_state*);
 
-DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_mesh_operations_reader",
+DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.mesh_operations_reader",
                       dx_adl_semantical_mesh_operations_reader,
                       dx_adl_semantical_reader)
 
 static dx_object* read(dx_adl_semantical_mesh_operations_reader* self, dx_adl_node* node, dx_adl_semantical_state* state) {
-  {
-    dx_string* received_type = dx_adl_semantical_read_type(node, state);
-    if (!received_type) {
-      return NULL;
-    }
-    if (dx_string_is_equal_to(received_type, NAME(mesh_operations_set_vertex_colors_type))) {
-      DX_UNREFERENCE(received_type);
-      received_type = NULL;
-      return DX_OBJECT(dx_asset_mesh_operations_set_vertex_colors_create());
-    } else {
-      DX_UNREFERENCE(received_type);
-      received_type = NULL;
-      dx_set_error(DX_SEMANTICAL_ERROR);
-      return NULL;
-    }
+  dx_string* received_type = dx_adl_semantical_read_type(node, state);
+  if (!received_type) {
+    return NULL;
+  }
+  if (dx_string_is_equal_to(received_type, NAME(mesh_operations_set_vertex_colors_type))) {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
+    return DX_OBJECT(dx_asset_mesh_operations_set_vertex_colors_create());
+  } else {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
+    dx_set_error(DX_SEMANTICAL_ERROR);
+    return NULL;
   }
 }
 

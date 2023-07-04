@@ -3,7 +3,7 @@
 
 #include "dx/adl/semantical/state.h"
 
-DX_DECLARE_OBJECT_TYPE("dx.adl.semantical_texture_reader",
+DX_DECLARE_OBJECT_TYPE("dx.adl.semantical.texture_reader",
                        dx_adl_semantical_texture_reader,
                        dx_adl_semantical_reader)
 

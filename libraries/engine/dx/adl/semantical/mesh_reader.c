@@ -4,7 +4,7 @@
 #include "dx/adl/semantical/read.h"
 #include "dx/asset/mesh_operation.h"
 
-static inline dx_string* _get_name(dx_adl_semantical_names* names, size_t index) {
+static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index) {
   DX_DEBUG_ASSERT(NULL != names);
   DX_DEBUG_ASSERT(index < DX_SEMANTICAL_NAMES_NUMBER_OF_NAMES);
   dx_string* name = names->names[index];
@@ -31,7 +31,7 @@ static dx_object* read(dx_adl_semantical_mesh_reader*,
                        dx_adl_node* node,
                        dx_adl_semantical_state*);
 
-DX_DEFINE_OBJECT_TYPE("dx.adl.semantical_mesh_reader",
+DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.mesh_reader",
                       dx_adl_semantical_mesh_reader,
                       dx_adl_semantical_reader)
 

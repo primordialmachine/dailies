@@ -22,7 +22,7 @@ struct dx_val_material {
   /// @brief The ambient color as specified by dx_asset_material::ambient_color.
   DX_VEC4 ambient_color;
   /// @brief Pointer to the ambient texture or the null pointer as specified by_dx_asset_material::ambient_texture.
-  dx_texture* ambient_texture;
+  dx_val_texture* ambient_texture;
 };
 
 int dx_val_material_construct(dx_val_material* self, dx_context* context, dx_asset_material* asset_material);

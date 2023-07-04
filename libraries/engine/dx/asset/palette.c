@@ -46,7 +46,7 @@ static void on_added(dx_object** a);
 
 static void on_removed(dx_object** a);
 
-static size_t on_hash_key(dx_object** a);
+static dx_size on_hash_key(dx_object** a);
 
 static bool on_compare_keys(dx_object** a, dx_object** b);
 
@@ -60,7 +60,7 @@ static void on_removed(dx_object** a) {
   DX_UNREFERENCE(*a);
 }
 
-static size_t on_hash_key(dx_object** a) {
+static dx_size on_hash_key(dx_object** a) {
   DX_DEBUG_CHECK_MAGIC_BYTES(*a);
   return dx_string_get_hash_value(DX_STRING(*a));
 }
@@ -82,7 +82,7 @@ int dx_asset_palette_construct(dx_asset_palette* self) {
   }
   static DX_POINTER_HASHMAP_CONFIGURATION const configuration = {
     .compare_keys_callback = (bool(*)(void**,void**)) & on_compare_keys,
-    .hash_key_callback = (size_t(*)(void**)) & on_hash_key,
+    .hash_key_callback = (dx_size(*)(void**)) & on_hash_key,
     .key_added_callback = (void(*)(void**)) & on_added,
     .key_removed_callback = (void(*)(void**)) & on_removed,
     .value_added_callback = (void(*)(void**)) & on_added,

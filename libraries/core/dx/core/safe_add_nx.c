@@ -24,8 +24,8 @@ uint64_t dx_add_u64(uint64_t a, uint64_t b, uint64_t* c) {
   return t;
 }
 
-size_t dx_add_sz(size_t a, size_t b, size_t* c) {
-  size_t t = a + b;
+dx_size dx_add_sz(dx_size a, dx_size b, dx_size* c) {
+  dx_size t = a + b;
   *c = SIZE_MAX - a < b;
   return t;
 }

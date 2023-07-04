@@ -72,7 +72,7 @@ typedef enum DX_NON_EXISTING_FILE_POLICY {
 /// @param bytes
 /// A pointer to a <code>char*</code> variable.
 /// @param number_of_bytes
-/// A pointer to a <code>size_t</code> variable.
+/// A pointer to a <code>dx_size</code> variable.
 /// @return
 /// The zero value on success. A non-zero value on failure.
 /// @success
@@ -81,7 +81,7 @@ typedef enum DX_NON_EXISTING_FILE_POLICY {
 /// That array must be deallocated using free() when no long required.
 /// @failure
 /// The error variable was set.
-int dx_get_file_contents(char const *path, char **bytes, size_t *number_of_bytes);
+int dx_get_file_contents(char const *path, char **bytes, dx_size*number_of_bytes);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

@@ -2,7 +2,7 @@
 
 static int dx_gl_buffer_construct(dx_gl_buffer* buffer, dx_gl_context* context);
 
-static int dx_gl_buffer_set_data(dx_gl_buffer* buffer, void const* p, size_t n);
+static int dx_gl_buffer_set_data(dx_gl_buffer* buffer, void const* p, dx_size n);
 
 static int dx_gl_buffer_construct(dx_gl_buffer* buffer, dx_gl_context* context) {
   if (dx_buffer_construct(DX_BUFFER(buffer), DX_CONTEXT(context))) {
@@ -14,7 +14,7 @@ static int dx_gl_buffer_construct(dx_gl_buffer* buffer, dx_gl_context* context) 
     dx_set_error(DX_ENVIRONMENT_FAILED);
     return 1;
   }
-  DX_BUFFER(buffer)->set_data = (int(*)(dx_buffer*,void const*,size_t)) & dx_gl_buffer_set_data;
+  DX_BUFFER(buffer)->set_data = (int(*)(dx_buffer*,void const*, dx_size)) & dx_gl_buffer_set_data;
   return 0;
 }
 
@@ -26,7 +26,7 @@ static void dx_gl_buffer_destruct(dx_gl_buffer* buffer) {
   }
 }
 
-static int dx_gl_buffer_set_data(dx_gl_buffer* buffer, void const* p, size_t n) {
+static int dx_gl_buffer_set_data(dx_gl_buffer* buffer, void const* p, dx_size n) {
   dx_gl_context* context = DX_GL_CONTEXT(DX_BUFFER(buffer)->context);
   context->glGetError(); // clear the error variable
   context->glBindBuffer(GL_ARRAY_BUFFER, buffer->id);

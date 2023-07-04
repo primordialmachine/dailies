@@ -4,10 +4,10 @@
 
 DX_DEFINE_OBJECT_TYPE("dx.gl.texture",
                       dx_gl_texture,
-                      dx_texture)
+                      dx_val_texture)
 
 static int dx_gl_texture_set_data(dx_gl_texture* self, dx_asset_texture* texture) {
-  dx_gl_context* context = DX_GL_CONTEXT(DX_TEXTURE(self)->context);
+  dx_gl_context* context = DX_GL_CONTEXT(DX_VAL_TEXTURE(self)->context);
   switch (texture->image->pixel_format) {
   case DX_PIXEL_FORMAT_RGB_U8: {
     context->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -27,7 +27,7 @@ int dx_gl_texture_construct(dx_gl_texture* self, dx_gl_context* context) {
   if (!_type) {
     return 1;
   }
-  if (dx_texture_construct(DX_TEXTURE(self), DX_CONTEXT(context))) {
+  if (dx_val_texture_construct(DX_VAL_TEXTURE(self), DX_CONTEXT(context))) {
     return 1;
   }
   context->glGetError(); // clear the error variable
@@ -80,14 +80,14 @@ int dx_gl_texture_construct(dx_gl_texture* self, dx_gl_context* context) {
     self->id = 0;
     return 1;
   }
-  DX_TEXTURE(self)->set_data = (int(*)(dx_texture*, dx_asset_texture*)) & dx_gl_texture_set_data;
+  DX_VAL_TEXTURE(self)->set_data = (int(*)(dx_val_texture*, dx_asset_texture*)) & dx_gl_texture_set_data;
   DX_OBJECT(self)->type = _type;
   return 0;
 }
 
 static void dx_gl_texture_destruct(dx_gl_texture* self) {
   if (self->id) {
-    dx_gl_context* context = DX_GL_CONTEXT(DX_TEXTURE(self)->context);
+    dx_gl_context* context = DX_GL_CONTEXT(DX_VAL_TEXTURE(self)->context);
     context->glDeleteBuffers(1, &self->id);
     self->id = 0;
   }

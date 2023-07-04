@@ -8,11 +8,11 @@ DX_DEFINE_OBJECT_TYPE("dx.val.material",
 
 static int add_to_backend(dx_val_material* self) {
   if (self->asset_material->ambient_texture) {
-    dx_texture* ambient_texture = dx_context_create_texture(self->context);
+    dx_val_texture* ambient_texture = dx_context_create_texture(self->context);
     if (!ambient_texture) {
       return 1;
     }
-    if (dx_texture_set_data(ambient_texture, self->asset_material->ambient_texture)) {
+    if (dx_val_texture_set_data(ambient_texture, self->asset_material->ambient_texture)) {
       DX_UNREFERENCE(ambient_texture);
       ambient_texture = NULL;
       return 1;

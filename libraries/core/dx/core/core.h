@@ -497,7 +497,7 @@ dx_reference_counter dx_reference_counter_decrement(dx_reference_counter* refere
 /// - the first @a n Bytes of that array are a valid utf-8 string
 /// @pre
 /// - utf8 is supported by standard output
-void dx_log(char const *p, size_t n);
+void dx_log(char const *p, dx_size n);
 
 /// @{
 /// @brief Write a number to standard output.

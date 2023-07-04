@@ -202,7 +202,7 @@ static int add_to_backend(dx_mesh* self) {
   }
 
   // upload data to buffer
-  void* bytes; size_t number_of_bytes;
+  void* bytes; dx_size number_of_bytes;
   if (dx_asset_mesh_format(self->asset_mesh, vertex_format, &bytes, &number_of_bytes)) {
     return 1;
   }

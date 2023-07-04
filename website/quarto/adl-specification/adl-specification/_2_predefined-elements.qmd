@@ -1,0 +1,10 @@
+# Predefined Elements
+Predefined elements are built-in into the Asset Definition Language.
+
+{{< include adl-specification/predefined-elements/material.qmd >}}
+{{< include adl-specification/predefined-elements/materialInstance.qmd >}}
+{{< include adl-specification/predefined-elements/mesh.qmd >}}
+{{< include adl-specification/predefined-elements/meshInstance.qmd >}}
+{{< include adl-specification/predefined-elements/texture.qmd >}}
+{{< include adl-specification/predefined-elements/viewer.qmd >}}
+{{< include adl-specification/predefined-elements/viewerInstance.qmd >}}

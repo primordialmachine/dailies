@@ -1,0 +1,67 @@
+# Types and Values
+*DDL* knows six basic types *List* and *Map*, which are the so called aggregate types,
+and *Boolean*, *Number*, *String* and *Void*, which are the so called   scalar types.
+
+Values of this types are defined by the syntactical 
+
+## Scalar Types
+
+### *Boolean* Type
+The type *Boolean* has two values *true* and *false* which are expressed in the language by the words `true` and `false`, respectively (as defined in the lexical grammar).
+
+### *Number* Type
+The type *Number* represents both 2-complement integer numbers as well as IEE754 floating-point numbers.
+A value of type *Number* is expressed in the language by the word `number` (as defined in the lexical grammar).
+Remark: The *DDL* does not impose restrictions on the range and precision of values of type *Number* nor on the length of values of type *String*.
+
+### *String* Type
+The type *String* represents UTF-8 strings. 
+A value of type *String* is expressed in the language by the word `string` (as defined in the lexical grammar).
+At the end of the lexical translation of a `string` word, its escape sequences are replaced by the Unicode characters they are representing.
+Furthermore, the opening and closing quotes are removed.
+
+### *Void* Type
+The type *Void* has a single value *void* which is represented in the language by the literal `void`.
+A value of type *Void* is expressed in the language by the word `void` (as defined in the lexical grammar).
+
+
+## Aggregate Types
+
+### *List* Type
+The type *List* represents lists of values.
+A value of type *List* is expressed in the language by the sentence `list` (as defined in the syntactical grammar).
+
+**Example**
+```
+// A list with three numbers 1, 2, and 3.
+[ 1, 2, 3 ]
+```
+
+### *Map* Type
+The type *Map* represents maps from names to values.
+A value of type *Map* is expressed in the language by the sentence *map* (as defined in the syntactical grammar).
+
+**Example**
+```
+// A map of
+// text to 'Hello, World!'
+// action to 'Print', and
+// fontSize to 12.
+{ text : 'Hello World!', action : 'Print', fontSize: 12 }
+```
+
+If two name/value pairs from the same name in a map are
+specified, then last specified    name/value pair takes
+precedence.
+
+**Example**
+The following *DDL* program defines a *Map* value that contains two name/value pairs with the same name `x`.
+The first name/value pair maps to the value `0` and second name/value pair to the number `1`.
+```
+{ x : 0, x : 1 }
+```
+The effective *Map* value defined by the program is hence
+```
+{ x : 1 }
+```
+as name/value pair mapping to the value `0` is specified before the name/value pair mapping to the value `1`.

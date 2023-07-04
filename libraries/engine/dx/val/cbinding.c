@@ -9,27 +9,27 @@ typedef struct _map _map;
 
 struct _entry {
   _entry* next;
-  size_t hv;
+  dx_size hv;
   char* name;
   uint8_t tag;
   union {
     DX_VEC3 vec3;
     DX_VEC4 vec4;
     DX_MAT4 mat4;
-    size_t texture_index;
+    dx_size texture_index;
   };
 };
 
 struct _map{
   _entry** buckets;
-  size_t size;
-  size_t capacity;
+  dx_size size;
+  dx_size capacity;
 };
 
-static size_t hash(char const* p, size_t n) {
-  size_t hv = n;
-  for (size_t i = n; i > 0; --i) {
-    hv = hv * 37 + (size_t)(p[i - 1]);
+static dx_size hash(char const* p, dx_size n) {
+  dx_size hv = n;
+  for (dx_size i = n; i > 0; --i) {
+    hv = hv * 37 + (dx_size)(p[i - 1]);
   }
   return hv;
 }
@@ -53,7 +53,7 @@ static void* _create_impl() {
     map = NULL;
     return NULL;
   }
-  for (size_t i = 0, n = map->capacity; i < n; ++i) {
+  for (dx_size i = 0, n = map->capacity; i < n; ++i) {
     map->buckets[i] = NULL;
   }
   return map;
@@ -61,7 +61,7 @@ static void* _create_impl() {
 
 static void _destroy_impl(void* pimpl) {
   _map* map = (_map*)pimpl;
-  for (size_t i = 0, n = map->capacity; i < n; ++i) {
+  for (dx_size i = 0, n = map->capacity; i < n; ++i) {
     while (map->buckets[i]) {
       _entry* entry = map->buckets[i];
       map->buckets[i] = entry->next;
@@ -77,9 +77,9 @@ static void _destroy_impl(void* pimpl) {
 }
 
 static _entry* get_or_create_impl(_map* map, bool create, char const* name) {
-  size_t n = strlen(name);
-  size_t hv = hash(name, n);
-  size_t hi = hv % map->capacity;
+  dx_size n = strlen(name);
+  dx_size hv = hash(name, n);
+  dx_size hi = hv % map->capacity;
   for (_entry* entry = map->buckets[hi]; NULL != entry; entry = entry->next) {
     if (entry->hv == hv) {
       if (!strcmp(entry->name, name)) {
@@ -139,7 +139,7 @@ int dx_cbinding_set_mat4(dx_cbinding* self, char const *name, DX_MAT4 const* a) 
   return 0;
 }
 
-int dx_cbinding_set_texture_index(dx_cbinding* self, char const* name, size_t i) {
+int dx_cbinding_set_texture_index(dx_cbinding* self, char const* name, dx_size i) {
   _entry* entry = get_or_create_impl((_map*)self->pimpl, true, name);
   if (!entry) {
     return 1;
@@ -186,7 +186,7 @@ dx_cbinding* dx_cbinding_create() {
 
 dx_cbinding_iter dx_cbinding_get_iter(dx_cbinding* self) {
   _map* map = (_map*)self->pimpl;
-  for (size_t i = 0, n = map->capacity; i < n; ++i) {
+  for (dx_size i = 0, n = map->capacity; i < n; ++i) {
     if (NULL != map->buckets[i]) {
       dx_cbinding_iter it = { .a = (void*)i, .b = map->buckets[i], .c = map };
       return it;
@@ -207,7 +207,7 @@ int dx_cbinding_iter_next(dx_cbinding_iter* self) {
       return 0;
     } else {
       // Found NO successor in current bucket. move to next non-empty bucket if any.
-      size_t index = (size_t)self->a;
+      dx_size index = (dx_size)self->a;
       index++;
       for (; index < map->capacity && !map->buckets[index]; ++index) {
 
@@ -283,7 +283,7 @@ int dx_cbinding_iter_get_mat4(dx_cbinding_iter const* self, DX_MAT4* a) {
   return 0;
 }
 
-int dx_cbinding_iter_get_texture_index(dx_cbinding_iter const* self, size_t* i) {
+int dx_cbinding_iter_get_texture_index(dx_cbinding_iter const* self, dx_size* i) {
   _entry* entry = (_entry*)self->b;
   if (!entry) {
     dx_set_error(DX_INVALID_OPERATION);

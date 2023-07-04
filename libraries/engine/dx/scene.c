@@ -31,7 +31,7 @@ int dx_scene_startup(dx_scene* self, dx_context* context) {
   return self->startup(self, context);
 }
 
-int dx_scene_render(dx_scene* self, dx_context* context, dx_f32 delta_seconds, int canvas_width, int canvas_height) {
+int dx_scene_render(dx_scene* self, dx_context* context, dx_f32 delta_seconds, dx_i32 canvas_width, dx_i32 canvas_height) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;

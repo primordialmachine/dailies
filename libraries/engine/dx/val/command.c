@@ -166,7 +166,7 @@ dx_command_list* dx_command_list_create() {
 // otherwise compute new capacity = max(x,y) where
 // y = 2 * old capacity if old capacity > 0 and 8 otherwise
 // unless y overflows then y = maximal capacity.
-static int dx_compute_new_allocated_capacity(size_t old_capacity, size_t additional_capacity, size_t maximal_capacity, size_t* new_capacity) {
+static int dx_compute_new_allocated_capacity(dx_size old_capacity, dx_size additional_capacity, dx_size maximal_capacity, dx_size* new_capacity) {
   if (old_capacity > maximal_capacity) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -176,8 +176,8 @@ static int dx_compute_new_allocated_capacity(size_t old_capacity, size_t additio
     dx_set_error(DX_ALLOCATION_FAILED);
     return 1;
   }
-  size_t minimal_new_capacity = old_capacity + additional_capacity;
-  size_t best_new_capacity = 0;
+  dx_size minimal_new_capacity = old_capacity + additional_capacity;
+  dx_size best_new_capacity = 0;
 
   if (old_capacity != 0) {
     if (dx_mul_sz(old_capacity, 2, &best_new_capacity)) {
@@ -199,7 +199,7 @@ static int dx_compute_new_allocated_capacity(size_t old_capacity, size_t additio
 
 int dx_command_list_append(dx_command_list* self, dx_command* command) {
   if (self->size == self->capacity) {
-    size_t new_capacity = 0;
+    dx_size new_capacity = 0;
     if (dx_compute_new_allocated_capacity(self->capacity, 1, SIZE_MAX / sizeof(dx_command*), &new_capacity)) {
       return 1;
     }
@@ -216,11 +216,11 @@ int dx_command_list_append(dx_command_list* self, dx_command* command) {
   return 0;
 }
 
-size_t dx_command_list_get_size(dx_command_list const* self) {
+dx_size dx_command_list_get_size(dx_command_list const* self) {
   return self->size;
 }
 
-dx_command* dx_command_list_get_at(dx_command_list const* self, size_t index) {
+dx_command* dx_command_list_get_at(dx_command_list const* self, dx_size index) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return NULL;

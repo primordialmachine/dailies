@@ -70,13 +70,13 @@ dx_asset_mesh* dx_asset_mesh_create(dx_string* name, dx_string* specifier, DX_VE
 /// @param self A pointer to this mesh.
 /// @param vertex_format The vertex format to pack the mesh data in.
 /// @param bytes A pointer to a <code>void*</code> variable.
-/// @param number_of_bytes A pointer to a <code>size_t</code> variable.
+/// @param number_of_bytes A pointer to a <code>dx_size</code> variable.
 /// @return
 /// The zero value on success. A non-zero value on failure.
 /// @success
 /// <code>*number_of_bytes</code> was assigned the length, in Bytes, of the packed mesh data.
 /// <code>*bytes</code> was assigned a pointer to an array of length <code>*number_of_bytes</code>.
-int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, void **bytes, size_t *number_of_bytes);
+int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, void **bytes, dx_size*number_of_bytes);
 
 /// @brief Transform a range of vertices.
 /// @param self A pointer to this mesh.
@@ -84,7 +84,7 @@ int dx_asset_mesh_format(dx_asset_mesh* self, DX_VERTEX_FORMAT vertex_format, vo
 /// @param i The index of the vertex at which the range starts.
 /// @param n The number of vertices in the range.
 /// @return The zero value on success. A non-zero value on failure.
-int dx_asset_mesh_transform_range(dx_asset_mesh* self, DX_MAT4 const* a, size_t i, size_t n);
+int dx_asset_mesh_transform_range(dx_asset_mesh* self, DX_MAT4 const* a, dx_size i, dx_size n);
 
 /// @brief Append a quadriliteral.
 /// @param self A pointer to this mesh.
@@ -119,6 +119,6 @@ void dx_asset_mesh_set_mesh_ambient_rgba(dx_asset_mesh* self, DX_VEC4 const* val
 /// @param i The index of the vertex at which the range starts.
 /// @param n The length, in vertices, of the range.
 /// @return The zero value on success. A non-zero value on failure.
-int dx_asset_mesh_append_range(dx_asset_mesh* self, size_t i, size_t n);
+int dx_asset_mesh_append_range(dx_asset_mesh* self, dx_size i, dx_size n);
 
 #endif // DX_ASSET_MESH_H_INCLUDED

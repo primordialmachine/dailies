@@ -33,10 +33,18 @@ list(APPEND ${name}.headers "dx/val/program_text.h" "dx/val/command.h" "dx/val/p
 # "asset" folder.
 list(APPEND ${name}.sources "dx/asset/mesh/generators.c")
 list(APPEND ${name}.headers "dx/asset/mesh/generators.h")
+
 list(APPEND ${name}.sources "dx/asset/mesh_operation.c")
 list(APPEND ${name}.headers "dx/asset/mesh_operation.h")
 list(APPEND ${name}.sources "dx/asset/mesh_operations/set_vertex_colors.c")
 list(APPEND ${name}.headers "dx/asset/mesh_operations/set_vertex_colors.h")
+
+list(APPEND ${name}.sources "dx/asset/image_operation.c")
+list(APPEND ${name}.headers "dx/asset/image_operation.h")
+list(APPEND ${name}.sources "dx/asset/image_operations/color_fill.c")
+list(APPEND ${name}.headers "dx/asset/image_operations/color_fill.h")
+list(APPEND ${name}.sources "dx/asset/image_operations/checkerboard_pattern_fill.c")
+list(APPEND ${name}.headers "dx/asset/image_operations/checkerboard_pattern_fill.h")
 
 list(APPEND ${name}.sources "dx/asset/scene.c")
 list(APPEND ${name}.headers "dx/asset/scene.h")
@@ -47,6 +55,9 @@ list(APPEND ${name}.headers "dx/asset/material.h")
 list(APPEND ${name}.sources "dx/asset/texture.c")
 list(APPEND ${name}.headers "dx/asset/texture.h")
 
+list(APPEND ${name}.sources "dx/asset/optics.c")
+list(APPEND ${name}.headers "dx/asset/optics.h")
+
 # assets - mesh & mesh instance
 list(APPEND ${name}.sources "dx/asset/mesh.c" "dx/asset/mesh_instance.c")
 list(APPEND ${name}.headers "dx/asset/mesh.h" "dx/asset/mesh_instance.h")
@@ -54,8 +65,8 @@ list(APPEND ${name}.headers "dx/asset/mesh.h" "dx/asset/mesh_instance.h")
 list(APPEND ${name}.sources "dx/asset/viewer.c" "dx/asset/viewer_instance.c")
 list(APPEND ${name}.headers "dx/asset/viewer.h" "dx/asset/viewer_instance.h")
 
-list(APPEND ${name}.sources "dx/asset/image.c" "dx/asset/palette.c" "dx/asset/brushes.c" "dx/asset/color.c")
-list(APPEND ${name}.headers "dx/asset/image.h" "dx/asset/palette.h" "dx/asset/brushes.h" "dx/asset/color.h")
+list(APPEND ${name}.sources "dx/asset/image.c" "dx/asset/palette.c" "dx/asset/color.c")
+list(APPEND ${name}.headers "dx/asset/image.h" "dx/asset/palette.h" "dx/asset/color.h")
 
 # "adl" folder.
 list(APPEND ${name}.sources "dx/adl/syntactical.c")
@@ -92,6 +103,14 @@ list(APPEND ${name}.sources "dx/adl/semantical/mesh_instance_reader.c")
 list(APPEND ${name}.headers "dx/adl/semantical/mesh_instance_reader.h")
 list(APPEND ${name}.sources "dx/adl/semantical/mesh_operations_reader.c")
 list(APPEND ${name}.headers "dx/adl/semantical/mesh_operations_reader.h")
+
+list(APPEND ${name}.sources "dx/adl/semantical/image_operations_checkerboard_pattern_fill_reader.c")
+list(APPEND ${name}.headers "dx/adl/semantical/image_operations_checkerboard_pattern_fill_reader.h")
+list(APPEND ${name}.sources "dx/adl/semantical/image_operations_color_fill_reader.c")
+list(APPEND ${name}.headers "dx/adl/semantical/image_operations_color_fill_reader.h")
+
+list(APPEND ${name}.sources "dx/adl/semantical/optics_reader.c")
+list(APPEND ${name}.headers "dx/adl/semantical/optics_reader.h")
 
 # Small utility function to find files by expression and append them to the specified list.
 function(add_files file_list expression)

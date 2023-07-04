@@ -30,7 +30,7 @@ int dx_cbinding_set_vec4(dx_cbinding* cbinding, char const* name, DX_VEC4 const*
 
 int dx_cbinding_set_mat4(dx_cbinding* cbinding, char const* name, DX_MAT4 const* a);
 
-int dx_cbinding_set_texture_index(dx_cbinding* cbinding, char const* name, size_t i);
+int dx_cbinding_set_texture_index(dx_cbinding* cbinding, char const* name, dx_size i);
 
 int dx_cbinding_construct(dx_cbinding* cbinding);
 
@@ -61,6 +61,6 @@ int dx_cbinding_iter_get_vec4(dx_cbinding_iter const* iter, DX_VEC4* v);
 
 int dx_cbinding_iter_get_mat4(dx_cbinding_iter const* iter, DX_MAT4* a);
 
-int dx_cbinding_iter_get_texture_index(dx_cbinding_iter const* iter, size_t *i);
+int dx_cbinding_iter_get_texture_index(dx_cbinding_iter const* iter, dx_size*i);
 
 #endif // DX_CBINDING_H_INCLUDED

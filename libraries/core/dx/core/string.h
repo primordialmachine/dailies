@@ -21,7 +21,7 @@ dx_string* dx_string_printf(dx_string* format, ...);
 /// @param number_of_bytes The number of Bytes in the array pointed to by @a bytes.
 /// @return A pointer to the string on success. A null pointer on failure.
 /// @default-failure
-dx_string* dx_string_create(char const* p, size_t n);
+dx_string* dx_string_create(char const* p, dx_size n);
 
 /// @brief Get a pointer to the Bytes of this string.
 /// @param self A pointer to this string.
@@ -34,7 +34,7 @@ void const* dx_string_get_bytes(dx_string const* self);
 /// @return The number of Bytes of this string. This number might be @a 0.
 /// @a 0 is also returned if an error occurred. 
 /// @default-failure
-size_t dx_string_get_number_of_bytes(dx_string const* self);
+dx_size dx_string_get_number_of_bytes(dx_string const* self);
 
 /// @brief Get if the string contains an UTF-8 symbol.
 /// @param self A pointer to this string.
@@ -54,11 +54,11 @@ bool dx_string_is_equal_to(dx_string const* self, dx_string const* other);
 /// @param self A pointer to this string.
 /// @return The hash value of this string. This may be @a 0. @a 0 is also returned on failure.
 /// @default-failure
-size_t dx_string_get_hash_value(dx_string const* self);
+dx_size dx_string_get_hash_value(dx_string const* self);
 
 struct dx_string {
   dx_object _parent;
-  size_t number_of_bytes;
+  dx_size number_of_bytes;
   char bytes[];
 };
 
@@ -78,7 +78,7 @@ struct dx_string {
 /// This function has set the error variable.
 /// @success
 /// <code>*v</code> was assigned the value.
-int dx_str_to_i64(char const* p, size_t l, int64_t* v);
+int dx_str_to_i64(char const* p, dx_size l, int64_t* v);
 
 /// @brief
 /// Convert a string into an uint64_t value.
@@ -94,6 +94,6 @@ int dx_str_to_i64(char const* p, size_t l, int64_t* v);
 /// This function has set the error variable.
 /// @success
 /// <code>*v</code> was assigned the value.
-int dx_str_to_u64(char const* p, size_t l, uint64_t* v);
+int dx_str_to_u64(char const* p, dx_size l, uint64_t* v);
 
 #endif // DX_CORE_STRING_H_INCLUDED

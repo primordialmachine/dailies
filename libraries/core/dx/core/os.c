@@ -11,24 +11,24 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-size_t dx_os_get_page_size() {
+dx_size dx_os_get_page_size() {
   SYSTEM_INFO system_info;
   GetSystemInfo(&system_info);
   if (system_info.dwPageSize > SIZE_MAX) {
     dx_set_error(DX_ENVIRONMENT_FAILED);
     return 0;
   }
-  return (size_t)system_info.dwPageSize;
+  return (dx_size)system_info.dwPageSize;
 }
 
-size_t dx_os_get_number_of_cores() {
+dx_size dx_os_get_number_of_cores() {
   SYSTEM_INFO system_info;
   GetSystemInfo(&system_info);
   if (system_info.dwNumberOfProcessors > SIZE_MAX) {
     dx_set_error(DX_ENVIRONMENT_FAILED);
     return 0;
   }
-  return (size_t)system_info.dwNumberOfProcessors;
+  return (dx_size)system_info.dwNumberOfProcessors;
 }
 
 dx_string* dx_os_get_executable_path() {
@@ -37,7 +37,7 @@ dx_string* dx_os_get_executable_path() {
     dx_set_error(DX_ENVIRONMENT_FAILED);
     return NULL;
   }
-  size_t n = MAX_PATH;
+  dx_size n = MAX_PATH;
   char *p = dx_memory_allocate(n);
   if (!p) {
     return NULL;
@@ -55,8 +55,8 @@ dx_string* dx_os_get_executable_path() {
     // a) m == n: The buffer was too small (n is non-zero).
     // b) m < n: m denotes the number of characters copied without the zero terminator.
     if (m == n) {
-      size_t overflow;
-      size_t n_new = dx_add_sz(n, MAX_PATH, &overflow);
+      dx_size overflow;
+      dx_size n_new = dx_add_sz(n, MAX_PATH, &overflow);
       if (overflow) {
         n_new = SIZE_MAX;
       }

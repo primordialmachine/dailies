@@ -1,2 +1,2 @@
-### `viewerInstance`
+### `ViewerInstance`
 A viewer instance.

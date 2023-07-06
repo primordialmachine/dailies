@@ -84,13 +84,20 @@ static void mesh_instance_on_shutdown(dx_mesh_viewer_scene* self) {
   dx_object_array_uninitialize(&self->mesh_instances);
 }
 
-static int viewer_push_constants(dx_mesh_viewer_scene* self, dx_cbinding* cbinding) {
+static int viewer_push_constants(dx_mesh_viewer_scene* self, dx_cbinding* cbinding, dx_i32 canvas_width, dx_i32 canvas_height) {
   dx_val_viewer* viewer = DX_VAL_VIEWER(dx_object_array_get_at(&self->viewers, dx_object_array_get_size(&self->viewers) - 1));
-  if (dx_get_error()) {
+  if (!viewer) {
     return 1;
   }
-  dx_cbinding_set_mat4(cbinding, "matrices.projection_matrix", &self->projection_matrix);
-  dx_cbinding_set_mat4(cbinding, "matrices.view_matrix", &viewer->view_matrix);
+  DX_MAT4 a;
+  if (dx_val_viewer_get_projection_matrix(&a, viewer, canvas_width, canvas_height)) {
+    return 1;
+  }
+  dx_cbinding_set_mat4(cbinding, "matrices.projection_matrix", &a);
+  if (dx_val_viewer_get_view_matrix(&a, viewer, canvas_width, canvas_height)) {
+    return 1;
+  }
+  dx_cbinding_set_mat4(cbinding, "matrices.view_matrix", &a);
   return 0;
 }
 
@@ -101,15 +108,15 @@ static DX_VEC3 const SOURCE = { 0.f, 0.f, 3.f };
 // Rotate viewer with 25 degrees per second counter-clockwise around the y-axis.
 static dx_f32 const degrees_per_second = 25.f;
 
-static int update_viewer(dx_mesh_viewer_scene* self) {
+static int update_viewer(dx_mesh_viewer_scene* self, dx_i32 canvas_width, dx_i32 canvas_height) {
   dx_val_viewer* viewer = DX_VAL_VIEWER(dx_object_array_get_at(&self->viewers, dx_object_array_get_size(&self->viewers) - 1));
-  if (dx_get_error()) {
+  if (!viewer) {
     return 1;
   }
+  viewer->source = SOURCE;
   DX_MAT4 a;
   dx_mat4_set_rotate_y(&a, self->angle);
-  dx_transform_point(&viewer->source, &SOURCE, &a);
-  dx_mat4_set_look_at(&viewer->view_matrix, &viewer->source, &viewer->target, &viewer->up);
+  dx_transform_point(&viewer->source, &viewer->source, &a);
   return 0;
 }
 
@@ -198,7 +205,7 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* self, dx_context* 
     dx_memory_deallocate(p);
     p = NULL;
   }
-  if(!self->asset_scene) {
+  if (!self->asset_scene) {
     return 1;
   }
   //
@@ -209,8 +216,7 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* self, dx_context* 
     return 1;
   }
   //
-  dx_mat4_set_identity(&self->projection_matrix);
-  update_viewer(self);
+  update_viewer(self, 640, 480);
   //
   {
     dx_command* command = NULL;
@@ -236,35 +242,7 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* self, dx_context* 
 }
 
 static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* self, dx_context* context, dx_f32 delta_seconds, dx_i32 canvas_width, dx_i32 canvas_height) {
-  dx_asset_optics* optics = DX_ASSET_OPTICS(dx_asset_optics_perspective_create());
-  if (!optics) {
-    return 1;
-  }
-  if (dx_rti_type_is_leq(DX_OBJECT(optics)->type, dx_asset_optics_perspective_get_type())) {
-    dx_asset_optics_perspective* optics1 = DX_ASSET_OPTICS_PERSPECTIVE(optics);
-    // use actual aspect ratio
-    if (optics1->aspect_ratio) {
-      dx_memory_deallocate(optics1->aspect_ratio);
-      optics1->aspect_ratio = NULL;
-    }
-    dx_f32 aspect_ratio = (dx_f32)canvas_width / (dx_f32)canvas_height;
-    if (optics1->aspect_ratio) {
-      aspect_ratio = *optics1->aspect_ratio;
-    }
-    dx_mat4_set_perspective(&self->projection_matrix, 60.f, aspect_ratio, optics1->near, optics1->far);
-  } else if (dx_rti_type_is_leq(DX_OBJECT(optics)->type, dx_asset_optics_orthographic_get_type())) {
-    dx_asset_optics_orthographic* optics1 = DX_ASSET_OPTICS_ORTHOGRAPHIC(optics);
-    dx_mat4_set_ortho(&self->projection_matrix, -1, +1, -1, +1, optics1->near, optics1->far);
-  } else {
-    DX_UNREFERENCE(optics);
-    optics = NULL;
-    return 1;
-  }
-
-  DX_UNREFERENCE(optics);
-  optics = NULL;
-  
-  update_viewer(self);
+  update_viewer(self, canvas_width, canvas_height);
 
   dx_f32 degrees = degrees_per_second * delta_seconds;
   self->angle = fmodf(self->angle + degrees, 360.f);
@@ -300,7 +278,7 @@ static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* self, dx_context* c
       // update the constant binding
       dx_cbinding* cbinding = dx_val_mesh_instance_get_cbinding(mesh_instance);
       dx_val_mesh_instance_update_cbinding(mesh_instance, cbinding);
-      viewer_push_constants(self, cbinding);
+      viewer_push_constants(self, cbinding, canvas_width, canvas_height);
       if (dx_context_execute_commands(context, mesh_instance->commands)) {
         return 1;
       }
@@ -337,7 +315,6 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* self, char const* name)
     return 1;
   }
   self->asset_scene = NULL;
-  dx_mat4_set_identity(&self->projection_matrix);
   self->commands = NULL;
 
   DX_SCENE(self)->startup = (int (*)(dx_scene*, dx_context*)) & dx_mesh_viewer_scene_startup;

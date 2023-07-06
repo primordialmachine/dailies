@@ -1,2 +1,2 @@
-### `materialInstance`
+### `MaterialInstance`
 A material instance.

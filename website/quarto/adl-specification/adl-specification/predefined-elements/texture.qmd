@@ -1,2 +1,2 @@
-### `texture`
+### `Texture`
 A texture.

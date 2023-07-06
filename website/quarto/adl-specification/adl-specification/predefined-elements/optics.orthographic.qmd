@@ -1,0 +1,27 @@
+### `Optics.Orthographic`
+Defines an ortographic optics.
+
+`type`: required. Must be `Optics.Orthographic`.
+`scaleX`: See remarks.
+`scaleY`: See remarks.
+
+Remarks:
+Optics project points on a rectangle on a plane in 3d space.
+The rectangle has its left/bottom corner at (-scaleX,-scaleY) and its right/top corner at (+scaleX,+scaleY).
+That is, a quad of size (2*scaleX,2*scaleY) would perfectly fit into the plane.
+
+Remarks:
+For the orthographic optics to be specified exactly one of the following statements must be true:
+- `scaleX` and `aspectRatio` are specified (1).
+- `scaleY` and `aspectRatio` are specified (2).
+- `scaleX` and `scaleY` are specified (3).
+
+Find below an explanation how the missing attribute is computed depending on wehter (1), (2), or (3) is true:
+- if (1) is true, then `scaleY` is computed by `scaleY = scaleX / aspectRatio`.
+- if (2) is true, then `scaleX` is computed by `scaleX = scaleY * aspectRatio`.
+- if (3) is true, then `aspectRatio` is computed by `aspectRatio = scaleX / scaleY`.
+
+__Warning__:
+- `aspectRatio` must be positive (regardless of wether it is computed or specified).
+- `scaleX` must be positive (regardless of wether it is computed or specified).
+- `scaleY` must be positive (regardless of wether it is computed or specified).

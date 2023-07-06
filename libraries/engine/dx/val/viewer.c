@@ -1,5 +1,7 @@
 #include "dx/val/viewer.h"
 
+#include "dx/asset/optics.h"
+
 DX_DEFINE_OBJECT_TYPE("dx.val.viewer",
                       dx_val_viewer,
                       dx_object)
@@ -18,6 +20,8 @@ int dx_val_viewer_construct(dx_val_viewer* self, dx_asset_viewer_instance* asset
   self->target = asset_viewer_instance->viewer->target;
   self->up = asset_viewer_instance->viewer->up;
   self->asset_viewer_instance = asset_viewer_instance;
+  dx_mat4_set_identity(&self->view_matrix);
+  dx_mat4_set_identity(&self->projection_matrix);
   DX_REFERENCE(asset_viewer_instance);
   DX_OBJECT(self)->type = _type;
   return 0;
@@ -35,3 +39,57 @@ dx_val_viewer* dx_val_viewer_create(dx_asset_viewer_instance* asset_viewer_insta
   }
   return self;
 }
+
+int dx_val_viewer_get_projection_matrix(DX_MAT4* result, dx_val_viewer* self, dx_i32 canvas_width, dx_i32 canvas_height) {
+  if (!result || !self) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  dx_asset_optics* optics = self->asset_viewer_instance->viewer->optics;
+  if (!optics) {
+    return 1;
+  }
+  if (dx_rti_type_is_leq(DX_OBJECT(optics)->type, dx_asset_optics_perspective_get_type())) {
+    dx_asset_optics_perspective* optics1 = DX_ASSET_OPTICS_PERSPECTIVE(optics);
+    // use actual aspect ratio
+    if (optics1->aspect_ratio) {
+      dx_memory_deallocate(optics1->aspect_ratio);
+      optics1->aspect_ratio = NULL;
+    }
+    dx_f32 aspect_ratio = (dx_f32)canvas_width / (dx_f32)canvas_height;
+    if (optics1->aspect_ratio) {
+      aspect_ratio = *optics1->aspect_ratio;
+    }
+    dx_mat4_set_perspective(&self->projection_matrix, optics1->field_of_view_y, aspect_ratio, optics1->near, optics1->far);
+  } else if (dx_rti_type_is_leq(DX_OBJECT(optics)->type, dx_asset_optics_orthographic_get_type())) {
+    dx_asset_optics_orthographic* optics1 = DX_ASSET_OPTICS_ORTHOGRAPHIC(optics);
+    dx_f32 left = -1.f;
+    dx_f32 right = +1.f;
+    if (optics1->scale_x) {
+      left *= *optics1->scale_x;
+      right *= *optics1->scale_x;
+    }
+    dx_f32 bottom = -1.f;
+    dx_f32 top = +1.f;
+    if (optics1->scale_y) {
+      bottom *= *optics1->scale_y;
+      top *= *optics1->scale_y;
+    }
+    dx_mat4_set_ortho(&self->projection_matrix, left, right, bottom, top, optics1->near, optics1->far);
+  } else {
+    return 1;
+  }
+  *result = self->projection_matrix;
+  return 0;
+}
+
+int dx_val_viewer_get_view_matrix(DX_MAT4* result, dx_val_viewer* self, dx_i32 canvas_width, dx_i32 canvas_height) {
+  if (!result || !self) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  dx_mat4_set_look_at(&self->view_matrix, &self->source, &self->target, &self->up);
+  *result = self->view_matrix;
+  return 0;
+}
+

@@ -36,7 +36,6 @@ struct dx_mesh_viewer_scene {
   /// @brief The commands to be executed when entering a frame.
   dx_command_list* commands;
   dx_f32 angle;
-  DX_MAT4 projection_matrix;
 };
 
 /// @brief Construct this mesh viewer scene.

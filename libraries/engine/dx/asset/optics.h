@@ -31,6 +31,17 @@ static inline dx_asset_optics_orthographic* DX_ASSET_OPTICS_ORTHOGRAPHIC(void* p
 
 struct dx_asset_optics_orthographic {
   dx_asset_optics _parent;
+  /// @brief The aspect ratio.
+  /// The default value is NULL.
+  dx_f32* aspect_ratio;
+  /// @brief The scaling along the x-axis applied to the rectangle the points are projected into.
+  /// The default value is 1.0.
+  /// If not specified, scale_y is assigned the actual width of the viewport.
+  dx_f32 *scale_x;
+  /// @brief The scaling along the y-axis applied to the rectangle the points are projected into.
+  /// The default value is 1.0.
+  /// If not specified, scale_y is assigned the actual height of the viewport.
+  dx_f32 *scale_y;
   /// @brief The default values are 0.1.
   dx_f32 near;
   /// @brief The default value is 1000.0.

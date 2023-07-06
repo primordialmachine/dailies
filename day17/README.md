@@ -3,9 +3,27 @@ The folder, in which this `README.md` is located in, contains the source code an
 
 The program opens a window.
 
-It presents two scenes:
-One cube and one octahedron, both with the same texture.
-The camera rotates around the geometrics.
+It presents six scenes:
+
+- A triangle with a checkerboard texture.
+  The camera rotates around the geometrics.
+
+- A quadriliteral with a checkerboard texture.
+  The camera rotates around the geometrics.
+
+- A cube with a checkerboard texture.
+  The camera rotates around the geometrics.
+
+- An octahderon with a checkerboard texture.
+  The camera rotates around the geometrics.
+
+- Two cubes both with a checkerboard texture.
+  The cubes are distributed around the origin.
+  The camera rotates around the geometrics.
+
+- Two octahedrons both with a checkerboard texture.
+  The octahedrons are distributed around the origin.
+  The camera rotates around the geometrics.
 
 To exit the program either close the window or press `Escape` when the window has keyboard focus.
 To switch between the two scenes, press `Enter`.

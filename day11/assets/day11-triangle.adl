@@ -10,13 +10,13 @@
           type : 'Vector3',
           x : 0,
           y : 0,
-          z : 0,
+          z : 1,
         },
         target : {
           type : 'Vector3',
           x : 0,
           y : 0,
-          z : -1,
+          z : 0,
         },
         up : {
           type : 'Vector3',

@@ -24,14 +24,43 @@ DX_DEFINE_OBJECT_TYPE("dx.asset.optics_orthographic",
                       dx_asset_optics_orthographic,
                       dx_asset_optics)
 
-static void dx_asset_optics_orthographic_destruct(dx_asset_optics_orthographic* self)
-{/*Intentionally empty.*/}
+static void dx_asset_optics_orthographic_destruct(dx_asset_optics_orthographic* self) {
+
+  if (self->scale_y) {
+    dx_memory_deallocate(self->scale_y);
+    self->scale_y = NULL;
+  }
+  if (self->scale_x) {
+    dx_memory_deallocate(self->scale_x);
+    self->scale_x = NULL;
+  }
+  if (self->aspect_ratio) {
+    dx_memory_deallocate(self->aspect_ratio);
+    self->aspect_ratio = NULL;
+  }
+}
 
 int dx_asset_optics_orthographic_construct(dx_asset_optics_orthographic* self) {
   dx_rti_type* _type = dx_asset_optics_orthographic_get_type();
   if (!_type) {
     return 1;
   }
+  self->aspect_ratio = NULL;
+  self->scale_x = dx_memory_allocate(sizeof(dx_f32));
+  self->scale_y = dx_memory_allocate(sizeof(dx_f32));
+  if (!self->scale_x || !self->scale_y) {
+    if (self->scale_y) {
+      dx_memory_deallocate(self->scale_y);
+      self->scale_y = NULL;
+    }
+    if (self->scale_x) {
+      dx_memory_deallocate(self->scale_x);
+      self->scale_x = NULL;
+    }
+    return 1;
+  }
+  *self->scale_x = 1.f;
+  *self->scale_y = 1.f;
   self->near = 0.1f;
   self->far = 1000.f;
   DX_OBJECT(self)->type = _type;

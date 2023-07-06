@@ -47,7 +47,7 @@ static dx_asset_optics_perspective* _read_optics_perspective(dx_adl_node* node, 
     dx_f32 value;
     dx_string* key = NAME(aspect_ratio_key);
     if (!dx_adl_semantical_read_f32(node, key, &value)) {
-      if (optics_value->aspect_ratio) {
+      if (!optics_value->aspect_ratio) {
         optics_value->aspect_ratio = dx_memory_allocate(sizeof(dx_f32));
         if (!optics_value->aspect_ratio) {
           DX_UNREFERENCE(optics_value);

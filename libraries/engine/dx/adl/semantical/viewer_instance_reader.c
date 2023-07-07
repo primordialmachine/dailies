@@ -11,25 +11,25 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
   return name;
 }
 
-#define NAME(name) _get_name(state->names, dx_semantical_name_index_##name)
+#define NAME(name) _get_name(context->names, dx_semantical_name_index_##name)
 
 DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.viewer_instance_reader",
                       dx_adl_semantical_viewer_instance_reader,
                       dx_adl_semantical_reader)
 
-static dx_asset_viewer* _read_viewer(dx_adl_node* node, dx_adl_semantical_state* state) {
-  dx_string* received_type = dx_adl_semantical_read_type(node, state);
+static dx_asset_viewer* _read_viewer(dx_ddl_node* node, dx_adl_context* context) {
+  dx_string* received_type = dx_adl_semantical_read_type(node, context);
   if (!received_type) {
     return NULL;
   }
   if (dx_string_is_equal_to(received_type, NAME(viewer_type))) {
     DX_UNREFERENCE(received_type);
     received_type = NULL;
-    dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&state->readers, NAME(viewer_type));
+    dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&context->readers, NAME(viewer_type));
     if (!reader) {
       return NULL;
     }
-    return  DX_ASSET_VIEWER(dx_adl_semantical_reader_read(reader, node, state));
+    return  DX_ASSET_VIEWER(dx_adl_semantical_reader_read(reader, node, context));
   } else {
     DX_UNREFERENCE(received_type);
     received_type = NULL;
@@ -38,31 +38,31 @@ static dx_asset_viewer* _read_viewer(dx_adl_node* node, dx_adl_semantical_state*
   }
 }
 
-static dx_asset_viewer_instance* _read_viewer_instance(dx_adl_node* node, dx_adl_semantical_state* state) {
+static dx_asset_viewer_instance* _read_viewer_instance(dx_ddl_node* node, dx_adl_context* context) {
   dx_asset_viewer* viewer_value = NULL;
   // viewer
   {
     dx_string* name = NAME(viewer_key);
-    dx_adl_node* child_node = dx_adl_node_map_get(node, name);
+    dx_ddl_node* child_node = dx_ddl_node_map_get(node, name);
     if (!child_node) {
       return NULL;
     }
-    if (child_node->kind != dx_adl_node_kind_map) {
+    if (child_node->kind != dx_ddl_node_kind_map) {
       return NULL;
     }
-    dx_string* received_type = dx_adl_semantical_read_type(child_node, state);
+    dx_string* received_type = dx_adl_semantical_read_type(child_node, context);
     if (!dx_string_is_equal_to(received_type, NAME(viewer_type))) {
       DX_UNREFERENCE(received_type);
       received_type = NULL;
       return NULL;
     }
-    dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&state->readers, received_type);
+    dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&context->readers, received_type);
     DX_UNREFERENCE(received_type);
     received_type = NULL;
     if (!reader) {
       return NULL;
     }
-    viewer_value = (dx_asset_viewer*)dx_adl_semantical_reader_read(reader, child_node, state);
+    viewer_value = (dx_asset_viewer*)dx_adl_semantical_reader_read(reader, child_node, context);
     if (!viewer_value) {
       return NULL;
     }
@@ -73,8 +73,8 @@ static dx_asset_viewer_instance* _read_viewer_instance(dx_adl_node* node, dx_adl
   return viewer_instance_value;
 }
 
-static dx_object* read(dx_adl_semantical_viewer_instance_reader* self, dx_adl_node* node, dx_adl_semantical_state* state) {
-  return DX_OBJECT(_read_viewer_instance(node, state));
+static dx_object* read(dx_adl_semantical_viewer_instance_reader* self, dx_ddl_node* node, dx_adl_context* context) {
+  return DX_OBJECT(_read_viewer_instance(node, context));
 }
 
 int dx_adl_semantical_viewer_instance_reader_construct(dx_adl_semantical_viewer_instance_reader* self) {
@@ -85,7 +85,7 @@ int dx_adl_semantical_viewer_instance_reader_construct(dx_adl_semantical_viewer_
   if (!_type) {
     return 1;
   }
-  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object * (*)(dx_adl_semantical_reader*, dx_adl_node*, dx_adl_semantical_state*)) & read;
+  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object * (*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*)) & read;
   DX_OBJECT(self)->type = _type;
   return 0;
 }

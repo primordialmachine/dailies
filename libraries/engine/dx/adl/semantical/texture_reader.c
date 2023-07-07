@@ -11,33 +11,33 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
   return name;
 }
 
-#define NAME(name) _get_name(state->names, dx_semantical_name_index_##name)
+#define NAME(name) _get_name(context->names, dx_semantical_name_index_##name)
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static dx_asset_image* _read_image(dx_adl_node* node, dx_adl_semantical_state* state);
+static dx_asset_image* _read_image(dx_ddl_node* node, dx_adl_context* context);
 
-static dx_asset_texture* _read_texture(dx_adl_node* node, dx_adl_semantical_state* state);
+static dx_asset_texture* _read_texture(dx_ddl_node* node, dx_adl_context* context);
 
-static dx_object* read(dx_adl_semantical_texture_reader*,
-                       dx_adl_node* node,
-                       dx_adl_semantical_state*);
+static dx_object* read(dx_adl_semantical_texture_reader* self,
+                       dx_ddl_node* node,
+                       dx_adl_context* context);
 
 DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.texture_reader",
                       dx_adl_semantical_texture_reader,
                       dx_adl_semantical_reader)
 
-static dx_asset_image* _read_image(dx_adl_node* node, dx_adl_semantical_state* state) {
-  dx_string* received_type = dx_adl_semantical_read_type(node, state);
+static dx_asset_image* _read_image(dx_ddl_node* node, dx_adl_context* context) {
+  dx_string* received_type = dx_adl_semantical_read_type(node, context);
   if (!received_type) {
     return NULL;
   }
   if (dx_string_is_equal_to(received_type, NAME(image_type))) {
-    dx_adl_semantical_reader* image_reader = dx_pointer_hashmap_get(&state->readers, received_type);
+    dx_adl_semantical_reader* image_reader = dx_pointer_hashmap_get(&context->readers, received_type);
     if (!image_reader) {
       return NULL;
     }
-    dx_asset_image* asset = DX_ASSET_IMAGE(dx_adl_semantical_reader_read(image_reader, node, state));
+    dx_asset_image* asset = DX_ASSET_IMAGE(dx_adl_semantical_reader_read(image_reader, node, context));
     return asset;
   } else {
     dx_set_error(DX_SEMANTICAL_ERROR);
@@ -45,13 +45,13 @@ static dx_asset_image* _read_image(dx_adl_node* node, dx_adl_semantical_state* s
   }
 }
 
-static dx_asset_texture* _read_texture(dx_adl_node* node, dx_adl_semantical_state* state) {
+static dx_asset_texture* _read_texture(dx_ddl_node* node, dx_adl_context* context) {
   dx_asset_texture* texture_value = NULL;
   dx_string* name_value = NULL;
   dx_asset_image* image_value = NULL;
   // name
   {
-    name_value = dx_adl_semantical_read_name(node, state);
+    name_value = dx_adl_semantical_read_name(node, context);
     if (!name_value) {
       goto END;
     }
@@ -59,18 +59,24 @@ static dx_asset_texture* _read_texture(dx_adl_node* node, dx_adl_semantical_stat
   // image
   {
     dx_string* name = NAME(image_key);
-    dx_adl_node* child_node = dx_adl_node_map_get(node, name);
+    dx_ddl_node* child_node = dx_ddl_node_map_get(node, name);
     if (!child_node) {
       goto END;
     }
-    image_value = _read_image(child_node, state);
+    image_value = _read_image(child_node, context);
     if (!image_value) {
       goto END;
     }
   }
-  texture_value = dx_asset_texture_create(name_value, image_value);
-  DX_UNREFERENCE(image_value);
-  image_value = NULL;
+  dx_asset_reference* image_reference_value = dx_asset_reference_create(image_value->name);
+  if (!image_reference_value) {
+    goto END;
+  }
+  image_reference_value->object = DX_OBJECT(image_value);
+  DX_REFERENCE(image_reference_value->object);
+  texture_value = dx_asset_texture_create(name_value, image_reference_value);
+  DX_UNREFERENCE(image_reference_value);
+  image_reference_value = NULL;
   DX_UNREFERENCE(name_value);
   name_value = NULL;
   if (!texture_value) {
@@ -88,8 +94,8 @@ END:
   return texture_value;
 }
 
-static dx_object* read(dx_adl_semantical_texture_reader* self, dx_adl_node* node, dx_adl_semantical_state* state) {
-  return DX_OBJECT(_read_texture(node, state));
+static dx_object* read(dx_adl_semantical_texture_reader* self, dx_ddl_node* node, dx_adl_context* context) {
+  return DX_OBJECT(_read_texture(node, context));
 }
 
 int dx_adl_semantical_texture_reader_construct(dx_adl_semantical_texture_reader* self) {
@@ -100,7 +106,7 @@ int dx_adl_semantical_texture_reader_construct(dx_adl_semantical_texture_reader*
   if (dx_adl_semantical_reader_construct(DX_ADL_SEMANTICAL_READER(self))) {
     return 1;
   }
-  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_adl_node*, dx_adl_semantical_state*))&read;
+  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*))&read;
   DX_OBJECT(self)->type = _type;
   return 0;
 }

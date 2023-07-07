@@ -11,16 +11,18 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
   return name;
 }
 
-#define NAME(name) _get_name(state->names, dx_semantical_name_index_##name)
+#define NAME(name) _get_name(context->names, dx_semantical_name_index_##name)
 
-static dx_object* read(dx_adl_semantical_mesh_operations_reader*, dx_adl_node* node, dx_adl_semantical_state*);
+static dx_object* read(dx_adl_semantical_mesh_operations_reader* self,
+                       dx_ddl_node* node,
+                       dx_adl_context* context);
 
 DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.mesh_operations_reader",
                       dx_adl_semantical_mesh_operations_reader,
                       dx_adl_semantical_reader)
 
-static dx_object* read(dx_adl_semantical_mesh_operations_reader* self, dx_adl_node* node, dx_adl_semantical_state* state) {
-  dx_string* received_type = dx_adl_semantical_read_type(node, state);
+static dx_object* read(dx_adl_semantical_mesh_operations_reader* self, dx_ddl_node* node, dx_adl_context* context) {
+  dx_string* received_type = dx_adl_semantical_read_type(node, context);
   if (!received_type) {
     return NULL;
   }
@@ -44,7 +46,7 @@ int dx_adl_semantical_mesh_operations_reader_construct(dx_adl_semantical_mesh_op
   if (dx_adl_semantical_reader_construct(DX_ADL_SEMANTICAL_READER(self))) {
     return 1;
   }
-  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object * (*)(dx_adl_semantical_reader*, dx_adl_node*, dx_adl_semantical_state*)) & read;
+  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object * (*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*)) & read;
   DX_OBJECT(self)->type = _type;
   return 0;
 }

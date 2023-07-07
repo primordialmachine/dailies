@@ -10,19 +10,19 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
   DX_DEBUG_ASSERT(NULL != name);
   return name;
 }
-#define NAME(name) _get_name(state->names, dx_semantical_name_index_##name)
+#define NAME(name) _get_name(context->names, dx_semantical_name_index_##name)
 
-static dx_asset_optics* _read_optics(dx_adl_node* node, dx_adl_semantical_state* state);
+static dx_asset_optics* _read_optics(dx_ddl_node* node, dx_adl_context* context);
 
 static dx_object* read(dx_adl_semantical_optics_reader*,
-                       dx_adl_node* node,
-                       dx_adl_semantical_state*);
+                       dx_ddl_node* node,
+                       dx_adl_context* context);
 
 DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.optics_reader",
                       dx_adl_semantical_optics_reader,
                       dx_adl_semantical_reader)
 
-static dx_asset_optics_perspective* _read_optics_perspective(dx_adl_node* node, dx_adl_semantical_state* state) {
+static dx_asset_optics_perspective* _read_optics_perspective(dx_ddl_node* node, dx_adl_context* context) {
   dx_asset_optics_perspective* optics_value = dx_asset_optics_perspective_create();
   if (!optics_value) {
     return NULL;
@@ -102,7 +102,7 @@ static dx_asset_optics_perspective* _read_optics_perspective(dx_adl_node* node, 
   return optics_value;
 }
 
-static dx_asset_optics_orthographic* _read_optics_orthographic(dx_adl_node* node, dx_adl_semantical_state* state) {
+static dx_asset_optics_orthographic* _read_optics_orthographic(dx_ddl_node* node, dx_adl_context* context) {
   dx_asset_optics_orthographic* optics_value = dx_asset_optics_orthographic_create();
   if (!optics_value) {
     return NULL;
@@ -136,19 +136,19 @@ static dx_asset_optics_orthographic* _read_optics_orthographic(dx_adl_node* node
   return optics_value;
 }
 
-static dx_asset_optics* _read_optics(dx_adl_node* node, dx_adl_semantical_state* state) {
-  dx_string* type = dx_adl_semantical_read_type(node, state);
+static dx_asset_optics* _read_optics(dx_ddl_node* node, dx_adl_context* context) {
+  dx_string* type = dx_adl_semantical_read_type(node, context);
   if (!type) {
     return NULL;
   }
   if (dx_string_is_equal_to(type, NAME(optics_perspective_type))) {
     DX_UNREFERENCE(type);
     type = NULL;
-    return DX_ASSET_OPTICS(_read_optics_perspective(node, state));
+    return DX_ASSET_OPTICS(_read_optics_perspective(node, context));
   } else if (dx_string_is_equal_to(type, NAME(optics_orthographic_type))) {
     DX_UNREFERENCE(type);
     type = NULL;
-    return DX_ASSET_OPTICS(_read_optics_orthographic(node, state));
+    return DX_ASSET_OPTICS(_read_optics_orthographic(node, context));
   } else {
     dx_set_error(DX_SEMANTICAL_ERROR);
     DX_UNREFERENCE(type);
@@ -158,8 +158,8 @@ static dx_asset_optics* _read_optics(dx_adl_node* node, dx_adl_semantical_state*
   return NULL;
 }
 
-static dx_object* read(dx_adl_semantical_optics_reader* self, dx_adl_node* node, dx_adl_semantical_state* state) {
-  return DX_OBJECT(_read_optics(node, state));
+static dx_object* read(dx_adl_semantical_optics_reader* self, dx_ddl_node* node, dx_adl_context* context) {
+  return DX_OBJECT(_read_optics(node,context));
 }
 
 int dx_adl_semantical_optics_reader_construct(dx_adl_semantical_optics_reader* self) {
@@ -170,7 +170,7 @@ int dx_adl_semantical_optics_reader_construct(dx_adl_semantical_optics_reader* s
   if (dx_adl_semantical_reader_construct(DX_ADL_SEMANTICAL_READER(self))) {
     return 1;
   }
-  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_adl_node*, dx_adl_semantical_state*))&read;
+  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*))&read;
   DX_OBJECT(self)->type = _type;
   return 0;
 }

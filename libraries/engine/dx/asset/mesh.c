@@ -63,9 +63,9 @@ static void dx_asset_mesh_destruct(dx_asset_mesh* self) {
     DX_UNREFERENCE(self->name);
     self->name = NULL;
   }
-  if (self->material) {
-    DX_UNREFERENCE(self->material);
-    self->material = NULL;
+  if (self->material_reference) {
+    DX_UNREFERENCE(self->material_reference);
+    self->material_reference = NULL;
   }
   if (self->vertices.ambient_uv) {
     dx_memory_deallocate(self->vertices.ambient_uv);
@@ -152,10 +152,22 @@ SELECT_GENERATOR(octahedron)
     self->vertices.xyz = NULL;
     return 1;
   }
-  self->material = material;
-  DX_REFERENCE(material);
+  self->material_reference = dx_asset_reference_create(material->name);
+  if (!self->material_reference) {
+    dx_memory_deallocate(self->vertices.ambient_uv);
+    self->vertices.ambient_uv = NULL;
+    dx_memory_deallocate(self->vertices.ambient_rgba);
+    self->vertices.ambient_rgba = NULL;
+    dx_memory_deallocate(self->vertices.xyz);
+    self->vertices.xyz = NULL;
+    return 1;
+  }
+  self->material_reference->object = DX_OBJECT(material);
+  DX_REFERENCE(self->material_reference->object);
+
   self->name = name;
   DX_REFERENCE(name);
+
   self->vertex_format = vertex_format;
 
   DX_OBJECT(self)->type = _type;

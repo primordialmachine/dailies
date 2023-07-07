@@ -58,6 +58,9 @@ list(APPEND ${name}.headers "dx/asset/texture.h")
 list(APPEND ${name}.sources "dx/asset/optics.c")
 list(APPEND ${name}.headers "dx/asset/optics.h")
 
+list(APPEND ${name}.sources "dx/asset/reference.c")
+list(APPEND ${name}.headers "dx/asset/reference.h")
+
 # assets - mesh & mesh instance
 list(APPEND ${name}.sources "dx/asset/mesh.c" "dx/asset/mesh_instance.c")
 list(APPEND ${name}.headers "dx/asset/mesh.h" "dx/asset/mesh_instance.h")
@@ -65,21 +68,44 @@ list(APPEND ${name}.headers "dx/asset/mesh.h" "dx/asset/mesh_instance.h")
 list(APPEND ${name}.sources "dx/asset/viewer.c" "dx/asset/viewer_instance.c")
 list(APPEND ${name}.headers "dx/asset/viewer.h" "dx/asset/viewer_instance.h")
 
-list(APPEND ${name}.sources "dx/asset/image.c" "dx/asset/palette.c" "dx/asset/color.c")
-list(APPEND ${name}.headers "dx/asset/image.h" "dx/asset/palette.h" "dx/asset/color.h")
+list(APPEND ${name}.sources "dx/asset/image.c" "dx/asset/color.c")
+list(APPEND ${name}.headers "dx/asset/image.h" "dx/asset/color.h")
+
+# "ddl.(c|h)" files & "ddl" folder.
+list(APPEND ${name}.sources "dx/ddl/word_kind.c")
+list(APPEND ${name}.headers "dx/ddl/word_kind.h")
+list(APPEND ${name}.inlays "dx/ddl/word_kind.i")
+list(APPEND ${name}.sources "dx/ddl/word.c")
+list(APPEND ${name}.headers "dx/ddl/word.h")
+list(APPEND ${name}.sources "dx/ddl/scanner.c")
+list(APPEND ${name}.headers "dx/ddl/scanner.h")
+list(APPEND ${name}.sources "dx/ddl/node_kind.c")
+list(APPEND ${name}.headers "dx/ddl/node_kind.h")
+list(APPEND ${name}.inlays "dx/ddl/node_kind.i")
+list(APPEND ${name}.sources "dx/ddl/node.c")
+list(APPEND ${name}.headers "dx/ddl/node.h")
+list(APPEND ${name}.sources "dx/ddl/parser.c")
+list(APPEND ${name}.headers "dx/ddl/parser.h")
+list(APPEND ${name}.sources "dx/ddl.c")
+list(APPEND ${name}.headers "dx/ddl.h")
 
 # "adl" folder.
-list(APPEND ${name}.sources "dx/adl/syntactical.c")
-list(APPEND ${name}.headers "dx/adl/syntactical.h")
-list(APPEND ${name}.inlays "dx/adl/word_kind.i")
-
 list(APPEND ${name}.sources "dx/adl/diagnostics.c")
 list(APPEND ${name}.headers "dx/adl/diagnostics.h")
 
-list(APPEND ${name}.sources "dx/adl/semantical.c")
-list(APPEND ${name}.headers "dx/adl/semantical.h")
-list(APPEND ${name}.sources "dx/adl/semantical/state.c")
-list(APPEND ${name}.headers "dx/adl/semantical/state.h")
+list(APPEND ${name}.sources "dx/adl/symbols.c")
+list(APPEND ${name}.headers "dx/adl/symbols.h")
+
+list(APPEND ${name}.sources "dx/adl/enter.c")
+list(APPEND ${name}.headers "dx/adl/enter.h")
+list(APPEND ${name}.sources "dx/adl/reader.c")
+list(APPEND ${name}.headers "dx/adl/reader.h")
+list(APPEND ${name}.sources "dx/adl/context.c")
+list(APPEND ${name}.headers "dx/adl/context.h")
+
+list(APPEND ${name}.sources "dx/adl.c")
+list(APPEND ${name}.headers "dx/adl.h")
+
 list(APPEND ${name}.sources "dx/adl/semantical/names.c")
 list(APPEND ${name}.headers "dx/adl/semantical/names.h")
 list(APPEND ${name}.inlays  "dx/adl/semantical/names.i")
@@ -103,6 +129,9 @@ list(APPEND ${name}.sources "dx/adl/semantical/mesh_instance_reader.c")
 list(APPEND ${name}.headers "dx/adl/semantical/mesh_instance_reader.h")
 list(APPEND ${name}.sources "dx/adl/semantical/mesh_operations_reader.c")
 list(APPEND ${name}.headers "dx/adl/semantical/mesh_operations_reader.h")
+
+list(APPEND ${name}.sources "dx/adl/semantical/color_reader.c")
+list(APPEND ${name}.headers "dx/adl/semantical/color_reader.h")
 
 list(APPEND ${name}.sources "dx/adl/semantical/image_operations_checkerboard_pattern_fill_reader.c")
 list(APPEND ${name}.headers "dx/adl/semantical/image_operations_checkerboard_pattern_fill_reader.h")

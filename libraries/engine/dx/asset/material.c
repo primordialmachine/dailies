@@ -13,26 +13,30 @@ int dx_asset_material_construct(dx_asset_material* self, dx_string* name) {
   if (!_type) {
     return 1;
   }
+  
   if (!name) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
   self->name = name;
   DX_REFERENCE(name);
+
   self->ambient_color = (DX_VEC4){ 1.f, 1.f, 1.f, 1.f };
-  self->ambient_texture = NULL;
+  
+  self->ambient_texture_reference = NULL;
+  
   DX_OBJECT(self)->type = _type;
   return 0;
 }
 
 static void dx_asset_material_destruct(dx_asset_material* self) {
+  if (self->ambient_texture_reference) {
+    DX_UNREFERENCE(self->ambient_texture_reference);
+    self->ambient_texture_reference = NULL;
+  }
   if (self->name) {
     DX_UNREFERENCE(self->name);
     self->name = NULL;
-  }
-  if (self->ambient_texture) {
-    DX_UNREFERENCE(self->ambient_texture);
-    self->ambient_texture = NULL;
   }
 }
 
@@ -63,12 +67,18 @@ int dx_asset_material_set_ambient_texture(dx_asset_material* self, dx_asset_text
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
+  dx_asset_reference* reference = NULL;
   if (value) {
+    reference = dx_asset_reference_create(value->name);
+    if (!reference) {
+      return 1;
+    }
+    reference->object = DX_OBJECT(value);
     DX_REFERENCE(value);
   }
-  if (self->ambient_texture) {
-    DX_UNREFERENCE(self->ambient_texture);
+  if (self->ambient_texture_reference) {
+    DX_UNREFERENCE(self->ambient_texture_reference);
   }
-  self->ambient_texture = value;
+  self->ambient_texture_reference = reference;
   return 0;
 }

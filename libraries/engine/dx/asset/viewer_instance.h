@@ -2,6 +2,7 @@
 #define DX_ASSET_VIEWER_INSTANCE_H_INCLUDED
 
 #include "dx/asset/viewer.h"
+#include "dx/asset/reference.h"
 
 /// @brief A viewer instance asset.
 DX_DECLARE_OBJECT_TYPE("dx.asset.viewer_instance",
@@ -14,8 +15,8 @@ static inline dx_asset_viewer_instance* DX_ASSET_VIEWER_INSTANCE(void* p) {
 
 struct dx_asset_viewer_instance {
   dx_object _parent;
-  /// @brief The viewer of this viewer instance.
-  dx_asset_viewer* viewer;
+  /// @brief Reference to the viewer of this viewer instance.
+  dx_asset_reference* viewer_reference;
   /// @brief The world matrix of this viewer instance.
   DX_MAT4 world_matrix;
 };

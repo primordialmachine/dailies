@@ -12,32 +12,32 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
   return name;
 }
 
-#define NAME(name) _get_name(state->names, dx_semantical_name_index_##name)
+#define NAME(name) _get_name(context->names, dx_semantical_name_index_##name)
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 static dx_object* read(dx_adl_semantical_viewer_reader*,
-                       dx_adl_node* node,
-                       dx_adl_semantical_state*);
+                       dx_ddl_node* node,
+                       dx_adl_context* context);
 
 DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.viewer_reader",
                       dx_adl_semantical_viewer_reader,
                       dx_adl_semantical_reader)
 
-static dx_asset_optics* _read_optics(dx_adl_node* node, dx_adl_semantical_state* state) {
-  dx_string* received_type = dx_adl_semantical_read_type(node, state);
+static dx_asset_optics* _read_optics(dx_ddl_node* node, dx_adl_context* context) {
+  dx_string* received_type = dx_adl_semantical_read_type(node, context);
   if (!received_type) {
     return NULL;
   }
   if (dx_string_is_equal_to(received_type, NAME(optics_orthographic_type)) ||
       dx_string_is_equal_to(received_type, NAME(optics_perspective_type))) {
-    dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&state->readers, received_type);
+    dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&context->readers, received_type);
     DX_UNREFERENCE(received_type);
     received_type = NULL;
     if (!reader) {
       return NULL;
     }
-    return DX_ASSET_OPTICS(dx_adl_semantical_reader_read(reader, node, state));
+    return DX_ASSET_OPTICS(dx_adl_semantical_reader_read(reader, node, context));
   } else {
     DX_UNREFERENCE(received_type);
     received_type = NULL;
@@ -46,12 +46,12 @@ static dx_asset_optics* _read_optics(dx_adl_node* node, dx_adl_semantical_state*
   }
 }
 
-static dx_object* read(dx_adl_semantical_viewer_reader* self, dx_adl_node* node, dx_adl_semantical_state* state) {
+static dx_object* read(dx_adl_semantical_viewer_reader* self, dx_ddl_node* node, dx_adl_context* context) {
   dx_asset_viewer* viewer_value = NULL;
   dx_string* name_value = NULL;
   // name
   {
-    name_value = dx_adl_semantical_read_name(node, state);
+    name_value = dx_adl_semantical_read_name(node, context);
     if (!name_value) {
       return NULL;
     }
@@ -64,7 +64,7 @@ static dx_object* read(dx_adl_semantical_viewer_reader* self, dx_adl_node* node,
   }
   // source?
   {
-    dx_adl_node* child_node = dx_adl_node_map_get(node, NAME(source_key));
+    dx_ddl_node* child_node = dx_ddl_node_map_get(node, NAME(source_key));
     if (!child_node) {
       if (dx_get_error() != DX_NOT_FOUND) {
         DX_UNREFERENCE(viewer_value);
@@ -72,7 +72,7 @@ static dx_object* read(dx_adl_semantical_viewer_reader* self, dx_adl_node* node,
         return NULL;
       }
     } else {
-      DX_VEC3* value = dx_adl_semantical_read_vector_3(child_node, state);
+      DX_VEC3* value = dx_adl_semantical_read_vector_3(child_node, context);
       if (!value) {
         DX_UNREFERENCE(viewer_value);
         viewer_value = NULL;
@@ -85,7 +85,7 @@ static dx_object* read(dx_adl_semantical_viewer_reader* self, dx_adl_node* node,
   }
   // target?
   {
-    dx_adl_node* child_node = dx_adl_node_map_get(node, NAME(target_key));
+    dx_ddl_node* child_node = dx_ddl_node_map_get(node, NAME(target_key));
     if (!child_node) {
       if (dx_get_error() != DX_NOT_FOUND) {
         DX_UNREFERENCE(viewer_value);
@@ -93,7 +93,7 @@ static dx_object* read(dx_adl_semantical_viewer_reader* self, dx_adl_node* node,
         return NULL;
       }
     } else {
-      DX_VEC3* value = dx_adl_semantical_read_vector_3(child_node, state);
+      DX_VEC3* value = dx_adl_semantical_read_vector_3(child_node, context);
       if (!value) {
         DX_UNREFERENCE(viewer_value);
         viewer_value = NULL;
@@ -106,7 +106,7 @@ static dx_object* read(dx_adl_semantical_viewer_reader* self, dx_adl_node* node,
   }
   // up?
   {
-    dx_adl_node* child_node = dx_adl_node_map_get(node, NAME(up_key));
+    dx_ddl_node* child_node = dx_ddl_node_map_get(node, NAME(up_key));
     if (!child_node) {
       if (dx_get_error() != DX_NOT_FOUND) {
         DX_UNREFERENCE(viewer_value);
@@ -114,7 +114,7 @@ static dx_object* read(dx_adl_semantical_viewer_reader* self, dx_adl_node* node,
         return NULL;
       }
     } else {
-      DX_VEC3* value = dx_adl_semantical_read_vector_3(child_node, state);
+      DX_VEC3* value = dx_adl_semantical_read_vector_3(child_node, context);
       if (!value) {
         DX_UNREFERENCE(viewer_value);
         viewer_value = NULL;
@@ -127,9 +127,9 @@ static dx_object* read(dx_adl_semantical_viewer_reader* self, dx_adl_node* node,
   }
   // optics
   {
-    dx_adl_node* child_node = dx_adl_node_map_get(node, NAME(optics_key));
+    dx_ddl_node* child_node = dx_ddl_node_map_get(node, NAME(optics_key));
     if (child_node) {
-      dx_asset_optics* optics = _read_optics(child_node, state);
+      dx_asset_optics* optics = _read_optics(child_node, context);
       if (!optics) {
         DX_UNREFERENCE(viewer_value);
         viewer_value = NULL;
@@ -159,7 +159,7 @@ int dx_adl_semantical_viewer_reader_construct(dx_adl_semantical_viewer_reader* s
   if (!_type) {
     return 1;
   }
-  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_adl_node*, dx_adl_semantical_state*))&read;
+  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*))&read;
   DX_OBJECT(self)->type = _type;
   return 0;
 }

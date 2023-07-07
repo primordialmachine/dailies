@@ -1,4 +1,4 @@
-#if !defined(DX_DIAGNOSTICS_H_INCLUDED)
+#if !defined(DX_ADL_DIAGNOSTICS_H_INCLUDED)
 #define DX_ADL_DIAGNOSTICS_H_INCLUDED
 
 #include "dx/core.h"

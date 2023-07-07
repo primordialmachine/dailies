@@ -9,7 +9,7 @@
 #include "dx/val/cbinding.h"
 #include "dx/scenes/create_assets.h"
 #include "dx/val/viewer.h"
-#include "dx/adl/syntactical.h"
+#include "dx/ddl.h"
 #include "dx/asset/optics.h"
 
 DX_DEFINE_OBJECT_TYPE("dx.mesh_viewer_scene",
@@ -20,7 +20,7 @@ static int on_scene_asset_object(dx_mesh_viewer_scene* self, dx_context* context
   // mesh instance
   if (dx_rti_type_is_leq(asset_object->type, dx_asset_mesh_instance_get_type())) {
     dx_asset_mesh_instance* asset_mesh_instance = DX_ASSET_MESH_INSTANCE(asset_object);
-    dx_mesh* mesh = dx_mesh_create(context, asset_mesh_instance->mesh);
+    dx_mesh* mesh = dx_mesh_create(context, DX_ASSET_MESH(asset_mesh_instance->mesh_reference->object));
     dx_val_mesh_instance* mesh_instance = dx_val_mesh_instance_create(asset_mesh_instance->world_matrix, mesh);
     if (dx_object_array_append(&self->mesh_instances, DX_OBJECT(mesh_instance))) {
       DX_UNREFERENCE(mesh_instance);
@@ -189,8 +189,8 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* self, dx_context* 
     return 1;
   }
 #endif
-#if defined(DX_ADL_PARSER_WITH_TESTS) && 1 == DX_ADL_PARSER_WITH_TESTS
-  if (dx_adl_parser_tests()) {
+#if defined(DX_DDL_PARSER_WITH_TESTS) && 1 == DX_DDL_PARSER_WITH_TESTS
+  if (dx_ddl_parser_tests()) {
     return 1;
   }
 #endif

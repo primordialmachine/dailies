@@ -1,0 +1,7 @@
+DEFINE(dx_ddl_node_kind_error, "<error>")
+DEFINE(dx_ddl_node_kind_list, "<list>")
+DEFINE(dx_ddl_node_kind_map, "<map>")
+DEFINE(dx_ddl_node_kind_number, "<number>")
+DEFINE(dx_ddl_node_kind_string, "<string>")
+DEFINE(dx_ddl_node_kind_boolean, "<boolean>")
+DEFINE(dx_ddl_node_kind_void, "<void>")

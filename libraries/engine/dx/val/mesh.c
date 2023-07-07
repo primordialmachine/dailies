@@ -176,8 +176,8 @@ on_error:
 }
 
 static int add_material_to_backend(dx_mesh* self) {
-  if (self->asset_mesh->material) {
-    self->material = dx_val_material_create(self->context, self->asset_mesh->material);
+  if (self->asset_mesh->material_reference && self->asset_mesh->material_reference->object) {
+    self->material = dx_val_material_create(self->context, DX_ASSET_MATERIAL(self->asset_mesh->material_reference->object));
     if (!self->material) {
       return 1;
     }
@@ -233,7 +233,7 @@ static int add_to_backend(dx_mesh* self) {
   } break;
   case DX_VERTEX_FORMAT_POSITION_XYZ_AMBIENT_UV: {
    flags |= DX_PROGRAM_WITH_VERTEX_AMBIENT_UV;
-   if (self->material->asset_material->ambient_texture) {
+   if (self->material->asset_material->ambient_texture_reference && self->material->asset_material->ambient_texture_reference->object) {
       flags |= DX_PROGRAM_WITH_MATERIAL_AMBIENT_TEXTURE;
     }
   } break;

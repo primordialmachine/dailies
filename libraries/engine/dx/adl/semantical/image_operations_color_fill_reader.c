@@ -2,6 +2,7 @@
 
 #include "dx/adl/semantical/read.h"
 #include "dx/asset/image_operations/color_fill.h"
+#include "dx/adl/enter.h"
 // strlen
 #include <string.h>
 
@@ -13,21 +14,21 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
   return name;
 }
 
-#define NAME(name) _get_name(state->names, dx_semantical_name_index_##name)
+#define NAME(name) _get_name(context->names, dx_semantical_name_index_##name)
 
-static int _read_color_instance(dx_adl_node* node, dx_adl_semantical_state* state, DX_RGB_U8* target);
+static int _read_color_instance(dx_ddl_node* node, dx_adl_context* context, DX_RGB_U8* target);
 
-static int _read_rgb_u8(dx_adl_node* node, char const* name, dx_adl_semantical_state* state, DX_RGB_U8* target);
+static int _read_rgb_u8(dx_ddl_node* node, char const* name, dx_adl_context* context, DX_RGB_U8* target);
 
-static dx_object* read(dx_adl_semantical_image_operations_color_fill_reader* self, dx_adl_node* node, dx_adl_semantical_state* state);
+static dx_object* read(dx_adl_semantical_image_operations_color_fill_reader* self, dx_ddl_node* node, dx_adl_context* context);
 
 DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.image_operations_color_fill_reader",
                       dx_adl_semantical_image_operations_color_fill_reader,
                       dx_adl_semantical_reader)
 
-static int _read_color_instance(dx_adl_node* node, dx_adl_semantical_state* state, DX_RGB_U8* target) {
+static int _read_color_instance(dx_ddl_node* node, dx_adl_context* context, DX_RGB_U8* target) {
   dx_string* expected_type = NAME(color_instance_type);
-  dx_string* received_type = dx_adl_semantical_read_type(node, state);
+  dx_string* received_type = dx_adl_semantical_read_type(node, context);
   if (!received_type) {
     return 1;
   }
@@ -39,32 +40,34 @@ static int _read_color_instance(dx_adl_node* node, dx_adl_semantical_state* stat
   }
   DX_UNREFERENCE(received_type);
   received_type = NULL;
-  dx_string* value = dx_adl_semantical_read_string(node, NAME(reference_key), state->names);
+  dx_string* value = dx_adl_semantical_read_string(node, NAME(reference_key), context->names);
   if (!value) {
     return 1;
   }
-  dx_asset_palette_entry* palette_entry = dx_asset_palette_get(state->scene->palette, value);
+  // TODO: Check type of definitions. Handle cases of definitions not found and definition of the wrong type.
+  dx_adl_symbol* sym = DX_ADL_SYMBOL(dx_asset_definitions_get(context->definitions, value));
+  dx_asset_color* asset_color = DX_ASSET_COLOR(sym->asset);
   DX_UNREFERENCE(value);
   value = NULL;
-  if (!palette_entry) {
+  if (!asset_color) {
     return 1;
   }
-  (*target) = palette_entry->value;
+  (*target) = asset_color->value;
   return 0;
 }
 
-static int _read_rgb_u8(dx_adl_node* node, char const* name, dx_adl_semantical_state* state, DX_RGB_U8* target) {
+static int _read_rgb_u8(dx_ddl_node* node, char const* name, dx_adl_context* context, DX_RGB_U8* target) {
   dx_string* name1 = dx_string_create(name, strlen(name));
   if (!name1) {
     return 1;
   }
-  dx_adl_node* child_node = dx_adl_node_map_get(node, name1);
+  dx_ddl_node* child_node = dx_ddl_node_map_get(node, name1);
   DX_UNREFERENCE(name1);
   name1 = NULL;
-  return _read_color_instance(child_node, state, target);
+  return _read_color_instance(child_node, context, target);
 }
 
-static dx_object* read(dx_adl_semantical_image_operations_color_fill_reader* self, dx_adl_node* node, dx_adl_semantical_state* state) {
+static dx_object* read(dx_adl_semantical_image_operations_color_fill_reader* self, dx_ddl_node* node, dx_adl_context* context) {
   if (!node) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return NULL;
@@ -76,7 +79,7 @@ static dx_object* read(dx_adl_semantical_image_operations_color_fill_reader* sel
   // color
   {
     DX_RGB_U8 color;
-    if (_read_rgb_u8(node, "color", state, &color)) {
+    if (_read_rgb_u8(node, "color", context, &color)) {
       DX_UNREFERENCE(image_operation);
       image_operation = NULL;
       return NULL;
@@ -98,7 +101,7 @@ int dx_adl_semantical_image_operations_color_fill_reader_construct(dx_adl_semant
   if (dx_adl_semantical_reader_construct(DX_ADL_SEMANTICAL_READER(self))) {
     return 1;
   }
-  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object * (*)(dx_adl_semantical_reader*, dx_adl_node*, dx_adl_semantical_state*)) & read;
+  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object * (*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*)) & read;
   DX_OBJECT(self)->type = _type;
   return 0;
 }

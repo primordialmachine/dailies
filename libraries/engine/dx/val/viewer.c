@@ -16,9 +16,9 @@ int dx_val_viewer_construct(dx_val_viewer* self, dx_asset_viewer_instance* asset
   if (!_type) {
     return 1;
   }
-  self->source = asset_viewer_instance->viewer->source;
-  self->target = asset_viewer_instance->viewer->target;
-  self->up = asset_viewer_instance->viewer->up;
+  self->source = DX_ASSET_VIEWER(asset_viewer_instance->viewer_reference->object)->source;
+  self->target = DX_ASSET_VIEWER(asset_viewer_instance->viewer_reference->object)->target;
+  self->up = DX_ASSET_VIEWER(asset_viewer_instance->viewer_reference->object)->up;
   self->asset_viewer_instance = asset_viewer_instance;
   dx_mat4_set_identity(&self->view_matrix);
   dx_mat4_set_identity(&self->projection_matrix);
@@ -45,7 +45,7 @@ int dx_val_viewer_get_projection_matrix(DX_MAT4* result, dx_val_viewer* self, dx
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  dx_asset_optics* optics = self->asset_viewer_instance->viewer->optics;
+  dx_asset_optics* optics = DX_ASSET_VIEWER(self->asset_viewer_instance->viewer_reference->object)->optics;
   if (!optics) {
     return 1;
   }

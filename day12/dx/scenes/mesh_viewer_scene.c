@@ -9,7 +9,7 @@
 #include "dx/val/cbinding.h"
 #include "dx/scenes/create_assets.h"
 #include "dx/val/viewer.h"
-#include "dx/adl/syntactical.h"
+#include "dx/ddl.h"
 #include "dx/asset/optics.h"
 
 DX_DEFINE_OBJECT_TYPE("dx.mesh_viewer_scene",
@@ -20,7 +20,7 @@ static int on_scene_asset_object(dx_mesh_viewer_scene* self, dx_context* context
   // mesh instance
   if (dx_rti_type_is_leq(asset_object->type, dx_asset_mesh_instance_get_type())) {
     dx_asset_mesh_instance* asset_mesh_instance = DX_ASSET_MESH_INSTANCE(asset_object);
-    dx_mesh* mesh = dx_mesh_create(context, asset_mesh_instance->mesh);
+    dx_mesh* mesh = dx_mesh_create(context, DX_ASSET_MESH(asset_mesh_instance->mesh_reference->object));
     dx_val_mesh_instance* mesh_instance = dx_val_mesh_instance_create(asset_mesh_instance->world_matrix, mesh);
     if (dx_object_array_append(&self->mesh_instances, DX_OBJECT(mesh_instance))) {
       DX_UNREFERENCE(mesh_instance);
@@ -84,32 +84,24 @@ static void mesh_instance_on_shutdown(dx_mesh_viewer_scene* self) {
   dx_object_array_uninitialize(&self->mesh_instances);
 }
 
-static int viewer_push_constants(dx_mesh_viewer_scene* self, dx_cbinding* cbinding) {
-  dx_val_viewer* viewer = DX_VAL_VIEWER(dx_object_array_get_at(&self->viewers, dx_object_array_get_size(&self->viewers) - 1));
-  if (!viewer) {
-    return 1;
-  }
-  dx_cbinding_set_mat4(cbinding, "matrices.projection_matrix", &self->projection_matrix);
-  dx_cbinding_set_mat4(cbinding, "matrices.view_matrix", &viewer->view_matrix);
-  return 0;
-}
-
-// The initial position of the viewer.
-// Must be different from TARGET.
-static DX_VEC3 const SOURCE = { 0.f, 0.f, 1.f };
-
-// Rotate viewer with 0 degrees per second counter-clockwise around the y-axis.
-static dx_f32 const degrees_per_second = 0.f;
-
-static int update_viewer(dx_mesh_viewer_scene* self) {
+static int viewer_push_constants(dx_mesh_viewer_scene* self, dx_cbinding* cbinding, dx_i32 canvas_width, dx_i32 canvas_height) {
   dx_val_viewer* viewer = DX_VAL_VIEWER(dx_object_array_get_at(&self->viewers, dx_object_array_get_size(&self->viewers) - 1));
   if (!viewer) {
     return 1;
   }
   DX_MAT4 a;
-  dx_mat4_set_rotate_y(&a, self->angle);
-  dx_transform_point(&viewer->source, &SOURCE, &a);
-  dx_mat4_set_look_at(&viewer->view_matrix, &viewer->source, &viewer->target, &viewer->up);
+  if (dx_val_viewer_get_projection_matrix(&a, viewer, canvas_width, canvas_height)) {
+    return 1;
+  }
+  dx_cbinding_set_mat4(cbinding, "matrices.projection_matrix", &a);
+  if (dx_val_viewer_get_view_matrix(&a, viewer, canvas_width, canvas_height)) {
+    return 1;
+  }
+  dx_cbinding_set_mat4(cbinding, "matrices.view_matrix", &a);
+  return 0;
+}
+
+static int update_viewer(dx_mesh_viewer_scene* self, dx_i32 canvas_width, dx_i32 canvas_height) {
   return 0;
 }
 
@@ -181,8 +173,8 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* self, dx_context* 
     return 1;
   }
 #endif
-#if defined(DX_ADL_PARSER_WITH_TESTS) && 1 == DX_ADL_PARSER_WITH_TESTS
-  if (dx_adl_parser_tests()) {
+#if defined(DX_DDL_PARSER_WITH_TESTS) && 1 == DX_DDL_PARSER_WITH_TESTS
+  if (dx_ddl_parser_tests()) {
     return 1;
   }
 #endif
@@ -203,15 +195,14 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* self, dx_context* 
   }
   //
   self->time = 0.f;
-  self->angle = 0.f;
+  //
   if (mesh_instance_on_startup(self, context, self->asset_scene)) {
     DX_UNREFERENCE(self->asset_scene);
     self->asset_scene = NULL;
     return 1;
   }
   //
-  dx_mat4_set_identity(&self->projection_matrix);
-  update_viewer(self);
+  update_viewer(self, 640, 480);
   //
   {
     dx_command* command = NULL;
@@ -237,45 +228,7 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* self, dx_context* 
 }
 
 static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* self, dx_context* context, dx_f32 delta_seconds, dx_i32 canvas_width, dx_i32 canvas_height) {
-  dx_val_viewer* viewer = DX_VAL_VIEWER(dx_object_array_get_at(&self->viewers, dx_object_array_get_size(&self->viewers) - 1));
-  if (!viewer) {
-    return 1;
-  }
-  dx_asset_optics* optics = viewer->asset_viewer_instance->viewer->optics;
-  if (!optics) {
-    return 1;
-  }
-  if (dx_rti_type_is_leq(DX_OBJECT(optics)->type, dx_asset_optics_perspective_get_type())) {
-    dx_asset_optics_perspective* optics1 = DX_ASSET_OPTICS_PERSPECTIVE(optics);
-    // use actual aspect ratio
-    if (optics1->aspect_ratio) {
-      dx_memory_deallocate(optics1->aspect_ratio);
-      optics1->aspect_ratio = NULL;
-    }
-    dx_f32 aspect_ratio = (dx_f32)canvas_width / (dx_f32)canvas_height;
-    if (optics1->aspect_ratio) {
-      aspect_ratio = *optics1->aspect_ratio;
-    }
-    dx_mat4_set_perspective(&self->projection_matrix, optics1->field_of_view_y, aspect_ratio, optics1->near, optics1->far);
-  } else if (dx_rti_type_is_leq(DX_OBJECT(optics)->type, dx_asset_optics_orthographic_get_type())) {
-    dx_asset_optics_orthographic* optics1 = DX_ASSET_OPTICS_ORTHOGRAPHIC(optics);
-    dx_f32 left = -1.f;
-    dx_f32 right = +1.f;
-    if (optics1->scale_x) {
-      left *= *optics1->scale_x;
-      right *= *optics1->scale_x;
-    }
-    dx_f32 bottom = -1.f;
-    dx_f32 top = +1.f;
-    if (optics1->scale_y) {
-      bottom *= *optics1->scale_y;
-      top *= *optics1->scale_y;
-    }
-    dx_mat4_set_ortho(&self->projection_matrix, left, right, bottom, top, optics1->near, optics1->far);
-  } else {
-    return 1;
-  }
-  update_viewer(self);
+  update_viewer(self, canvas_width, canvas_height);
   
   DX_VEC4 current = { 0.f, 255.f / 255.f, 64.f / 255.f, 1.0f };
 
@@ -298,9 +251,6 @@ static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* self, dx_context* c
     dx_f32 t = amplitude * sinf(self->time / period * DX_TWO_PI_F32) + shift;
     dx_vec4_lerp(&start, &end, t, &current);
   }
-
-  dx_f32 degrees = degrees_per_second * delta_seconds;
-  self->angle = fmodf(self->angle + degrees, 360.f);
   {
     dx_command* command;
 
@@ -334,7 +284,7 @@ static int dx_mesh_viewer_scene_render(dx_mesh_viewer_scene* self, dx_context* c
       dx_cbinding* cbinding = dx_val_mesh_instance_get_cbinding(mesh_instance);
       mesh_instance->mesh->material->ambient_color = current;
       dx_val_mesh_instance_update_cbinding(mesh_instance, cbinding);
-      viewer_push_constants(self, cbinding);
+      viewer_push_constants(self, cbinding, canvas_width, canvas_height);
       if (dx_context_execute_commands(context, mesh_instance->commands)) {
         return 1;
       }
@@ -371,7 +321,6 @@ int dx_mesh_viewer_scene_construct(dx_mesh_viewer_scene* self, char const* name)
     return 1;
   }
   self->asset_scene = NULL;
-  dx_mat4_set_identity(&self->projection_matrix);
   self->commands = NULL;
 
   DX_SCENE(self)->startup = (int (*)(dx_scene*, dx_context*)) & dx_mesh_viewer_scene_startup;

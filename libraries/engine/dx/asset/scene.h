@@ -1,7 +1,8 @@
 #if !defined(DX_ASSET_SCENE_H_INCLUDED)
 #define DX_ASSET_SCENE_H_INCLUDED
 
-#include "dx/asset/palette.h"
+#include "dx/core.h"
+#include "dx/adl/symbols.h"
 
 /// @brief A scene asset.
 DX_DECLARE_OBJECT_TYPE("dx.asset.scene",
@@ -14,9 +15,7 @@ static inline dx_asset_scene* DX_ASSET_SCENE(void* p) {
 
 struct dx_asset_scene {
   dx_object _parent;
-  /// @brief The palette of this scene.
-  dx_asset_palette* palette;
-  /// @brief The list of mesh instances.
+  /// @brief The list of instances.
   dx_object_array mesh_instances;
 };
 

@@ -450,7 +450,7 @@ int dx_pointer_hashmap_set(dx_pointer_hashmap* self, dx_pointer_hashmap_key key,
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  return _dx_impl_set(_DX_IMPL(self->pimpl), key, value, true);
+  return _dx_impl_set(_DX_IMPL(self->pimpl), key, value, false);
 }
 
 void* dx_pointer_hashmap_get(dx_pointer_hashmap const* self, dx_pointer_hashmap_key key) {
@@ -512,6 +512,17 @@ static inline void _dx_impl_increment(_dx_impl_iterator* self) {
   if (self->current) {
     self->previous = &self->current->next;
     self->current = self->current->next;
+    if (!self->current) {
+      self->bucket++; // move to next bucket
+      while (self->bucket < self->target->capacity) {
+        self->previous = &self->target->buckets[self->bucket];
+        self->current = self->target->buckets[self->bucket];
+        if (self->current) {
+          return;
+        }
+        self->bucket++;
+      }
+    }
   } else {
     if (self->bucket < self->target->capacity) {
       do {

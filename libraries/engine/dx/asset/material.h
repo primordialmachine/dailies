@@ -21,7 +21,7 @@ struct dx_asset_material {
   DX_VEC4 ambient_color;
   /// @brief Pointer to the ambient texture of this material or the null pointer.
   /// @default The null pointer.
-  dx_asset_texture* ambient_texture;
+  dx_asset_reference* ambient_texture_reference;
 };
 
 /// @brief Construct this dx_asset_material object with default values.

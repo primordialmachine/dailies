@@ -8,11 +8,11 @@ DX_DEFINE_OBJECT_TYPE("dx.gl.texture",
 
 static int dx_gl_texture_set_data(dx_gl_texture* self, dx_asset_texture* texture) {
   dx_gl_context* context = DX_GL_CONTEXT(DX_VAL_TEXTURE(self)->context);
-  switch (texture->image->pixel_format) {
+  switch (DX_ASSET_IMAGE(texture->image_reference->object)->pixel_format) {
   case DX_PIXEL_FORMAT_RGB_U8: {
     context->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     context->glBindTexture(GL_TEXTURE_2D, self->id);
-    context->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->image->width, texture->image->height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture->image->pixels);
+    context->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, DX_ASSET_IMAGE(texture->image_reference->object)->width, DX_ASSET_IMAGE(texture->image_reference->object)->height, 0, GL_RGB, GL_UNSIGNED_BYTE, DX_ASSET_IMAGE(texture->image_reference->object)->pixels);
   } break;
   default: {
     dx_set_error(DX_ENVIRONMENT_FAILED);

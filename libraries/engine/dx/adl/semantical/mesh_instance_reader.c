@@ -11,41 +11,43 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
   return name;
 }
 
-#define NAME(name) _get_name(state->names, dx_semantical_name_index_##name)
+#define NAME(name) _get_name(context->names, dx_semantical_name_index_##name)
 
-static dx_object* read(dx_adl_semantical_mesh_instance_reader*, dx_adl_node* node, dx_adl_semantical_state*);
+static dx_object* read(dx_adl_semantical_mesh_instance_reader* self,
+                       dx_ddl_node* node,
+                       dx_adl_context* context);
 
 DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.mesh_instance_reader",
                       dx_adl_semantical_mesh_instance_reader,
                       dx_adl_semantical_reader)
 
-static dx_object* read(dx_adl_semantical_mesh_instance_reader* self, dx_adl_node* node, dx_adl_semantical_state* state) {
+static dx_object* read(dx_adl_semantical_mesh_instance_reader* self, dx_ddl_node* node, dx_adl_context* context) {
   dx_asset_mesh_instance* mesh_instance = NULL;
   dx_asset_mesh* mesh = NULL;
   DX_MAT4* transformation = NULL;
   // mesh
   {
     dx_string* name = NAME(mesh_key);
-    dx_adl_node* child_node = dx_adl_node_map_get(node, name);
+    dx_ddl_node* child_node = dx_ddl_node_map_get(node, name);
     if (!child_node) {
       goto END;
     }
-    if (child_node->kind != dx_adl_node_kind_map) {
+    if (child_node->kind != dx_ddl_node_kind_map) {
       goto END;
     }
-    dx_string* received_type = dx_adl_semantical_read_type(child_node, state);
+    dx_string* received_type = dx_adl_semantical_read_type(child_node, context);
     if (!dx_string_is_equal_to(received_type, NAME(mesh_type))) {
       DX_UNREFERENCE(received_type);
       received_type = NULL;
       goto END;
     }
-    dx_adl_semantical_reader* mesh_reader = dx_pointer_hashmap_get(&state->readers, received_type);
+    dx_adl_semantical_reader* mesh_reader = dx_pointer_hashmap_get(&context->readers, received_type);
     DX_UNREFERENCE(received_type);
     received_type = NULL;
     if (!mesh_reader) {
       goto END;
     }
-    mesh = (dx_asset_mesh*)dx_adl_semantical_reader_read(mesh_reader, child_node, state);
+    mesh = (dx_asset_mesh*)dx_adl_semantical_reader_read(mesh_reader, child_node, context);
     if (!mesh) {
       goto END;
     }
@@ -57,7 +59,7 @@ static dx_object* read(dx_adl_semantical_mesh_instance_reader* self, dx_adl_node
       goto END;
     }
     dx_error old_error = dx_get_error();
-    dx_adl_node* child_node = dx_adl_node_map_get(node, name);
+    dx_ddl_node* child_node = dx_ddl_node_map_get(node, name);
     DX_UNREFERENCE(name);
     name = NULL;
     if (!child_node) {
@@ -67,13 +69,21 @@ static dx_object* read(dx_adl_semantical_mesh_instance_reader* self, dx_adl_node
         goto END;
       }
     } else {
-      transformation = dx_adl_semantical_read_translation(child_node, state);
+      transformation = dx_adl_semantical_read_translation(child_node, context);
       if (!transformation) {
         goto END;
       }
     }
   }
-  mesh_instance = dx_asset_mesh_instance_create(mesh);
+  dx_asset_reference* mesh_reference = dx_asset_reference_create(mesh->name);
+  if (!mesh_reference) {
+    goto END;
+  }
+  mesh_reference->object = DX_OBJECT(mesh);
+  DX_REFERENCE(mesh_reference->object);
+  mesh_instance = dx_asset_mesh_instance_create(mesh_reference);
+  DX_UNREFERENCE(mesh_reference);
+  mesh_reference = NULL;
   if (!mesh_instance) {
     goto END;
   }
@@ -100,7 +110,7 @@ int dx_adl_semantical_mesh_instance_reader_construct(dx_adl_semantical_mesh_inst
   if (dx_adl_semantical_reader_construct(DX_ADL_SEMANTICAL_READER(self))) {
     return 1;
   }
-  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_adl_node*, dx_adl_semantical_state*))&read;
+  DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*))&read;
   DX_OBJECT(self)->type = _type;
   return 0;
 }

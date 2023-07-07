@@ -25,8 +25,8 @@ struct dx_asset_mesh {
   /// @brief A pointer to the ADL name of this image.
   dx_string* name;
 
-  /// @brief The material of this mesh.
-  dx_asset_material* material;
+  /// @brief Reference to the material of this mesh.
+  dx_asset_reference* material_reference;
 
   /// @brief The number of vertices of this mesh.
   uint32_t number_of_vertices;

@@ -2,6 +2,30 @@
   type : 'Scene',
   elements : [
     {
+      // Capri.
+      type : 'Color',
+      name : 'capri',
+      red : 0,
+      green: 191,
+      blue: 255,
+    },
+    {
+      // From Capri's tetradic palette.
+      type : 'Color',
+      name : 'malachite',
+      red : 0,
+      green: 255,
+      blue: 64,
+    },
+    {
+      // From Capri's split complementary palette.
+      type : 'Color',
+      name : 'amber',
+      red : 255,
+      green: 192,
+      blue: 0,
+    },
+    {
       type : 'ViewerInstance',
       viewer : {
         type : 'Viewer',

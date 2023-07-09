@@ -13,6 +13,10 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
 
 #define NAME(name) _get_name(context->names, dx_semantical_name_index_##name)
 
+static int complete(dx_adl_semantical_mesh_instance_reader* self,
+                    dx_adl_symbol* symbol,
+                    dx_adl_context* context);
+
 static dx_object* read(dx_adl_semantical_mesh_instance_reader* self,
                        dx_ddl_node* node,
                        dx_adl_context* context);
@@ -20,6 +24,19 @@ static dx_object* read(dx_adl_semantical_mesh_instance_reader* self,
 DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.mesh_instance_reader",
                       dx_adl_semantical_mesh_instance_reader,
                       dx_adl_semantical_reader)
+
+static int complete(dx_adl_semantical_mesh_instance_reader* self, dx_adl_symbol* symbol, dx_adl_context* context) {
+  dx_asset_mesh_instance* mesh_instance = DX_ASSET_MESH_INSTANCE(symbol->asset);
+  if (mesh_instance->mesh_reference) {
+    dx_adl_symbol* referenced_symbol = dx_asset_definitions_get(context->definitions, mesh_instance->mesh_reference->name);
+    if (!referenced_symbol) {
+      return 1;
+    }
+    mesh_instance->mesh_reference->object = referenced_symbol->asset;
+    DX_REFERENCE(mesh_instance->mesh_reference->object);
+  }
+  return 0;
+}
 
 static dx_object* read(dx_adl_semantical_mesh_instance_reader* self, dx_ddl_node* node, dx_adl_context* context) {
   dx_asset_mesh_instance* mesh_instance = NULL;
@@ -110,6 +127,7 @@ int dx_adl_semantical_mesh_instance_reader_construct(dx_adl_semantical_mesh_inst
   if (dx_adl_semantical_reader_construct(DX_ADL_SEMANTICAL_READER(self))) {
     return 1;
   }
+  DX_ADL_SEMANTICAL_READER(self)->complete = (int(*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*))&complete;
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*))&read;
   DX_OBJECT(self)->type = _type;
   return 0;

@@ -1,5 +1,7 @@
 #include "dx/adl/semantical/read.h"
 
+#include "dx/asset/color.h"
+
 static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index) {
   DX_DEBUG_ASSERT(NULL != names);
   DX_DEBUG_ASSERT(index < DX_SEMANTICAL_NAMES_NUMBER_OF_NAMES);
@@ -184,4 +186,86 @@ dx_string* dx_adl_semantical_read_string(dx_ddl_node* node, dx_string* name, dx_
   }
   DX_DEBUG_CHECK_MAGIC_BYTES(value);
   return value;
+}
+
+dx_asset_color* dx_adl_semantical_read_color_instance(dx_ddl_node* node, dx_adl_context* context) {
+  dx_string* expected_type = NAME(color_instance_type);
+  dx_string* received_type = dx_adl_semantical_read_type(node, context);
+  if (!received_type) {
+    return NULL;
+  }
+  if (!dx_string_is_equal_to(received_type, expected_type)) {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
+    dx_set_error(DX_SEMANTICAL_ERROR);
+    return NULL;
+  }
+  DX_UNREFERENCE(received_type);
+  received_type = NULL;
+  dx_string* value = dx_adl_semantical_read_string(node, NAME(reference_key), context->names);
+  if (!value) {
+    return NULL;
+  }
+  // TODO: Check type of definitions. Handle cases of definitions not found and definition of the wrong type.
+  dx_adl_symbol* sym = DX_ADL_SYMBOL(dx_asset_definitions_get(context->definitions, value));
+  dx_asset_color* asset_color = DX_ASSET_COLOR(sym->asset);
+  DX_UNREFERENCE(value);
+  value = NULL;
+  if (!asset_color) {
+    return NULL;
+  }
+  DX_REFERENCE(asset_color);
+  return asset_color;
+}
+
+dx_asset_color* dx_adl_semantical_read_color_instance_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context) {
+  dx_ddl_node* child_node = dx_ddl_node_map_get(node, key);
+  if (!child_node) {
+    if (DX_NOT_FOUND != dx_get_error()) {
+      return NULL;
+    } else {
+      dx_set_error(optional ? DX_NO_ERROR : DX_SEMANTICAL_ERROR);
+    }
+    return NULL;
+  }
+  return dx_adl_semantical_read_color_instance(child_node, context);
+}
+
+#include "dx/asset/reference.h"
+
+dx_asset_reference* dx_adl_semantical_read_image_instance(dx_ddl_node* node, dx_adl_context* context) {
+  dx_string* expected_type = NAME(image_instance_type);
+  dx_string* received_type = dx_adl_semantical_read_type(node, context);
+  if (!received_type) {
+    return NULL;
+  }
+  if (!dx_string_is_equal_to(received_type, expected_type)) {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
+    dx_set_error(DX_SEMANTICAL_ERROR);
+    return NULL;
+  }
+  DX_UNREFERENCE(received_type);
+  received_type = NULL;
+  dx_string* value = dx_adl_semantical_read_string(node, NAME(reference_key), context->names);
+  if (!value) {
+    return NULL;
+  }
+  dx_asset_reference* reference = dx_asset_reference_create(value);
+  DX_UNREFERENCE(value);
+  value = NULL;
+  return reference;
+}
+
+dx_asset_reference* dx_adl_semantical_read_image_instance_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context) {
+  dx_ddl_node* child_node = dx_ddl_node_map_get(node, key);
+  if (!child_node) {
+    if (DX_NOT_FOUND != dx_get_error()) {
+      return NULL;
+    } else {
+      dx_set_error(optional ? DX_NO_ERROR : DX_SEMANTICAL_ERROR);
+    }
+    return NULL;
+  }
+  return dx_adl_semantical_read_image_instance(child_node, context);
 }

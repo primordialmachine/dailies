@@ -21,10 +21,10 @@ static int _read_color_rgb_u8(dx_ddl_node* node, dx_adl_context* context, DX_RGB
 static dx_object* read(dx_adl_semantical_color_reader* self, dx_ddl_node* node, dx_adl_context* context);
 
 DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.color_reader",
-  dx_adl_semantical_color_reader,
-  dx_adl_semantical_reader)
+                      dx_adl_semantical_color_reader,
+                      dx_adl_semantical_reader)
 
-  static int _read_color_rgb_u8(dx_ddl_node* node, dx_adl_context* context, DX_RGB_U8* target) {
+static int _read_color_rgb_u8(dx_ddl_node* node, dx_adl_context* context, DX_RGB_U8* target) {
   dx_n8 r, g, b;
   if (dx_adl_semantical_read_n8(node, NAME(red_key), &r)) {
     return 1;
@@ -39,6 +39,10 @@ DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.color_reader",
   target->r = r;
   target->g = g;
   target->b = b;
+  return 0;
+}
+
+static int complete(dx_adl_semantical_color_reader* self, dx_adl_symbol* symbol, dx_adl_context* context) {
   return 0;
 }
 
@@ -66,6 +70,7 @@ int dx_adl_semantical_color_reader_construct(dx_adl_semantical_color_reader* sel
   if (dx_adl_semantical_reader_construct(DX_ADL_SEMANTICAL_READER(self))) {
     return 1;
   }
+  DX_ADL_SEMANTICAL_READER(self)->complete = (int(*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*)) & complete;
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object * (*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*)) & read;
   DX_OBJECT(self)->type = _type;
   return 0;

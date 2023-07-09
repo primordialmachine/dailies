@@ -193,7 +193,7 @@ static int dx_mesh_viewer_scene_startup(dx_mesh_viewer_scene* self, dx_context* 
     dx_memory_deallocate(p);
     p = NULL;
   }
-  if(!self->asset_scene) {
+  if (!self->asset_scene) {
     return 1;
   }
   //

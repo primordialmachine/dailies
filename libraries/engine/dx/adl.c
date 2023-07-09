@@ -113,22 +113,70 @@ static int dx_adl_compiler_enter_phase(dx_ddl_node* node, dx_adl_context* contex
   return 0;
 }
 
+#include "dx/adl/resolve.h"
+
 static int dx_adl_compiler_complete_phase(dx_adl_context* context) {
-  dx_pointer_hashmap_iterator iterator;
-  dx_pointer_hashmap_iterator_initialize(&iterator, &context->definitions->map);
-  while (dx_pointer_hashmap_iterator_has_entry(&iterator)) {
-    dx_adl_symbol* symbol = dx_pointer_hashmap_iterator_get_value(&iterator);
-    if (!symbol->asset) {
-      if (dx_string_is_equal_to(symbol->type, NAME(color_type))) {
+  dx_size resolved;
+
+  do {
+    resolved = 0;
+    dx_pointer_hashmap_iterator iterator;
+    dx_pointer_hashmap_iterator_initialize(&iterator, &context->definitions->map);
+    while (dx_pointer_hashmap_iterator_has_entry(&iterator)) {
+      dx_adl_symbol* symbol = dx_pointer_hashmap_iterator_get_value(&iterator);
+      if (!symbol->asset) {
+        if (dx_string_is_equal_to(symbol->type, NAME(color_type))) {
+          dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&context->readers, symbol->type);
+          if (!reader) {
+            dx_pointer_hashmap_iterator_uninitialize(&iterator);
+            return 1;
+          }
+          symbol->asset = dx_adl_semantical_reader_read(reader, symbol->node, context);
+          if (!symbol->asset) {
+            dx_pointer_hashmap_iterator_uninitialize(&iterator);
+            return 1;
+          }
+        }
+      }
+      dx_pointer_hashmap_iterator_next(&iterator);
+    }
+    dx_pointer_hashmap_iterator_uninitialize(&iterator);
+  } while (resolved > 0);
+
+  do {
+    resolved = 0;
+    dx_pointer_hashmap_iterator iterator;
+    dx_pointer_hashmap_iterator_initialize(&iterator, &context->definitions->map);
+    while (dx_pointer_hashmap_iterator_has_entry(&iterator)) {
+      dx_adl_symbol* symbol = dx_pointer_hashmap_iterator_get_value(&iterator);
+      //
+      if (/*dx_string_is_equal_to(symbol->type, NAME(mesh_instance_type)) ||*/
+          dx_string_is_equal_to(symbol->type, NAME(image_type)) ||
+          dx_string_is_equal_to(symbol->type, NAME(mesh_type)) ||
+          dx_string_is_equal_to(symbol->type, NAME(material_type)) ||
+          dx_string_is_equal_to(symbol->type, NAME(texture_type))) {
         dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&context->readers, symbol->type);
         if (!reader) {
-          return 0;
+          dx_pointer_hashmap_iterator_uninitialize(&iterator);
+          return 1;
         }
-        symbol->asset = dx_adl_semantical_reader_read(reader, symbol->node, context);
+        if (!symbol->asset) {
+          symbol->asset = dx_adl_semantical_reader_read(reader, symbol->node, context);
+          if (!symbol->asset) {
+            dx_pointer_hashmap_iterator_uninitialize(&iterator);
+            return 1;
+          }
+        }
+        if (dx_adl_semantical_reader_complete(reader, symbol, context)) {
+          dx_pointer_hashmap_iterator_uninitialize(&iterator);
+          return 1;
+        }
       }
+      dx_pointer_hashmap_iterator_next(&iterator);
     }
-    dx_pointer_hashmap_iterator_next(&iterator);
-  }
+    dx_pointer_hashmap_iterator_uninitialize(&iterator);
+  } while (resolved > 0);
+
   return 0;
 }
 
@@ -168,6 +216,24 @@ dx_asset_scene* dx_adl_compile(dx_ddl_node* node) {
       DX_UNREFERENCE(context);
       context = NULL;
       return NULL;
+    }
+    for (dx_size i = 0, n = dx_object_array_get_size(&scene->mesh_instances); i < n; ++i) { 
+      dx_object* object = dx_object_array_get_at(&scene->mesh_instances, i);
+      if (dx_rti_type_is_leq(object->type, dx_asset_mesh_instance_get_type())) {
+        dx_asset_mesh_instance* mesh_instance = DX_ASSET_MESH_INSTANCE(object);
+        dx_asset_mesh* mesh = DX_ASSET_MESH(mesh_instance->mesh_reference->object);
+        if (!mesh->material_reference) continue;
+        dx_asset_material* material = DX_ASSET_MATERIAL(mesh->material_reference->object);
+        if (!material) continue;
+        if (!material->ambient_texture_reference) continue;
+        dx_asset_texture* texture = DX_ASSET_TEXTURE(material->ambient_texture_reference->object);
+        if (!texture) continue;
+        if (!texture->image_reference->object) {
+          dx_adl_symbol* referenced_symbol = dx_asset_definitions_get(context->definitions, texture->image_reference->name);
+          texture->image_reference->object = referenced_symbol->asset;
+          DX_REFERENCE(texture->image_reference->object);
+        }
+      }
     }
     DX_REFERENCE(scene);
     DX_UNREFERENCE(context);

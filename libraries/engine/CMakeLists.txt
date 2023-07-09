@@ -96,8 +96,9 @@ list(APPEND ${name}.headers "dx/adl/diagnostics.h")
 list(APPEND ${name}.sources "dx/adl/symbols.c")
 list(APPEND ${name}.headers "dx/adl/symbols.h")
 
-list(APPEND ${name}.sources "dx/adl/enter.c")
-list(APPEND ${name}.headers "dx/adl/enter.h")
+list(APPEND ${name}.sources "dx/adl/enter.c" "dx/adl/resolve.c")
+list(APPEND ${name}.headers "dx/adl/enter.h" "dx/adl/resolve.h")
+
 list(APPEND ${name}.sources "dx/adl/reader.c")
 list(APPEND ${name}.headers "dx/adl/reader.h")
 list(APPEND ${name}.sources "dx/adl/context.c")

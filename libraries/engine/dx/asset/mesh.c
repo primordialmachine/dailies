@@ -7,7 +7,9 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-DX_DEFINE_OBJECT_TYPE("dx.asset.mesh", dx_asset_mesh, dx_object)
+DX_DEFINE_OBJECT_TYPE("dx.asset.mesh",
+                      dx_asset_mesh,
+                      dx_object)
 
 static inline dx_size dx_min_sz(dx_size x, dx_size y) {
   return x < y ? x : y;

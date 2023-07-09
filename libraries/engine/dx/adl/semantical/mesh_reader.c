@@ -27,7 +27,11 @@ static int _read_vertex_format(dx_ddl_node* node, dx_adl_context* context, DX_VE
 
 static dx_asset_mesh* _read_mesh(dx_ddl_node* node, dx_adl_context* context);
 
-static dx_object* read(dx_adl_semantical_mesh_reader*,
+static int complete(dx_adl_semantical_mesh_reader* self,
+                    dx_adl_symbol *symbol,
+                    dx_adl_context* context);
+
+static dx_object* read(dx_adl_semantical_mesh_reader* self,
                        dx_ddl_node* node,
                        dx_adl_context* context);
 
@@ -303,6 +307,22 @@ END:
   return mesh_value;
 }
 
+static int complete(dx_adl_semantical_mesh_reader* self, dx_adl_symbol* symbol, dx_adl_context* context) {
+  dx_asset_mesh* mesh = DX_ASSET_MESH(symbol->asset);
+  if (mesh->material_reference) {
+    if (mesh->material_reference->object) {
+      return 0;
+    }
+    dx_adl_symbol* referenced_symbol = dx_asset_definitions_get(context->definitions, mesh->material_reference->name);
+    if (!referenced_symbol) {
+      return 1;
+    }
+    mesh->material_reference->object = referenced_symbol->asset;
+    DX_REFERENCE(mesh->material_reference->object);
+  }
+  return 0;
+}
+
 static dx_object* read(dx_adl_semantical_mesh_reader* self, dx_ddl_node* node, dx_adl_context* context) {
   return DX_OBJECT(_read_mesh(node, context));
 }
@@ -315,6 +335,7 @@ int dx_adl_semantical_mesh_reader_construct(dx_adl_semantical_mesh_reader* self)
   if (dx_adl_semantical_reader_construct(DX_ADL_SEMANTICAL_READER(self))) {
     return 1;
   }
+  DX_ADL_SEMANTICAL_READER(self)->complete = (int(*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*))&complete;
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*))&read;
   DX_OBJECT(self)->type = _type;
   return 0;

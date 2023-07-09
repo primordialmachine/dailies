@@ -26,6 +26,28 @@
       blue: 0,
     },
     {
+      type : 'Image',
+      name : 'my.image',
+      width : 2048,
+      height : 2048,
+      color : { type : 'ColorInstance', reference : 'malachite' },
+      operations : {
+        type : 'ImageOperations.CheckerboardPatternFill',
+        numberOfCheckers : {
+          horizontal : 16,
+          vertical : 16,
+        },
+        checkerSize : {
+          horizontal : 128,
+          vertical : 128,
+        },
+        checkerColors : {
+          first : { type : 'ColorInstance', reference : 'malachite' },
+          second : { type : 'ColorInstance', reference : 'amber' },
+        },
+      },// Image.operations
+    },// Image
+    {
       type : 'ViewerInstance',
       viewer : {
         type : 'Viewer',
@@ -69,29 +91,8 @@
           name : 'my.octahedron1.material',
           ambientTexture : {
             type : 'Texture',
-              name : 'my.octahedron1.texture',
-            image : {
-              type : 'Image',
-              name : 'my.octahedron1.image',
-              width : 2048,
-              height : 2048,
-              color : { type : 'ColorInstance', reference : 'malachite' },
-              operations : {
-                type : 'ImageOperations.CheckerboardPatternFill',
-                numberOfCheckers : {
-                  horizontal : 16,
-                  vertical : 16,
-                },
-                checkerSize : {
-                  horizontal : 128,
-                  vertical : 128,
-                },
-                checkerColors : {
-                  first : { type : 'ColorInstance', reference : 'malachite' },
-                  second : { type : 'ColorInstance', reference : 'amber' },
-                },
-              },// Image.operations
-            },// Texture.image
+            name : 'my.octahedron1.texture',
+            image : { type : 'ImageInstance', reference : 'my.image' },
           },// Material.ambientTexture
         },// Mesh.material
       },// MeshInstance.mesh
@@ -113,28 +114,7 @@
           ambientTexture : {
             type : 'Texture',
             name : 'my.octahedron2.texture',
-            image : {
-              type : 'Image',
-              name : 'my.octahedron2.image',
-              width : 2048,
-              height : 2048,
-              color : { type : 'ColorInstance', reference : 'malachite' },
-              operations : {
-                type : 'ImageOperations.CheckerboardPatternFill',
-                numberOfCheckers : {
-                  horizontal : 16,
-                  vertical : 16,
-                },
-                checkerSize : {
-                  horizontal : 128,
-                  vertical : 128,
-                },
-                checkerColors : {
-                  first : { type : 'ColorInstance', reference : 'malachite' },
-                  second : { type : 'ColorInstance', reference : 'amber' },
-                },
-              },// Image.operations
-            },// Texture.image
+            image : { type : 'ImageInstance', reference : 'my.image' },
           },// Material.ambientTexture
         },// Mesh.material
       },// MeshInstance.mesh

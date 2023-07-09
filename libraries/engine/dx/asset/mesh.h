@@ -55,7 +55,7 @@ struct dx_asset_mesh {
 /// @brief Generate a mesh.
 /// @param name A pointer to the ADL name of this mesh.
 /// @param specifier The specifier.
-/// @param material The material.
+/// @param material_reference The material reference of this mesh.
 /// @remarks
 /// A "specifier" specifies what mesh this function shall return.
 /// The following specifiers are currently supported:
@@ -64,7 +64,7 @@ struct dx_asset_mesh {
 /// - "cube" a cube mesh
 /// - "empty" an empty mesh
 /// @return A pointer to the dx_asset_mesh object on success. A null pointer on failure.
-dx_asset_mesh* dx_asset_mesh_create(dx_string* name, dx_string* specifier, DX_VERTEX_FORMAT vertex_format, dx_asset_material* material);
+dx_asset_mesh* dx_asset_mesh_create(dx_string* name, dx_string* specifier, DX_VERTEX_FORMAT vertex_format, dx_asset_reference* material_reference);
 
 /// @brief Pack the mesh data into a single stream of the specified format.
 /// @param self A pointer to this mesh.

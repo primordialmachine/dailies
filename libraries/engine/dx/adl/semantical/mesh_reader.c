@@ -187,7 +187,7 @@ static dx_asset_mesh* _read_mesh(dx_ddl_node* node, dx_adl_context* context) {
   dx_asset_mesh* mesh_value = NULL;
   dx_string* name_value = NULL;
   dx_string* generator_value = NULL;
-  dx_asset_material* material_value = NULL;
+  dx_asset_reference* material_reference_value = NULL;
   dx_pointer_array* operations_value = NULL;
   // name
   {
@@ -251,14 +251,21 @@ static dx_asset_mesh* _read_mesh(dx_ddl_node* node, dx_adl_context* context) {
     if (!child_node) {
       goto END;
     }
-    material_value = _read_material(child_node, context);
+    dx_asset_material* material_value = _read_material(child_node, context);
     if (!material_value) {
       goto END;
     }
+    material_reference_value = dx_asset_reference_create(material_value->name);
+    if (!material_reference_value) {
+      DX_UNREFERENCE(material_value);
+      material_value = NULL;
+      goto END;
+    }
+    material_reference_value->object = DX_OBJECT(material_value);
   }
-  mesh_value = dx_asset_mesh_create(name_value, generator_value, vertex_format_value, material_value);
-  DX_UNREFERENCE(material_value);
-  material_value = NULL;
+  mesh_value = dx_asset_mesh_create(name_value, generator_value, vertex_format_value, material_reference_value);
+  DX_UNREFERENCE(material_reference_value);
+  material_reference_value = NULL;
   DX_UNREFERENCE(generator_value);
   generator_value = NULL;
   DX_UNREFERENCE(name_value);
@@ -285,9 +292,9 @@ END:
     DX_UNREFERENCE(generator_value);
     generator_value = NULL;
   }
-  if (material_value) {
-    DX_UNREFERENCE(material_value);
-    material_value = NULL;
+  if (material_reference_value) {
+    DX_UNREFERENCE(material_reference_value);
+    material_reference_value = NULL;
   }
   if (operations_value) {
     dx_pointer_array_uninitialize(operations_value);

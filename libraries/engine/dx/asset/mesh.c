@@ -81,8 +81,8 @@ static void dx_asset_mesh_destruct(dx_asset_mesh* self) {
   }
 }
 
-static int dx_asset_mesh_construct(dx_asset_mesh* self, dx_string* name, dx_string* specifier, DX_VERTEX_FORMAT vertex_format, dx_asset_material* material) {
-  if (!self || !name || !specifier || !material) {
+static int dx_asset_mesh_construct(dx_asset_mesh* self, dx_string* name, dx_string* specifier, DX_VERTEX_FORMAT vertex_format, dx_asset_reference* material_reference) {
+  if (!self || !name || !specifier || !material_reference) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
@@ -152,18 +152,8 @@ SELECT_GENERATOR(octahedron)
     self->vertices.xyz = NULL;
     return 1;
   }
-  self->material_reference = dx_asset_reference_create(material->name);
-  if (!self->material_reference) {
-    dx_memory_deallocate(self->vertices.ambient_uv);
-    self->vertices.ambient_uv = NULL;
-    dx_memory_deallocate(self->vertices.ambient_rgba);
-    self->vertices.ambient_rgba = NULL;
-    dx_memory_deallocate(self->vertices.xyz);
-    self->vertices.xyz = NULL;
-    return 1;
-  }
-  self->material_reference->object = DX_OBJECT(material);
-  DX_REFERENCE(self->material_reference->object);
+  self->material_reference = material_reference;
+  DX_REFERENCE(self->material_reference);
 
   self->name = name;
   DX_REFERENCE(name);
@@ -174,12 +164,12 @@ SELECT_GENERATOR(octahedron)
   return 0;
 }
 
-dx_asset_mesh* dx_asset_mesh_create(dx_string* name, dx_string* specifier, DX_VERTEX_FORMAT vertex_format, dx_asset_material* material) {
+dx_asset_mesh* dx_asset_mesh_create(dx_string* name, dx_string* specifier, DX_VERTEX_FORMAT vertex_format, dx_asset_reference* material_reference) {
   dx_asset_mesh* self = DX_ASSET_MESH(dx_object_alloc(sizeof(dx_asset_mesh)));
   if (!self) {
     return NULL;
   }
-  if (dx_asset_mesh_construct(self, name, specifier, vertex_format, material)) {
+  if (dx_asset_mesh_construct(self, name, specifier, vertex_format, material_reference)) {
     DX_UNREFERENCE(self);
     self = NULL;
     return NULL;

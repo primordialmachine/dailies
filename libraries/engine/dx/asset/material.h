@@ -51,10 +51,10 @@ int dx_asset_material_set_ambient_color(dx_asset_material* self, DX_VEC4 const* 
 
 /// @brief Set the ambient texture.
 /// @param self A pointer to this dx_asset_material object.
-/// @param texture A pointer to the texture or the null pointer.
+/// @param ambient_texture_reference A pointer to the ambient_texture_reference or the null pointer.
 /// @return The zero value on success. A non-zero value on failure.
 /// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
-int dx_asset_material_set_ambient_texture(dx_asset_material* self, dx_asset_texture* value);
+int dx_asset_material_set_ambient_texture(dx_asset_material* self, dx_asset_reference* ambient_texture_reference);
 
 #endif // DX_ASSET_MATERIAL_H_INCLUDED

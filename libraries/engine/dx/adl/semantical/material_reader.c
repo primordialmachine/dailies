@@ -19,6 +19,8 @@ static int _read_color_instance(dx_ddl_node* node, dx_adl_context* context, DX_R
 
 static dx_asset_texture* _read_texture(dx_ddl_node* node, dx_adl_context* context);
 
+static dx_asset_reference* _read_texture_reference(dx_ddl_node* node, dx_adl_context* context);
+
 static dx_asset_material* _read_material(dx_ddl_node* node, dx_adl_context* context);
 
 static dx_object* read(dx_adl_semantical_material_reader* self, dx_ddl_node* node, dx_adl_context* context);
@@ -86,6 +88,16 @@ END:
   return asset;
 }
 
+static dx_asset_reference* _read_texture_reference(dx_ddl_node* node, dx_adl_context* context) {
+  dx_asset_texture* texture = _read_texture(node, context);
+  if (!texture) {
+    return NULL;
+  }
+  dx_asset_reference* texture_reference = dx_asset_reference_create(texture->name);
+  texture_reference->object = DX_OBJECT(texture);
+  return texture_reference;
+}
+
 static dx_asset_material* _read_material(dx_ddl_node* node, dx_adl_context* context) {
   dx_asset_material* material_value = NULL;
   dx_string* name_value = NULL;
@@ -103,7 +115,6 @@ static dx_asset_material* _read_material(dx_ddl_node* node, dx_adl_context* cont
   if (!material_value_1) {
     goto END;
   }
-
   // ambientColor?
   {
     dx_string* name = NAME(ambient_color_key);
@@ -132,17 +143,17 @@ static dx_asset_material* _read_material(dx_ddl_node* node, dx_adl_context* cont
     dx_error old_error = dx_get_error();
     dx_ddl_node* child_node = dx_ddl_node_map_get(node, name);
     if (child_node) {
-      dx_asset_texture* ambient_texture = _read_texture(child_node, context);
-      if (!ambient_texture) {
+      dx_asset_reference* ambient_texture_reference = _read_texture_reference(child_node, context);
+      if (!ambient_texture_reference) {
         goto END;
       }
-      if (dx_asset_material_set_ambient_texture(material_value_1, ambient_texture)) {
-        DX_UNREFERENCE(ambient_texture);
-        ambient_texture = NULL;
+      if (dx_asset_material_set_ambient_texture(material_value_1, ambient_texture_reference)) {
+        DX_UNREFERENCE(ambient_texture_reference);
+        ambient_texture_reference = NULL;
         goto END;
       }
-      DX_UNREFERENCE(ambient_texture);
-      ambient_texture = NULL;
+      DX_UNREFERENCE(ambient_texture_reference);
+      ambient_texture_reference = NULL;
     } else {
       dx_set_error(old_error);
     }

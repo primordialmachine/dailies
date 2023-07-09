@@ -62,23 +62,17 @@ int dx_asset_material_set_ambient_color(dx_asset_material* self, DX_VEC4 const* 
   return 0;
 }
 
-int dx_asset_material_set_ambient_texture(dx_asset_material* self, dx_asset_texture* value) {
+int dx_asset_material_set_ambient_texture(dx_asset_material* self, dx_asset_reference* ambient_texture_reference) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  dx_asset_reference* reference = NULL;
-  if (value) {
-    reference = dx_asset_reference_create(value->name);
-    if (!reference) {
-      return 1;
-    }
-    reference->object = DX_OBJECT(value);
-    DX_REFERENCE(value);
+  if (ambient_texture_reference) {
+    DX_REFERENCE(ambient_texture_reference);
   }
   if (self->ambient_texture_reference) {
     DX_UNREFERENCE(self->ambient_texture_reference);
   }
-  self->ambient_texture_reference = reference;
+  self->ambient_texture_reference = ambient_texture_reference;
   return 0;
 }

@@ -4,6 +4,11 @@ DX_DEFINE_OBJECT_TYPE("dx.asset.viewer_instance",
                       dx_asset_viewer_instance,
                       dx_object)
 
+static void dx_asset_viewer_instance_destruct(dx_asset_viewer_instance* self) {
+  DX_UNREFERENCE(self->viewer_reference);
+  self->viewer_reference = NULL;
+}
+
 int dx_asset_viewer_instance_construct(dx_asset_viewer_instance* self, dx_asset_viewer* viewer) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
@@ -29,11 +34,6 @@ int dx_asset_viewer_instance_construct(dx_asset_viewer_instance* self, dx_asset_
   
   DX_OBJECT(self)->type = _type;
   return 0;
-}
-
-static void dx_asset_viewer_instance_destruct(dx_asset_viewer_instance* self) {
-  DX_UNREFERENCE(self->viewer_reference);
-  self->viewer_reference = NULL;
 }
 
 dx_asset_viewer_instance* dx_asset_viewer_instance_create(dx_asset_viewer* viewer) {

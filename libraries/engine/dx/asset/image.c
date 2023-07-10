@@ -74,6 +74,14 @@ static void fill_rgb_u8(void* pixels, OFFSET2 fill_offset, EXTEND2 fill_extend, 
   }
 }
 
+static void dx_asset_image_destruct(dx_asset_image* self) {
+  dx_object_array_uninitialize(&self->operations);
+  DX_UNREFERENCE(self->name);
+  self->name = NULL;
+  dx_memory_deallocate(self->pixels);
+  self->pixels = NULL;
+}
+
 int dx_asset_image_construct(dx_asset_image* self,
                              dx_string* name,
                              DX_PIXEL_FORMAT pixel_format,
@@ -121,15 +129,17 @@ int dx_asset_image_construct(dx_asset_image* self,
   };
   self->name = name;
   DX_REFERENCE(name);
+
+  if (dx_object_array_initialize(&self->operations, 0)) {
+    DX_UNREFERENCE(self->name);
+    self->name = NULL;
+    dx_memory_deallocate(self->pixels);
+    self->pixels = NULL;
+    return 1;
+  }
+
   DX_OBJECT(self)->type = _type;
   return 0;
-}
-
-static void dx_asset_image_destruct(dx_asset_image* self) {
-  DX_UNREFERENCE(self->name);
-  self->name = NULL;
-  dx_memory_deallocate(self->pixels);
-  self->pixels = NULL;
 }
 
 dx_asset_image* dx_asset_image_create(dx_string* name, 

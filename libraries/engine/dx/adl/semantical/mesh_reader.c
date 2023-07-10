@@ -19,9 +19,9 @@ static void on_object_added(dx_object** o);
 
 static void on_object_removed(dx_object** o);
 
-static int _read_mesh_operation(dx_ddl_node* node, dx_adl_context* context, dx_pointer_array* mesh_operations);
+static int _read_mesh_operation(dx_ddl_node* node, dx_adl_context* context, dx_object_array* operations);
 
-static dx_pointer_array* _read_mesh_operations(dx_ddl_node* node, dx_adl_context* context);
+static int _read_mesh_operations(dx_ddl_node* node, dx_adl_context* context, dx_object_array* operations);
 
 static int _read_vertex_format(dx_ddl_node* node, dx_adl_context* context, DX_VERTEX_FORMAT* vertex_format);
 
@@ -74,7 +74,7 @@ static void on_object_removed(dx_object** o) {
   DX_UNREFERENCE(*o);
 }
 
-static int _read_mesh_operation(dx_ddl_node* node, dx_adl_context* context, dx_pointer_array* mesh_operations) {
+static int _read_mesh_operation(dx_ddl_node* node, dx_adl_context* context, dx_object_array* operations) {
   if (!node) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -98,56 +98,39 @@ static int _read_mesh_operation(dx_ddl_node* node, dx_adl_context* context, dx_p
       return 1;
     }
   }
-  dx_asset_mesh_operation* mesh_operation = DX_ASSET_MESH_OPERATION(dx_adl_semantical_reader_read(reader, node, context));
-  if (!mesh_operation) {
+  dx_asset_mesh_operation* operation = DX_ASSET_MESH_OPERATION(dx_adl_semantical_reader_read(reader, node, context));
+  if (!operation) {
     return 1;
   }
-  if (dx_pointer_array_append(mesh_operations, mesh_operation)) {
-    DX_UNREFERENCE(mesh_operation);
-    mesh_operation = NULL;
+  if (dx_object_array_append(operations, DX_OBJECT(operation))) {
+    DX_UNREFERENCE(operation);
+    operation = NULL;
     return 1;
   }
-  DX_UNREFERENCE(mesh_operation);
-  mesh_operation = NULL;
+  DX_UNREFERENCE(operation);
+  operation = NULL;
   return 0;
 }
 
-static dx_pointer_array* _read_mesh_operations(dx_ddl_node* node, dx_adl_context* context) {
+static int _read_mesh_operations(dx_ddl_node* node, dx_adl_context* context, dx_object_array* operations) {
   if (!node) {
     dx_set_error(DX_INVALID_ARGUMENT);
-    return NULL;
+    return 1;
   }
   if (node->kind != dx_ddl_node_kind_list) {
     dx_set_error(DX_SEMANTICAL_ERROR);
-    return NULL;
-  }
-  dx_pointer_array* mesh_operations = dx_memory_allocate(sizeof(dx_pointer_array));
-  if (!mesh_operations) {
-    return NULL;
-  }
-  if (dx_pointer_array_initialize(mesh_operations, 0,
-                                  (dx_added_callback*)&on_object_added,
-                                  (dx_removed_callback*)&on_object_removed)) {
-    dx_memory_deallocate(mesh_operations);
-    mesh_operations = NULL;
-    return NULL;
+    return 1;
   }
   for (dx_size i = 0, n = dx_ddl_node_list_get_size(node); i < n; ++i) {
     dx_ddl_node* child_node = dx_ddl_node_list_get(node, i);
     if (!child_node) {
-      dx_pointer_array_uninitialize(mesh_operations);
-      dx_memory_deallocate(mesh_operations);
-      mesh_operations = NULL;
-      return NULL;
+      return 1;
     }
-    if (_read_mesh_operation(child_node, context, mesh_operations)) {
-      dx_pointer_array_uninitialize(mesh_operations);
-      dx_memory_deallocate(mesh_operations);
-      mesh_operations = NULL;
-      return NULL;
+    if (_read_mesh_operation(child_node, context, operations)) {
+      return 1;
     }
   }
-  return mesh_operations;
+  return 0;
 }
 
 static int _read_vertex_format(dx_ddl_node* node, dx_adl_context* context, DX_VERTEX_FORMAT* vertex_format) {
@@ -191,7 +174,6 @@ static dx_asset_mesh* _read_mesh(dx_ddl_node* node, dx_adl_context* context) {
   dx_string* name_value = NULL;
   dx_string* generator_value = NULL;
   dx_asset_reference* material_reference_value = NULL;
-  dx_pointer_array* operations_value = NULL;
   // name
   {
     name_value = dx_adl_semantical_read_name(node, context);
@@ -230,23 +212,6 @@ static dx_asset_mesh* _read_mesh(dx_ddl_node* node, dx_adl_context* context) {
       }
     }
   }
-  // operations
-  {
-    dx_error last_error = dx_get_error();
-    dx_string* name = NAME(operations_key);
-    dx_ddl_node* child_node = dx_ddl_node_map_get(node, name);
-    if (child_node) {
-      operations_value = _read_mesh_operations(child_node, context);
-      if (!operations_value) {
-        goto END;
-      }
-    } else {
-      if (dx_get_error() != DX_NOT_FOUND) {
-        goto END;
-      }
-      dx_set_error(last_error);
-    }
-  }
   // material
   {
     material_reference_value = dx_adl_semantical_read_material_instance_field(node, false, NAME(material_key), context);
@@ -264,14 +229,24 @@ static dx_asset_mesh* _read_mesh(dx_ddl_node* node, dx_adl_context* context) {
   if (!mesh_value) {
     goto END;
   }
-  if (operations_value) {
-    for (dx_size i = 0, n = dx_pointer_array_get_size(operations_value); i < n; ++i) {
-      dx_asset_mesh_operation* operation_value = DX_ASSET_MESH_OPERATION(dx_pointer_array_get_at(operations_value, i));
-      if (dx_asset_mesh_operation_apply(operation_value, mesh_value)) {
+  // operations
+  {
+    dx_error last_error = dx_get_error();
+    dx_string* name = NAME(operations_key);
+    dx_ddl_node* child_node = dx_ddl_node_map_get(node, name);
+    if (child_node) {
+      if (_read_mesh_operations(child_node, context, &mesh_value->operations)) {
         DX_UNREFERENCE(mesh_value);
         mesh_value = NULL;
         goto END;
       }
+    } else {
+      if (dx_get_error() != DX_NOT_FOUND) {
+        DX_UNREFERENCE(mesh_value);
+        mesh_value = NULL;
+        goto END;
+      }
+      dx_set_error(last_error);
     }
   }
 END:
@@ -286,10 +261,6 @@ END:
   if (material_reference_value) {
     DX_UNREFERENCE(material_reference_value);
     material_reference_value = NULL;
-  }
-  if (operations_value) {
-    dx_pointer_array_uninitialize(operations_value);
-    dx_memory_deallocate(operations_value);
   }
   return mesh_value;
 }

@@ -36,7 +36,7 @@ static dx_msg_queue *g_msg_queue  = NULL;
 
 static dx_size g_scene_index = 0;
 
-static dx_scene* g_scenes[6] = { NULL };
+static dx_scene* g_scenes[6] = { NULL, NULL, NULL, NULL, NULL, NULL, };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

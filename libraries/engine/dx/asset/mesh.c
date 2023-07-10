@@ -61,6 +61,7 @@ static int resize_vertex_arrays(dx_asset_mesh* self, dx_bool shrink, dx_size num
 }
 
 static void dx_asset_mesh_destruct(dx_asset_mesh* self) {
+  dx_object_array_uninitialize(&self->operations);
   if (self->name) {
     DX_UNREFERENCE(self->name);
     self->name = NULL;
@@ -161,6 +162,20 @@ SELECT_GENERATOR(octahedron)
   DX_REFERENCE(name);
 
   self->vertex_format = vertex_format;
+
+  if (dx_object_array_initialize(&self->operations, 0)) {
+    DX_UNREFERENCE(self->name);
+    self->name = NULL;
+    DX_UNREFERENCE(self->material_reference);
+    self->material_reference = NULL;
+    dx_memory_deallocate(self->vertices.ambient_uv);
+    self->vertices.ambient_uv = NULL;
+    dx_memory_deallocate(self->vertices.ambient_rgba);
+    self->vertices.ambient_rgba = NULL;
+    dx_memory_deallocate(self->vertices.xyz);
+    self->vertices.xyz = NULL;
+    return 1;
+  }
 
   DX_OBJECT(self)->type = _type;
   return 0;

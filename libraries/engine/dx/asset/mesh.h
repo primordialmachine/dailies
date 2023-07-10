@@ -50,6 +50,9 @@ struct dx_asset_mesh {
     /// These objects are the per-vertex ambient "uv" values.
     DX_VEC2* ambient_uv;
   } vertices;
+
+  /// @brief The operations that eventually create the mesh.
+  dx_object_array operations;
 };
 
 /// @brief Generate a mesh.

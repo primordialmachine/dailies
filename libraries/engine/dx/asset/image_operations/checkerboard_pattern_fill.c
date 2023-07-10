@@ -1,11 +1,12 @@
 #include "dx/asset/image_operations/checkerboard_pattern_fill.h"
 
-static void dx_asset_image_operations_checkerboard_pattern_fill_destruct(dx_asset_image_operations_checkerboard_pattern_fill* self)
-{ }
 
 DX_DEFINE_OBJECT_TYPE("dx.asset.image_operations.checkerboard_pattern_fill",
                       dx_asset_image_operations_checkerboard_pattern_fill,
                       dx_asset_image_operation)
+
+static void dx_asset_image_operations_checkerboard_pattern_fill_destruct(dx_asset_image_operations_checkerboard_pattern_fill* self)
+{/*Intentionally empty.*/}
 
 int dx_asset_image_operations_checkerboard_pattern_fill_construct(dx_asset_image_operations_checkerboard_pattern_fill* self) {
   dx_rti_type* _type = dx_asset_image_operations_checkerboard_pattern_fill_get_type();

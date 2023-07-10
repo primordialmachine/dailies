@@ -65,6 +65,26 @@
       },// Material.ambientTexture
     },// Material
     {
+      type : 'Mesh',
+      name : 'my.cube1',
+      vertexFormat : ['position xyz', 'ambient uv'],
+      generator : 'cube',
+      material : {
+        type : 'MaterialInstance',
+        reference : 'my.material',
+      } // Mesh.material
+    },// Mesh
+    {
+      type : 'Mesh',
+      name : 'my.cube2',
+      vertexFormat : ['position xyz', 'ambient uv'],
+      generator : 'cube',
+      material : {
+        type : 'MaterialInstance',
+        reference : 'my.material',
+      },// Mesh.material
+    },// Mesh
+    {
       type : 'ViewerInstance',
       viewer : {
         type : 'Viewer',
@@ -98,33 +118,15 @@
         type : 'Translation',
         x : -1, y : 0, z : 0,
       },
-      mesh : {
-        type : 'Mesh',
-        name : 'my.cube1',
-        vertexFormat : ['position xyz', 'ambient uv'],
-        generator : 'cube',
-        material : {
-          type : 'MaterialInstance',
-          reference : 'my.material',
-       } // Mesh.material
-      },// MeshInstance.mesh
-    },
+      reference : "my.cube1"
+    },// MeshInstance
     {
       type : 'MeshInstance',
       transformation : {
         type : 'Translation',
         x : +1, y : 0, z : 0,
       },
-      mesh : {
-        type : 'Mesh',
-        name : 'my.cube2',
-        vertexFormat : ['position xyz', 'ambient uv'],
-        generator : 'cube',
-        material : {
-          type : 'MaterialInstance',
-          reference : 'my.material',
-       } // Mesh.material
-      },// Mesh
-    },
+      reference : "my.cube2"
+    },// MeshInstance
   ],
 }

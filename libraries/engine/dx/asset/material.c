@@ -4,6 +4,17 @@ DX_DEFINE_OBJECT_TYPE("dx.asset.material",
                       dx_asset_material,
                       dx_object)
 
+static void dx_asset_material_destruct(dx_asset_material* self) {
+  if (self->ambient_texture_reference) {
+    DX_UNREFERENCE(self->ambient_texture_reference);
+    self->ambient_texture_reference = NULL;
+  }
+  if (self->name) {
+    DX_UNREFERENCE(self->name);
+    self->name = NULL;
+  }
+}
+
 int dx_asset_material_construct(dx_asset_material* self, dx_string* name) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
@@ -27,17 +38,6 @@ int dx_asset_material_construct(dx_asset_material* self, dx_string* name) {
   
   DX_OBJECT(self)->type = _type;
   return 0;
-}
-
-static void dx_asset_material_destruct(dx_asset_material* self) {
-  if (self->ambient_texture_reference) {
-    DX_UNREFERENCE(self->ambient_texture_reference);
-    self->ambient_texture_reference = NULL;
-  }
-  if (self->name) {
-    DX_UNREFERENCE(self->name);
-    self->name = NULL;
-  }
 }
 
 dx_asset_material* dx_asset_material_create(dx_string* name) {

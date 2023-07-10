@@ -15,8 +15,8 @@ static inline dx_asset_scene* DX_ASSET_SCENE(void* p) {
 
 struct dx_asset_scene {
   dx_object _parent;
-  /// @brief The list of instances.
-  dx_object_array mesh_instances;
+  /// @brief The list of assets in this scene.
+  dx_object_array assets;
 };
 
 /// @brief Construct this dx_asset_scene object with default values.

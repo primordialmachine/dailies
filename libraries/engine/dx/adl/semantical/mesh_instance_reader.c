@@ -40,35 +40,8 @@ static int complete(dx_adl_semantical_mesh_instance_reader* self, dx_adl_symbol*
 
 static dx_object* read(dx_adl_semantical_mesh_instance_reader* self, dx_ddl_node* node, dx_adl_context* context) {
   dx_asset_mesh_instance* mesh_instance = NULL;
-  dx_asset_mesh* mesh = NULL;
+  dx_asset_reference* mesh_reference = NULL;
   DX_MAT4* transformation = NULL;
-  // mesh
-  {
-    dx_string* name = NAME(mesh_key);
-    dx_ddl_node* child_node = dx_ddl_node_map_get(node, name);
-    if (!child_node) {
-      goto END;
-    }
-    if (child_node->kind != dx_ddl_node_kind_map) {
-      goto END;
-    }
-    dx_string* received_type = dx_adl_semantical_read_type(child_node, context);
-    if (!dx_string_is_equal_to(received_type, NAME(mesh_type))) {
-      DX_UNREFERENCE(received_type);
-      received_type = NULL;
-      goto END;
-    }
-    dx_adl_semantical_reader* mesh_reader = dx_pointer_hashmap_get(&context->readers, received_type);
-    DX_UNREFERENCE(received_type);
-    received_type = NULL;
-    if (!mesh_reader) {
-      goto END;
-    }
-    mesh = (dx_asset_mesh*)dx_adl_semantical_reader_read(mesh_reader, child_node, context);
-    if (!mesh) {
-      goto END;
-    }
-  }
   // transformation?
   {
     dx_string* name = dx_string_create("transformation", sizeof("transformation") - 1);
@@ -92,12 +65,19 @@ static dx_object* read(dx_adl_semantical_mesh_instance_reader* self, dx_ddl_node
       }
     }
   }
-  dx_asset_reference* mesh_reference = dx_asset_reference_create(mesh->name);
-  if (!mesh_reference) {
-    goto END;
+  // reference
+  {
+    dx_string* name = dx_adl_semantical_read_string(node, NAME(reference_key), context->names);
+    if (!name) {
+      goto END;
+    }
+    mesh_reference = dx_asset_reference_create(name);
+    DX_UNREFERENCE(name);
+    name = NULL;
+    if (!mesh_reference) {
+      goto END;
+    }
   }
-  mesh_reference->object = DX_OBJECT(mesh);
-  DX_REFERENCE(mesh_reference->object);
   mesh_instance = dx_asset_mesh_instance_create(mesh_reference);
   DX_UNREFERENCE(mesh_reference);
   mesh_reference = NULL;
@@ -108,9 +88,9 @@ static dx_object* read(dx_adl_semantical_mesh_instance_reader* self, dx_ddl_node
     mesh_instance->world_matrix = *transformation;
   }
 END:
-  if (mesh) {
-    DX_UNREFERENCE(mesh);
-    mesh = NULL;
+  if (mesh_reference) {
+    DX_UNREFERENCE(mesh_reference);
+    mesh_reference = NULL;
   }
   if (transformation) {
     dx_memory_deallocate(transformation);

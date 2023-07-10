@@ -62,6 +62,16 @@
       },// Material.ambientTexture
     },// Material
     {
+      type : 'Mesh',
+      name : 'my.octahedron',
+      vertexFormat : ['position xyz', 'ambient uv'],
+      generator : 'octahedron',
+      material : {
+        type : 'MaterialInstance',
+        reference : 'my.material',
+     } // Mesh.material
+    },// Mesh
+    {
       type : 'ViewerInstance',
       viewer : {
         type : 'Viewer',
@@ -95,16 +105,7 @@
         type : 'Translation',
         x : 0, y : 0, z : 0,
       },
-      mesh : {
-        type : 'Mesh',
-        name : 'my.octahedron',
-        vertexFormat : ['position xyz', 'ambient uv'],
-        generator : 'octahedron',
-        material : {
-          type : 'MaterialInstance',
-          reference : 'my.material',
-       } // Mesh.material
-      },// MeshInstance.mesh
-    },
+      reference : 'my.octahedron',
+    },// MeshInstance
   ],
 }

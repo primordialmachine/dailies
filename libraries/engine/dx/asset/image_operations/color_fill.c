@@ -1,11 +1,11 @@
 #include "dx/asset/image_operations/color_fill.h"
 
-static void dx_asset_image_operations_color_fill_destruct(dx_asset_image_operations_color_fill* self)
-{ }
-
 DX_DEFINE_OBJECT_TYPE("dx.asset.image_operations_color_fill",
                       dx_asset_image_operations_color_fill,
                       dx_asset_image_operation)
+
+static void dx_asset_image_operations_color_fill_destruct(dx_asset_image_operations_color_fill* self)
+{/*Intentionally empty.*/}
 
 int dx_asset_image_operations_color_fill_construct(dx_asset_image_operations_color_fill* self) {
   dx_rti_type* _type = dx_asset_image_operations_color_fill_get_type();

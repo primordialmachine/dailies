@@ -31,6 +31,16 @@
       ambientColor : { type : 'ColorInstance', reference : 'malachite' },
     },// Material
     {
+      type : 'Mesh',
+      name : 'my.quadriliteral',
+      vertexFormat : ['position xyz'],
+      generator : 'quadriliteral',
+      material : {
+        type : 'MaterialInstance',
+        reference : 'my.material',
+      }// Mesh.material
+    },// Mesh
+    {
       type : 'ViewerInstance',
       viewer : {
         type : 'Viewer',
@@ -64,16 +74,7 @@
         type : 'Translation',
         x : 0, y : 0, z : 0,
       },
-      mesh : {
-        type : 'Mesh',
-        name : 'my.quadriliteral',
-        vertexFormat : ['position xyz'],
-        generator : 'quadriliteral',
-        material : {
-          type : 'MaterialInstance',
-          reference : 'my.material',
-       } // Mesh.material
-      },// MeshInstance.mesh
-    },
+      reference : 'my.quadriliteral',
+    },// MeshInstance
   ],
 }

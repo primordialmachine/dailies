@@ -6,6 +6,15 @@ DX_DEFINE_OBJECT_TYPE("dx.asset.viewer",
                       dx_asset_viewer,
                       dx_object)
 
+static void dx_asset_viewer_destruct(dx_asset_viewer* self) {
+  if (self->optics) {
+    DX_UNREFERENCE(self->optics);
+    self->optics = NULL;
+  }
+  DX_UNREFERENCE(self->name);
+  self->name = NULL;
+}
+
 int dx_asset_viewer_construct(dx_asset_viewer* self, dx_string* name) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
@@ -37,15 +46,6 @@ int dx_asset_viewer_construct(dx_asset_viewer* self, dx_string* name) {
 
   DX_OBJECT(self)->type = _type;
   return 0;
-}
-
-static void dx_asset_viewer_destruct(dx_asset_viewer* self) {
-  if (self->optics) {
-    DX_UNREFERENCE(self->optics);
-    self->optics = NULL;
-  }
-  DX_UNREFERENCE(self->name);
-  self->name = NULL;
 }
 
 dx_asset_viewer* dx_asset_viewer_create(dx_string* name) {

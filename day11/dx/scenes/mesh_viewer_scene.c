@@ -63,8 +63,8 @@ static int mesh_instance_on_startup(dx_mesh_viewer_scene* self, dx_context* cont
     dx_object_array_uninitialize(&self->mesh_instances);
     return 1;
   }
-  for (dx_size i = 0, n = dx_object_array_get_size(&asset_scene->mesh_instances); i < n; ++i) {
-    dx_object* asset_object = dx_object_array_get_at(&asset_scene->mesh_instances, i);
+  for (dx_size i = 0, n = dx_object_array_get_size(&asset_scene->assets); i < n; ++i) {
+    dx_object* asset_object = dx_object_array_get_at(&asset_scene->assets, i);
     if (!asset_object) {
       dx_object_array_uninitialize(&self->viewers);
       dx_object_array_uninitialize(&self->mesh_instances);

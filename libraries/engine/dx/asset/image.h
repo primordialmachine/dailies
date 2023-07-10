@@ -55,16 +55,24 @@ int dx_asset_image_apply(dx_asset_image* self,
 
 struct dx_asset_image {
   dx_object _parent;
+  
   /// @brief A pointer to the name of this ADL image.
   dx_string* name;
+  
   /// @brief The pixel format.
   DX_PIXEL_FORMAT pixel_format;
+  
   /// @brief The width, in pixels.
   dx_size width;
+  
   /// @brief The height, in pixels.
   dx_size height;
+  
   /// @brief A pointer to the pixel data.
   void* pixels;
+
+  /// @brief The operations that eventually create the image.
+  dx_object_array operations;
 };
 
 #endif // DX_ASSET_IMAGE_H_INCLUDED

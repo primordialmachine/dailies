@@ -67,10 +67,10 @@ int dx_adl_resolve_do_symbol(dx_adl_resolve* self, dx_adl_symbol* symbol) {
   }
   //
   if (/*dx_string_is_equal_to(symbol->type, NAME(mesh_instance_type)) ||*/
-    dx_string_is_equal_to(symbol->type, NAME(image_type)) ||
-    dx_string_is_equal_to(symbol->type, NAME(mesh_type)) ||
-    dx_string_is_equal_to(symbol->type, NAME(material_type)) ||
-    dx_string_is_equal_to(symbol->type, NAME(texture_type))) {
+      dx_string_is_equal_to(symbol->type, NAME(image_type)) ||
+      dx_string_is_equal_to(symbol->type, NAME(mesh_type)) ||
+      dx_string_is_equal_to(symbol->type, NAME(material_type)) ||
+      dx_string_is_equal_to(symbol->type, NAME(texture_type))) {
     dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&self->context->readers, symbol->type);
     if (!reader) {
       return 1;

@@ -4,6 +4,11 @@ DX_DEFINE_OBJECT_TYPE("dx.asset.mesh_instance",
                       dx_asset_mesh_instance,
                       dx_object)
 
+static void dx_asset_mesh_instance_destruct(dx_asset_mesh_instance* self) {
+  DX_UNREFERENCE(self->mesh_reference);
+  self->mesh_reference = NULL;
+}
+
 int dx_asset_mesh_instance_construct(dx_asset_mesh_instance* self, dx_asset_reference* mesh_reference) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
@@ -25,11 +30,6 @@ int dx_asset_mesh_instance_construct(dx_asset_mesh_instance* self, dx_asset_refe
 
   DX_OBJECT(self)->type = _type;
   return 0;
-}
-
-static void dx_asset_mesh_instance_destruct(dx_asset_mesh_instance* self) {
-  DX_UNREFERENCE(self->mesh_reference);
-  self->mesh_reference = NULL;
 }
 
 dx_asset_mesh_instance* dx_asset_mesh_instance_create(dx_asset_reference* mesh_reference) {

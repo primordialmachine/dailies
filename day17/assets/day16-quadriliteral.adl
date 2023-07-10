@@ -48,6 +48,11 @@
       },// Image.operations
     },// Image
     {
+      type : 'Texture',
+      name : 'my.texture',
+      image : { type : 'ImageInstance', reference : 'my.image' },
+    },// Texture
+    {
       type : 'ViewerInstance',
       viewer : {
         type : 'Viewer',
@@ -90,9 +95,8 @@
           type : 'Material',
           name : 'my.quadriliteral.material',
           ambientTexture : {
-            type : 'Texture',
-            name : 'my.quadriliteral.texture',
-            image : { type : 'ImageInstance', reference : 'my.image' },
+            type : 'TextureInstance',
+            reference : 'my.texture',
           },// Material.ambientTexture
         },// Mesh.material
       },// MeshInstance.mesh

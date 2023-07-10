@@ -27,7 +27,7 @@
     },
     {
       type : 'Image',
-      name : 'my.cube.image',
+      name : 'my.image',
       width : 2048,
       height : 2048,
       color : {
@@ -50,6 +50,14 @@
         },
       },// Image.operations
     },// Image
+    {
+      type : 'Texture',
+      name : 'my.texture',
+      image : {
+        type : 'ImageInstance',
+        reference : 'my.image'
+      } // image
+    },// Texture
     {
       type : 'ViewerInstance',
       viewer : {
@@ -93,12 +101,8 @@
           type : 'Material',
           name : 'my.cube1.material',
           ambientTexture : {
-            type : 'Texture',
-            name : 'my.cube1.texture',
-            image : {
-              type : 'ImageInstance',
-              reference : 'my.cube.image'
-            } // image
+            type : 'TextureInstance',
+            reference : 'my.texture',
           },// Material.ambientTexture
         },// Mesh.material
       },// MeshInstance.mesh
@@ -118,12 +122,8 @@
           type : 'Material',
           name : 'my.cube2.material',
           ambientTexture : {
-            type : 'Texture',
-            name : 'my.cube2.texture',
-            image : {
-              type : 'ImageInstance',
-              reference : 'my.cube.image'
-            } // image
+            type : 'TextureInstance',
+            reference : 'my.texture',
           },// Material.ambientTexture
         },// Mesh.material
       },// MeshInstance.mesh

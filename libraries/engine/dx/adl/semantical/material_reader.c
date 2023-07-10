@@ -156,7 +156,8 @@ static dx_asset_material* _read_material(dx_ddl_node* node, dx_adl_context* cont
   }
   // ambientTexture?
   {
-    dx_asset_reference* texture_reference = _read_texture_reference_field(node, true, NAME(ambient_texture_key), context);
+    dx_asset_reference* texture_reference = dx_adl_semantical_read_texture_instance_field(node, true, NAME(ambient_texture_key), context);
+    //dx_asset_reference* texture_reference = _read_texture_reference_field(node, true, NAME(ambient_texture_key), context);
     if (!texture_reference) {
       if (dx_get_error()) {
         DX_UNREFERENCE(material_value_1);
@@ -185,6 +186,21 @@ END:
 }
 
 static int complete(dx_adl_semantical_material_reader* self, dx_adl_symbol* symbol, dx_adl_context* context) {
+  dx_asset_material* material = DX_ASSET_MATERIAL(symbol->asset);
+  if (!material->ambient_texture_reference) {
+    return 0;
+  }
+  if (material->ambient_texture_reference->object) {
+    return 0;
+  }
+  dx_adl_symbol* referenced_symbol = dx_asset_definitions_get(context->definitions, material->ambient_texture_reference->name);
+  if (!referenced_symbol) {
+    return 1;
+  }
+  material->ambient_texture_reference->object = referenced_symbol->asset;
+  if (!material->ambient_texture_reference->object) {
+    return 0;
+  }
   return 0;
 }
 
@@ -200,7 +216,7 @@ int dx_adl_semantical_material_reader_construct(dx_adl_semantical_material_reade
   if (dx_adl_semantical_reader_construct(DX_ADL_SEMANTICAL_READER(self))) {
     return 1;
   }
-  DX_ADL_SEMANTICAL_READER(self)->complete = (int (*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*)) & complete;
+  DX_ADL_SEMANTICAL_READER(self)->complete = (int (*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*))&complete;
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*))&read;
   DX_OBJECT(self)->type = _type;
   return 0;

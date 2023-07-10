@@ -169,6 +169,7 @@ int dx_adl_enter_on_scene_element(dx_adl_enter* self, dx_ddl_node* source, dx_ad
   CASEOF(material_type, material);
   CASEOF(mesh_instance_type, mesh_instance);
   CASEOF(mesh_type, mesh);
+  CASEOF(texture_type, texture);
   CASEOF(viewer_type, viewer);
   CASEOF(viewer_instance_type, viewer_instance)
   DX_UNREFERENCE(received_type);
@@ -398,22 +399,6 @@ int dx_adl_enter_on_material(dx_adl_enter* self, dx_ddl_node* source, dx_adl_con
   name = NULL;
   DX_UNREFERENCE(received_type);
   received_type = NULL;
-  //
-  dx_ddl_node* child_source = dx_ddl_node_map_get(source, NAME(ambient_texture_key));
-  if (child_source) {
-    if (is_of_type(child_source, NAME(texture_type), context)) {
-      return dx_adl_enter_on_texture(self, child_source, context);
-    } else {
-      dx_set_error(DX_SEMANTICAL_ERROR);
-      return dx_get_error();
-    }
-  } else {
-    if (DX_NOT_FOUND == dx_get_error()) {
-      dx_set_error(DX_NO_ERROR);
-    } else {
-      return 1;
-    }
-  }
   //
   return 0;
 }

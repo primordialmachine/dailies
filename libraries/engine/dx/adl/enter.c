@@ -334,17 +334,6 @@ int dx_adl_enter_on_mesh(dx_adl_enter* self, dx_ddl_node* source, dx_adl_context
   DX_UNREFERENCE(received_type);
   received_type = NULL;
   //
-  dx_ddl_node* child_source = dx_ddl_node_map_get(source, NAME(material_key));
-  if (!child_source) {
-    return 1;
-  }
-  if (is_of_type(child_source, NAME(material_type), context)) {
-    return dx_adl_enter_on_material(self, child_source, context);
-  } else {
-    dx_set_error(DX_SEMANTICAL_ERROR);
-    return dx_get_error();
-  }
-  //
   return 0;
 }
 

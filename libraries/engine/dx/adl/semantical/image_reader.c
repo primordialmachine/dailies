@@ -19,7 +19,11 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static dx_asset_image_operation* _read_image_operation(dx_ddl_node* node, dx_adl_context* context);
+static int _read_image_operation(dx_ddl_node* node, dx_adl_context* context, dx_pointer_array* image_operations);
+
+static void on_object_added(dx_object** o);
+
+static void on_object_removed(dx_object** o);
 
 static dx_asset_image* _read_image(dx_ddl_node* node, dx_adl_context* context);
 
@@ -33,10 +37,10 @@ DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.image_reader",
                       dx_adl_semantical_image_reader,
                       dx_adl_semantical_reader)
 
-static dx_asset_image_operation* _read_image_operation(dx_ddl_node* node, dx_adl_context* context) {
+static int _read_image_operation(dx_ddl_node* node, dx_adl_context* context, dx_pointer_array* image_operations) {
   dx_string *received_type = dx_adl_semantical_read_type(node, context);
   if (!received_type) {
-    return NULL;
+    return 1;
   }
 
   if (!dx_string_is_equal_to(received_type, NAME(image_operations_color_fill_type)) &&
@@ -44,21 +48,74 @@ static dx_asset_image_operation* _read_image_operation(dx_ddl_node* node, dx_adl
     dx_set_error(DX_SEMANTICAL_ERROR);
     DX_UNREFERENCE(received_type);
     received_type = NULL;
-    return NULL;
+    return 1;
   }
   
   dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&context->readers, received_type);
   DX_UNREFERENCE(received_type);
   received_type = NULL;
   if (!reader) {
-    return NULL;
+    return 1;
   }
 
   dx_asset_image_operation* asset = DX_ASSET_IMAGE_OPERATION(dx_adl_semantical_reader_read(reader, node, context));
   if (!asset) {
+    return 1;
+  }
+  if (dx_pointer_array_append(image_operations, asset)) {
+    DX_UNREFERENCE(asset);
+    asset = NULL;
+    return 1;
+  }
+  DX_UNREFERENCE(asset);
+  asset = NULL;
+  return 0;
+}
+
+static void on_object_added(dx_object** o) {
+  DX_REFERENCE(*o);
+}
+
+static void on_object_removed(dx_object** o) {
+  DX_UNREFERENCE(*o);
+}
+
+static dx_pointer_array* _read_image_operations(dx_ddl_node* node, dx_adl_context* context) {
+  if (!node) {
+    dx_set_error(DX_INVALID_ARGUMENT);
     return NULL;
   }
-  return asset;
+  if (node->kind != dx_ddl_node_kind_list) {
+    dx_set_error(DX_SEMANTICAL_ERROR);
+    return NULL;
+  }
+  dx_pointer_array* image_operations = dx_memory_allocate(sizeof(dx_pointer_array));
+  if (!image_operations) {
+    return NULL;
+  }
+  if (dx_pointer_array_initialize(image_operations, 0,
+                                  (dx_added_callback*)&on_object_added,
+                                  (dx_removed_callback*)&on_object_removed)) {
+    dx_memory_deallocate(image_operations);
+    image_operations = NULL;
+    return NULL;
+  }
+  for (dx_size i = 0, n = dx_ddl_node_list_get_size(node); i < n; ++i) {
+    dx_ddl_node* child_node = dx_ddl_node_list_get(node, i);
+    if (!child_node) {
+      dx_pointer_array_uninitialize(image_operations);
+      dx_memory_deallocate(image_operations);
+      image_operations = NULL;
+      return NULL;
+    }
+    if (_read_image_operation(child_node, context, image_operations)) {
+      dx_pointer_array_uninitialize(image_operations);
+      dx_memory_deallocate(image_operations);
+      image_operations = NULL;
+      return NULL;
+    }
+  }
+  return image_operations;
 }
 
 static dx_asset_image* _read_image(dx_ddl_node* node, dx_adl_context* context) {
@@ -66,7 +123,7 @@ static dx_asset_image* _read_image(dx_ddl_node* node, dx_adl_context* context) {
   dx_string* name_value = NULL;
   dx_size width_value, height_value;
   dx_asset_color* color_value = NULL;
-  dx_asset_image_operation* image_operation = NULL;
+  dx_pointer_array* operations_value = NULL;
   // name
   {
     name_value = dx_adl_semantical_read_name(node, context);
@@ -82,40 +139,46 @@ static dx_asset_image* _read_image(dx_ddl_node* node, dx_adl_context* context) {
   if (dx_adl_semantical_read_sz(node, NAME(height_key), &height_value)) {
     goto END;
   }
-  // color
-  {
-    color_value = dx_adl_semantical_read_color_instance_field(node, false, NAME(color_key), context);
-    if (!color_value) {
-      goto END;
-    }
-  }
   // operations
   {
+    dx_error last_error = dx_get_error();
     dx_string* name = NAME(operations_key);
     dx_ddl_node* child_node = dx_ddl_node_map_get(node, name);
-    if (!child_node) {
-      goto END;
-    }
-    image_operation = _read_image_operation(child_node, context);
-    if (!image_operation) {
-      goto END;
+    if (child_node) {
+      operations_value = _read_image_operations(child_node, context);
+      if (!operations_value) {
+        goto END;
+      }
+    } else {
+      if (dx_get_error() != DX_NOT_FOUND) {
+        goto END;
+      }
+      dx_set_error(last_error);
     }
   }
-  image_value = dx_asset_image_create(name_value, DX_PIXEL_FORMAT_RGB_U8, width_value, height_value, &color_value->value);
+  DX_RGB_U8 white = { .r = 255, .g = 255, .b = 255 };
+  image_value = dx_asset_image_create(name_value, DX_PIXEL_FORMAT_RGB_U8, width_value, height_value, &white);
   if (!image_value) {
     goto END;
   }
-  if (dx_asset_image_apply(image_value, 0, 0, image_value->width, image_value->height, image_operation)) {
-    goto END;
+  if (operations_value) {
+    for (dx_size i = 0, n = dx_pointer_array_get_size(operations_value); i < n; ++i) {
+      dx_asset_image_operation* operation_value = DX_ASSET_IMAGE_OPERATION(dx_pointer_array_get_at(operations_value, i));
+      if (dx_asset_image_apply(image_value, 0, 0, image_value->width, image_value->height, operation_value)) {
+        DX_UNREFERENCE(image_value);
+        image_value = NULL;
+        goto END;
+      }
+    }
   }
 END:
   if (name_value) {
     DX_UNREFERENCE(name_value);
     name_value = NULL;
   }
-  if (image_operation) {
-    DX_UNREFERENCE(image_operation);
-    image_operation = NULL;
+  if (operations_value) {
+    dx_pointer_array_uninitialize(operations_value);
+    dx_memory_deallocate(operations_value);
   }
   if (color_value) {
     DX_UNREFERENCE(color_value);

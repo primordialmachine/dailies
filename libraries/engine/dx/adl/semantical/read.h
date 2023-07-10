@@ -108,10 +108,17 @@ dx_asset_color* dx_adl_semantical_read_color_instance_field(dx_ddl_node* node, b
 
 /// @code
 /// { ... <key> : { ... type : 'ImageInstance', reference : <name> ... } ... }
+dx_asset_reference* dx_adl_semantical_read_image_instance(dx_ddl_node* node, dx_adl_context* context);
 dx_asset_reference* dx_adl_semantical_read_image_instance_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context);
 
 /// @code
 /// { ... <key> : { ... type : 'TextureInstance', reference : <name> ... } ... }
+dx_asset_reference* dx_adl_semantical_read_texture_instance(dx_ddl_node* node, dx_adl_context* context);
 dx_asset_reference* dx_adl_semantical_read_texture_instance_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context);
+
+/// @code
+/// { ... <key> : { ... type : 'MaterialInstance', reference : <name> ... } ... }
+dx_asset_reference* dx_adl_semantical_read_material_instance(dx_ddl_node* node, dx_adl_context* context);
+dx_asset_reference* dx_adl_semantical_read_material_instance_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context);
 
 #endif // DX_ADL_SEMANTICAL_READ_H_INCLUDED

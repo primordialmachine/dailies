@@ -30,28 +30,37 @@
       name : 'my.image',
       width : 2048,
       height : 2048,
-      color : { type : 'ColorInstance', reference : 'malachite' },
-      operations : {
-        type : 'ImageOperations.CheckerboardPatternFill',
-        numberOfCheckers : {
-          horizontal : 16,
-          vertical : 16,
-        },
-        checkerSize : {
-          horizontal : 128,
-          vertical : 128,
-        },
-        checkerColors : {
-          first : { type : 'ColorInstance', reference : 'malachite' },
-          second : { type : 'ColorInstance', reference : 'amber' },
-        },
-      },// Image.operations
+      operations : [
+        {
+          type : 'ImageOperations.CheckerboardPatternFill',
+          numberOfCheckers : {
+            horizontal : 16,
+            vertical : 16,
+          },
+          checkerSize : {
+            horizontal : 128,
+            vertical : 128,
+          },
+          checkerColors : {
+            first : { type : 'ColorInstance', reference : 'malachite' },
+            second : { type : 'ColorInstance', reference : 'amber' },
+          },
+        }
+      ],// Image.operations
     },// Image
     {
       type : 'Texture',
       name : 'my.texture',
       image : { type : 'ImageInstance', reference : 'my.image' },
     },// Texture
+    {
+      type : 'Material',
+      name : 'my.material',
+      ambientTexture : {
+        type : 'TextureInstance',
+        reference : 'my.texture',
+      },// Material.ambientTexture
+    },// Material
     {
       type : 'ViewerInstance',
       viewer : {
@@ -92,13 +101,9 @@
         vertexFormat : ['position xyz', 'ambient uv'],
         generator : 'cube',
         material : {
-          type : 'Material',
-          name : 'my.cube.material',
-          ambientTexture : {
-            type : 'TextureInstance',
-            reference : 'my.texture',
-          },// Material.ambientTexture
-        },// Mesh.material
+          type : 'MaterialInstance',
+          reference : 'my.material',
+       } // Mesh.material
       },// MeshInstance.mesh
     },
   ],

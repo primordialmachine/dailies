@@ -6,6 +6,7 @@
 #include "dx/asset/viewer_instance.h"
 #include "dx/adl/semantical/names.h"
 #include "dx/adl/enter.h"
+#include "dx/adl/resolve.h"
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -113,8 +114,6 @@ static int dx_adl_compiler_enter_phase(dx_ddl_node* node, dx_adl_context* contex
   return 0;
 }
 
-#include "dx/adl/resolve.h"
-
 static int dx_adl_compiler_complete_phase(dx_adl_context* context) {
   dx_size resolved;
 
@@ -125,7 +124,10 @@ static int dx_adl_compiler_complete_phase(dx_adl_context* context) {
     while (dx_pointer_hashmap_iterator_has_entry(&iterator)) {
       dx_adl_symbol* symbol = dx_pointer_hashmap_iterator_get_value(&iterator);
       if (!symbol->asset) {
-        if (dx_string_is_equal_to(symbol->type, NAME(color_type))) {
+        if (dx_string_is_equal_to(symbol->type, NAME(color_type)) ||
+            dx_string_is_equal_to(symbol->type, NAME(mesh_type)) ||
+            dx_string_is_equal_to(symbol->type, NAME(material_type)) ||
+            dx_string_is_equal_to(symbol->type, NAME(texture_type))) {
           dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&context->readers, symbol->type);
           if (!reader) {
             dx_pointer_hashmap_iterator_uninitialize(&iterator);
@@ -143,6 +145,31 @@ static int dx_adl_compiler_complete_phase(dx_adl_context* context) {
     dx_pointer_hashmap_iterator_uninitialize(&iterator);
   } while (resolved > 0);
 
+  // We currently cannot handle images in the first pass as images or descendant elements (e.g., image operations)
+  // do not use color references (yet).
+  do {
+    resolved = 0;
+    dx_pointer_hashmap_iterator iterator;
+    dx_pointer_hashmap_iterator_initialize(&iterator, &context->definitions->map);
+    while (dx_pointer_hashmap_iterator_has_entry(&iterator)) {
+      dx_adl_symbol* symbol = dx_pointer_hashmap_iterator_get_value(&iterator);
+      if (!symbol->asset) {
+        dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&context->readers, symbol->type);
+        if (!reader) {
+          dx_pointer_hashmap_iterator_uninitialize(&iterator);
+          return 1;
+        }
+        symbol->asset = dx_adl_semantical_reader_read(reader, symbol->node, context);
+        if (!symbol->asset) {
+          dx_pointer_hashmap_iterator_uninitialize(&iterator);
+          return 1;
+        }
+      }
+      dx_pointer_hashmap_iterator_next(&iterator);
+    }
+    dx_pointer_hashmap_iterator_uninitialize(&iterator);
+  } while (resolved > 0);
+
   do {
     resolved = 0;
     dx_pointer_hashmap_iterator iterator;
@@ -150,8 +177,7 @@ static int dx_adl_compiler_complete_phase(dx_adl_context* context) {
     while (dx_pointer_hashmap_iterator_has_entry(&iterator)) {
       dx_adl_symbol* symbol = dx_pointer_hashmap_iterator_get_value(&iterator);
       //
-      if (/*dx_string_is_equal_to(symbol->type, NAME(mesh_instance_type)) ||*/
-          dx_string_is_equal_to(symbol->type, NAME(image_type)) ||
+      if (dx_string_is_equal_to(symbol->type, NAME(image_type)) ||
           dx_string_is_equal_to(symbol->type, NAME(mesh_type)) ||
           dx_string_is_equal_to(symbol->type, NAME(material_type)) ||
           dx_string_is_equal_to(symbol->type, NAME(texture_type))) {
@@ -223,6 +249,11 @@ dx_asset_scene* dx_adl_compile(dx_ddl_node* node) {
         dx_asset_mesh_instance* mesh_instance = DX_ASSET_MESH_INSTANCE(object);
         dx_asset_mesh* mesh = DX_ASSET_MESH(mesh_instance->mesh_reference->object);
         if (!mesh->material_reference) continue;
+        if (!mesh->material_reference->object) {
+          dx_adl_symbol* referenced_symbol = dx_asset_definitions_get(context->definitions, mesh->material_reference->name);
+          mesh->material_reference->object = referenced_symbol->asset;
+          DX_REFERENCE(mesh->material_reference->object);
+        }
         dx_asset_material* material = DX_ASSET_MATERIAL(mesh->material_reference->object);
         if (!material) continue;
         if (!material->ambient_texture_reference) continue;

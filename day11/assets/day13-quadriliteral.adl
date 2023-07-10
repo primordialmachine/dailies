@@ -26,6 +26,10 @@
       blue: 0,
     },
     {
+      type : 'Material',
+      name : 'my.material',
+    },// Material
+    {
       type : 'ViewerInstance',
       viewer : {
         type : 'Viewer',
@@ -70,8 +74,8 @@
           }
         ],
         material : {
-          type : 'Material',
-          name : 'my.triangle.material',
+          type : 'MaterialInstance',
+          reference : 'my.material',
         },// Mesh.material
       },// MeshInstance.mesh
     },

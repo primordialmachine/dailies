@@ -98,7 +98,6 @@ static int _read_mesh_operation(dx_ddl_node* node, dx_adl_context* context, dx_p
       return 1;
     }
   }
-  /// @todo Check type of return value.
   dx_asset_mesh_operation* mesh_operation = DX_ASSET_MESH_OPERATION(dx_adl_semantical_reader_read(reader, node, context));
   if (!mesh_operation) {
     return 1;
@@ -250,22 +249,10 @@ static dx_asset_mesh* _read_mesh(dx_ddl_node* node, dx_adl_context* context) {
   }
   // material
   {
-    dx_string* name = NAME(material_key);
-    dx_ddl_node* child_node = dx_ddl_node_map_get(node, name);
-    if (!child_node) {
-      goto END;
-    }
-    dx_asset_material* material_value = _read_material(child_node, context);
-    if (!material_value) {
-      goto END;
-    }
-    material_reference_value = dx_asset_reference_create(material_value->name);
+    material_reference_value = dx_adl_semantical_read_material_instance_field(node, false, NAME(material_key), context);
     if (!material_reference_value) {
-      DX_UNREFERENCE(material_value);
-      material_value = NULL;
       goto END;
     }
-    material_reference_value->object = DX_OBJECT(material_value);
   }
   mesh_value = dx_asset_mesh_create(name_value, generator_value, vertex_format_value, material_reference_value);
   DX_UNREFERENCE(material_reference_value);
@@ -315,6 +302,9 @@ static int complete(dx_adl_semantical_mesh_reader* self, dx_adl_symbol* symbol, 
     }
     dx_adl_symbol* referenced_symbol = dx_asset_definitions_get(context->definitions, mesh->material_reference->name);
     if (!referenced_symbol) {
+      return 1;
+    }
+    if (!referenced_symbol->asset) {
       return 1;
     }
     mesh->material_reference->object = referenced_symbol->asset;

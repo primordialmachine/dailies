@@ -2,6 +2,7 @@
 #define DX_ASSET_IMAGE_OPERATIONS_CHECKERBOARD_PATTERN_FILL_H_INCLUDED
 
 #include "dx/asset/image_operation.h"
+#include "dx/asset/reference.h"
 
 /// @extends dx_asset_image_operation
 /// @brief An image operation.

@@ -1,6 +1,7 @@
 #include "dx/adl/semantical/read.h"
 
 #include "dx/asset/color.h"
+#include "dx/asset/reference.h"
 
 static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index) {
   DX_DEBUG_ASSERT(NULL != names);
@@ -231,10 +232,7 @@ dx_asset_color* dx_adl_semantical_read_color_instance_field(dx_ddl_node* node, b
   return dx_adl_semantical_read_color_instance(child_node, context);
 }
 
-#include "dx/asset/reference.h"
-
-dx_asset_reference* dx_adl_semantical_read_image_instance(dx_ddl_node* node, dx_adl_context* context) {
-  dx_string* expected_type = NAME(image_instance_type);
+dx_asset_reference* dx_adl_semantical_read_instance(dx_ddl_node* node, dx_string* expected_type, dx_adl_context* context) {
   dx_string* received_type = dx_adl_semantical_read_type(node, context);
   if (!received_type) {
     return NULL;
@@ -255,6 +253,11 @@ dx_asset_reference* dx_adl_semantical_read_image_instance(dx_ddl_node* node, dx_
   DX_UNREFERENCE(value);
   value = NULL;
   return reference;
+}
+
+
+dx_asset_reference* dx_adl_semantical_read_image_instance(dx_ddl_node* node, dx_adl_context* context) {
+  return dx_adl_semantical_read_instance(node, NAME(image_instance_type), context);
 }
 
 dx_asset_reference* dx_adl_semantical_read_image_instance_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context) {
@@ -271,27 +274,7 @@ dx_asset_reference* dx_adl_semantical_read_image_instance_field(dx_ddl_node* nod
 }
 
 dx_asset_reference* dx_adl_semantical_read_texture_instance(dx_ddl_node* node, dx_adl_context* context) {
-  dx_string* expected_type = NAME(texture_instance_type);
-  dx_string* received_type = dx_adl_semantical_read_type(node, context);
-  if (!received_type) {
-    return NULL;
-  }
-  if (!dx_string_is_equal_to(received_type, expected_type)) {
-    DX_UNREFERENCE(received_type);
-    received_type = NULL;
-    dx_set_error(DX_SEMANTICAL_ERROR);
-    return NULL;
-  }
-  DX_UNREFERENCE(received_type);
-  received_type = NULL;
-  dx_string* value = dx_adl_semantical_read_string(node, NAME(reference_key), context->names);
-  if (!value) {
-    return NULL;
-  }
-  dx_asset_reference* reference = dx_asset_reference_create(value);
-  DX_UNREFERENCE(value);
-  value = NULL;
-  return reference;
+  return dx_adl_semantical_read_instance(node, NAME(texture_instance_type), context);
 }
 
 dx_asset_reference* dx_adl_semantical_read_texture_instance_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context) {
@@ -305,4 +288,21 @@ dx_asset_reference* dx_adl_semantical_read_texture_instance_field(dx_ddl_node* n
     return NULL;
   }
   return dx_adl_semantical_read_texture_instance(child_node, context);
+}
+
+dx_asset_reference* dx_adl_semantical_read_material_instance(dx_ddl_node* node, dx_adl_context* context) {
+  return dx_adl_semantical_read_instance(node, NAME(material_instance_type), context);
+}
+
+dx_asset_reference* dx_adl_semantical_read_material_instance_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context) {
+  dx_ddl_node* child_node = dx_ddl_node_map_get(node, key);
+  if (!child_node) {
+    if (DX_NOT_FOUND != dx_get_error()) {
+      return NULL;
+    } else {
+      dx_set_error(optional ? DX_NO_ERROR : DX_SEMANTICAL_ERROR);
+    }
+    return NULL;
+  }
+  return dx_adl_semantical_read_material_instance(child_node, context);
 }

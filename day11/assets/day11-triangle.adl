@@ -26,6 +26,11 @@
       blue: 0,
     },
     {
+      type : 'Material',
+      name : 'my.material',
+      ambientColor : { type : 'ColorInstance', reference : 'malachite' },
+    },// Material
+    {
       type : 'ViewerInstance',
       viewer : {
         type : 'Viewer',
@@ -65,9 +70,8 @@
         vertexFormat : ['position xyz'],
         generator : 'triangle',
         material : {
-          type : 'Material',
-          name : 'my.triangle.material',
-          ambientColor : { type : 'ColorInstance', reference : 'malachite' },
+          type : 'MaterialInstance',
+          reference : 'my.material',
         },// Mesh.material
       },// MeshInstance.mesh
     },

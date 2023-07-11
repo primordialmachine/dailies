@@ -18,7 +18,7 @@ static inline dx_adl_semantical_reader* DX_ADL_SEMANTICAL_READER(void* p) {
 
 struct dx_adl_semantical_reader {
   dx_object _parent;
-  int (*complete)(dx_adl_semantical_reader* self,
+  int (*resolve)(dx_adl_semantical_reader* self,
                   dx_adl_symbol* symbol,
                   dx_adl_context* context);
   dx_object* (*read)(dx_adl_semantical_reader* self,
@@ -28,9 +28,9 @@ struct dx_adl_semantical_reader {
 
 int dx_adl_semantical_reader_construct(dx_adl_semantical_reader* self);
 
-int dx_adl_semantical_reader_complete(dx_adl_semantical_reader* self,
-                                      dx_adl_symbol* symbol,
-                                      dx_adl_context* context);
+int dx_adl_semantical_reader_resolve(dx_adl_semantical_reader* self,
+                                     dx_adl_symbol* symbol,
+                                     dx_adl_context* context);
 
 dx_object* dx_adl_semantical_reader_read(dx_adl_semantical_reader* self,
                                          dx_ddl_node* node,

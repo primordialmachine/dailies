@@ -25,6 +25,8 @@ static dx_asset_reference* _read_texture_reference_field(dx_ddl_node* node, bool
 
 static dx_asset_material* _read_material(dx_ddl_node* node, dx_adl_context* context);
 
+static int resolve(dx_adl_semantical_material_reader* self, dx_adl_symbol* symbol, dx_adl_context* context);
+
 static dx_object* read(dx_adl_semantical_material_reader* self, dx_ddl_node* node, dx_adl_context* context);
 
 DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.material_reader",
@@ -185,12 +187,17 @@ END:
   return material_value;
 }
 
-static int complete(dx_adl_semantical_material_reader* self, dx_adl_symbol* symbol, dx_adl_context* context) {
+static int resolve(dx_adl_semantical_material_reader* self, dx_adl_symbol* symbol, dx_adl_context* context) {
+  if (symbol->resolved) {
+    return 0;
+  }
   dx_asset_material* material = DX_ASSET_MATERIAL(symbol->asset);
   if (!material->ambient_texture_reference) {
+    symbol->resolved = true;
     return 0;
   }
   if (material->ambient_texture_reference->object) {
+    symbol->resolved = true;
     return 0;
   }
   dx_adl_symbol* referenced_symbol = dx_asset_definitions_get(context->definitions, material->ambient_texture_reference->name);
@@ -199,8 +206,9 @@ static int complete(dx_adl_semantical_material_reader* self, dx_adl_symbol* symb
   }
   material->ambient_texture_reference->object = referenced_symbol->asset;
   if (!material->ambient_texture_reference->object) {
-    return 0;
+    return 1;
   }
+  symbol->resolved = true;
   return 0;
 }
 
@@ -216,7 +224,7 @@ int dx_adl_semantical_material_reader_construct(dx_adl_semantical_material_reade
   if (dx_adl_semantical_reader_construct(DX_ADL_SEMANTICAL_READER(self))) {
     return 1;
   }
-  DX_ADL_SEMANTICAL_READER(self)->complete = (int (*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*))&complete;
+  DX_ADL_SEMANTICAL_READER(self)->resolve = (int (*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*))&resolve;
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*))&read;
   DX_OBJECT(self)->type = _type;
   return 0;

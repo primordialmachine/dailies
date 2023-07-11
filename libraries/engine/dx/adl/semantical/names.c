@@ -27,6 +27,9 @@ int dx_adl_semantical_names_construct(dx_adl_semantical_names* self) {
   }
 #include "dx/adl/semantical/names.i"
 #undef DEFINE
+
+  self->counter = 0;
+
   DX_OBJECT(self)->type = _type;
   return 0;
 ERROR:
@@ -68,4 +71,17 @@ dx_adl_semantical_names* dx_adl_semantical_names_create() {
     return NULL;
   }
   return self;
+}
+
+#include <stdio.h>
+
+dx_string* dx_adl_semantical_names_create_unique_name(dx_adl_semantical_names* self) {
+  char buffer[1024 + 1];
+  snprintf(buffer, 1024, "%zu", self->counter);
+  dx_string* string = dx_string_create(buffer, strlen(buffer));
+  if (!string) {
+    return NULL;
+  }
+  self->counter++;
+  return string;
 }

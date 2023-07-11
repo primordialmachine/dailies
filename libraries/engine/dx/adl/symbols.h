@@ -23,6 +23,8 @@ struct dx_adl_symbol {
   dx_ddl_node* node;
   /// @brief The asset (if fully created) of this symbol.
   dx_object* asset;
+  /// @brief If the references were resolved and symbols for anonymous definitions were added.
+  bool resolved;
 };
 
 int dx_adl_symbol_construct(dx_adl_symbol* self, dx_string* type, dx_string* name);

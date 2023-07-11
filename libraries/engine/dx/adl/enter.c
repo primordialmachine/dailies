@@ -338,18 +338,6 @@ int dx_adl_enter_on_mesh(dx_adl_enter* self, dx_ddl_node* source, dx_adl_context
 }
 
 int dx_adl_enter_on_mesh_instance(dx_adl_enter* self, dx_ddl_node* source, dx_adl_context* context) {
-#if 0
-  dx_ddl_node* child_source = dx_ddl_node_map_get(source, NAME(mesh_key));
-  if (!child_source) {
-    return 1;
-  }
-  if (is_of_type(child_source, NAME(mesh_type), context)) {
-    return dx_adl_enter_on_mesh(self, child_source, context);
-  } else {
-    dx_set_error(DX_SEMANTICAL_ERROR);
-    return dx_get_error();
-  }
-#endif
   return 0;
 }
 

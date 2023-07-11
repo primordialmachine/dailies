@@ -19,9 +19,9 @@ static dx_asset_image* _read_image(dx_ddl_node* node, dx_adl_context* context);
 
 static dx_asset_texture* _read_texture(dx_ddl_node* node, dx_adl_context* context);
 
-static int complete(dx_adl_semantical_reader* self,
-                    dx_adl_symbol* symbol,
-                    dx_adl_context* context);
+static int resolve(dx_adl_semantical_reader* self,
+                   dx_adl_symbol* symbol,
+                   dx_adl_context* context);
 
 static dx_object* read(dx_adl_semantical_texture_reader* self,
                        dx_ddl_node* node,
@@ -88,9 +88,13 @@ END:
   return texture_value;
 }
 
-static int complete(dx_adl_semantical_reader* self, dx_adl_symbol* symbol, dx_adl_context* context) {
+static int resolve(dx_adl_semantical_reader* self, dx_adl_symbol* symbol, dx_adl_context* context) {
+  if (symbol->resolved) {
+    return 0;
+  }
   dx_asset_texture* texture = DX_ASSET_TEXTURE(symbol->asset);
   if (texture->image_reference->object) {
+    symbol->resolved = true;
     return 0;
   }
   dx_adl_symbol* referenced_symbol = dx_asset_definitions_get(context->definitions, texture->image_reference->name);
@@ -99,8 +103,9 @@ static int complete(dx_adl_semantical_reader* self, dx_adl_symbol* symbol, dx_ad
   }
   texture->image_reference->object = referenced_symbol->asset;
   if (!texture->image_reference->object) {
-    return 0;
+    return 1;
   }
+  symbol->resolved = true;
   return 0;
 }
 
@@ -116,7 +121,7 @@ int dx_adl_semantical_texture_reader_construct(dx_adl_semantical_texture_reader*
   if (dx_adl_semantical_reader_construct(DX_ADL_SEMANTICAL_READER(self))) {
     return 1;
   }
-  DX_ADL_SEMANTICAL_READER(self)->complete = (int(*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*))&complete;
+  DX_ADL_SEMANTICAL_READER(self)->resolve = (int(*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*))&resolve;
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*))&read;
   DX_OBJECT(self)->type = _type;
   return 0;

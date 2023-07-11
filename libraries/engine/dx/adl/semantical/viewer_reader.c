@@ -16,9 +16,9 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static dx_object* read(dx_adl_semantical_viewer_reader*,
-                       dx_ddl_node* node,
-                       dx_adl_context* context);
+static int resolve(dx_adl_semantical_viewer_reader* self, dx_adl_symbol* symbol, dx_adl_context* context);
+
+static dx_object* read(dx_adl_semantical_viewer_reader* self, dx_ddl_node* node, dx_adl_context* context);
 
 DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.viewer_reader",
                       dx_adl_semantical_viewer_reader,
@@ -44,6 +44,14 @@ static dx_asset_optics* _read_optics(dx_ddl_node* node, dx_adl_context* context)
     dx_set_error(DX_SEMANTICAL_ERROR);
     return NULL;
   }
+}
+
+static int resolve(dx_adl_semantical_viewer_reader* self, dx_adl_symbol* symbol, dx_adl_context* context) {
+  if (symbol->resolved) {
+    return 0;
+  }
+  symbol->resolved = true;
+  return 0;
 }
 
 static dx_object* read(dx_adl_semantical_viewer_reader* self, dx_ddl_node* node, dx_adl_context* context) {
@@ -159,6 +167,7 @@ int dx_adl_semantical_viewer_reader_construct(dx_adl_semantical_viewer_reader* s
   if (!_type) {
     return 1;
   }
+  DX_ADL_SEMANTICAL_READER(self)->resolve = (int(*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*)) & resolve;
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*))&read;
   DX_OBJECT(self)->type = _type;
   return 0;

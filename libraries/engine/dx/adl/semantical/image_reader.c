@@ -19,9 +19,9 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static int _read_image_operation(dx_ddl_node* node, dx_adl_context* context, dx_object_array* operations);
+static int _read_image_operation(dx_ddl_node* node, dx_adl_symbol* symbol, dx_adl_context* context);
 
-static int _read_image_operations(dx_ddl_node* node, dx_adl_context* context, dx_object_array* operations);
+static int _read_image_operations(dx_ddl_node* node, dx_adl_symbol* symbol, dx_adl_context* context);
 
 static void on_object_added(dx_object** o);
 
@@ -29,7 +29,7 @@ static void on_object_removed(dx_object** o);
 
 static dx_asset_image* _read_image(dx_ddl_node* node, dx_adl_context* context);
 
-static int complete(dx_adl_semantical_image_reader* self, dx_adl_symbol* symbol, dx_adl_context* context);
+static int resolve(dx_adl_semantical_image_reader* self, dx_adl_symbol* symbol, dx_adl_context* context);
 
 static dx_object* read(dx_adl_semantical_image_reader* self, dx_ddl_node* node, dx_adl_context* context);
 
@@ -39,8 +39,8 @@ DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.image_reader",
                       dx_adl_semantical_image_reader,
                       dx_adl_semantical_reader)
 
-static int _read_image_operation(dx_ddl_node* node, dx_adl_context* context, dx_object_array* operations) {
-  dx_string *received_type = dx_adl_semantical_read_type(node, context);
+static int _read_image_operation(dx_ddl_node* node, dx_adl_symbol* symbol, dx_adl_context* context) {
+  dx_string* received_type = dx_adl_semantical_read_type(node, context);
   if (!received_type) {
     return 1;
   }
@@ -52,18 +52,40 @@ static int _read_image_operation(dx_ddl_node* node, dx_adl_context* context, dx_
     received_type = NULL;
     return 1;
   }
+
+  dx_adl_symbol* reader_symbol = dx_adl_symbol_create(received_type, dx_adl_semantical_names_create_unique_name(context->names));
+  if (!reader_symbol) {
+    DX_UNREFERENCE(received_type);
+    received_type = NULL;
+    return 1;
+  }
+  if (dx_asset_definitions_set(context->definitions, reader_symbol->name, reader_symbol)) {
+    DX_UNREFERENCE(reader_symbol);
+    reader_symbol = NULL;
+    return 0;
+  }
+
   dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&context->readers, received_type);
   DX_UNREFERENCE(received_type);
   received_type = NULL;
   if (!reader) {
+    DX_UNREFERENCE(reader_symbol);
+    reader_symbol = NULL;
     return 1;
   }
 
   dx_asset_image_operation* operation = DX_ASSET_IMAGE_OPERATION(dx_adl_semantical_reader_read(reader, node, context));
   if (!operation) {
+    DX_UNREFERENCE(reader_symbol);
+    reader_symbol = NULL;
     return 1;
   }
-  if (dx_object_array_append(operations, DX_OBJECT(operation))) {
+  reader_symbol->asset = DX_OBJECT(operation);
+  DX_REFERENCE(reader_symbol->asset);
+  DX_UNREFERENCE(reader_symbol);
+  reader_symbol = NULL;
+  dx_asset_image* image = DX_ASSET_IMAGE(symbol->asset);
+  if (dx_object_array_append(&image->operations, DX_OBJECT(operation))) {
     DX_UNREFERENCE(operation);
     operation = NULL;
     return 1;
@@ -81,7 +103,7 @@ static void on_object_removed(dx_object** o) {
   DX_UNREFERENCE(*o);
 }
 
-static int _read_image_operations(dx_ddl_node* node, dx_adl_context* context, dx_object_array* operations) {
+static int _read_image_operations(dx_ddl_node* node, dx_adl_symbol* symbol, dx_adl_context* context) {
   if (!node) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
@@ -95,7 +117,7 @@ static int _read_image_operations(dx_ddl_node* node, dx_adl_context* context, dx
     if (!child_node) {
       return 1;
     }
-    if (_read_image_operation(child_node, context, operations)) {
+    if (_read_image_operation(child_node, symbol, context)) {
       return 1;
     }
   }
@@ -127,26 +149,6 @@ static dx_asset_image* _read_image(dx_ddl_node* node, dx_adl_context* context) {
   if (!image_value) {
     goto END;
   }
-  // operations
-  {
-    dx_error last_error = dx_get_error();
-    dx_string* name = NAME(operations_key);
-    dx_ddl_node* child_node = dx_ddl_node_map_get(node, name);
-    if (child_node) {
-      if (_read_image_operations(child_node, context, &image_value->operations)) {
-        DX_UNREFERENCE(image_value);
-        image_value = NULL;
-        goto END;
-      }
-    } else {
-      if (dx_get_error() != DX_NOT_FOUND) {
-        DX_UNREFERENCE(image_value);
-        image_value = NULL;
-        goto END;
-      }
-      dx_set_error(last_error);
-    }
-  }
 END:
   if (name_value) {
     DX_UNREFERENCE(name_value);
@@ -159,7 +161,29 @@ END:
   return image_value;
 }
 
-static int complete(dx_adl_semantical_image_reader* self, dx_adl_symbol* symbol, dx_adl_context* context) {
+static int resolve(dx_adl_semantical_image_reader* self, dx_adl_symbol* symbol, dx_adl_context* context) {
+  if (symbol->resolved) {
+    return 0;
+  }
+  dx_asset_image* image = DX_ASSET_IMAGE(symbol->asset);
+  // operations
+  {
+    dx_error last_error = dx_get_error();
+    dx_string* name = NAME(operations_key);
+    dx_ddl_node* child_node = dx_ddl_node_map_get(symbol->node, name);
+    if (child_node) {
+      if (_read_image_operations(child_node, symbol, context)) {
+        return 1;
+      }
+    } else {
+      if (dx_get_error() != DX_NOT_FOUND) {
+        return 1;
+      } else {
+        dx_set_error(last_error);
+      }
+    }
+  }
+  symbol->resolved = true;
   return 0;
 }
 
@@ -175,7 +199,7 @@ int dx_adl_semantical_image_reader_construct(dx_adl_semantical_image_reader* sel
   if (dx_adl_semantical_reader_construct(DX_ADL_SEMANTICAL_READER(self))) {
     return 1;
   }
-  DX_ADL_SEMANTICAL_READER(self)->complete = (int(*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*))&complete;
+  DX_ADL_SEMANTICAL_READER(self)->resolve = (int(*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*))&resolve;
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object*(*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*))&read;
   DX_OBJECT(self)->type = _type;
   return 0;

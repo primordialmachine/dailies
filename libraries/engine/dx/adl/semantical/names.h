@@ -25,10 +25,13 @@ static inline dx_adl_semantical_names* DX_ADL_SEMANTICAL_NAMES(void* p) {
 struct dx_adl_semantical_names {
   dx_object parent;
   dx_string** names;
+  dx_size counter;
 };
 
 int dx_adl_semantical_names_construct(dx_adl_semantical_names* self);
 
 dx_adl_semantical_names* dx_adl_semantical_names_create();
+
+dx_string* dx_adl_semantical_names_create_unique_name(dx_adl_semantical_names* self);
 
 #endif // DX_ADL_SEMANTICAL_NAMES_COLOR_H_INCLUDED

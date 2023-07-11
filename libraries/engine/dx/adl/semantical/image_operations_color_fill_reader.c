@@ -16,7 +16,7 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
 
 #define NAME(name) _get_name(context->names, dx_semantical_name_index_##name)
 
-static int complete(dx_adl_semantical_image_operations_color_fill_reader* self, dx_adl_symbol* symbol, dx_adl_context* context);
+static int resolve(dx_adl_semantical_image_operations_color_fill_reader* self, dx_adl_symbol* symbol, dx_adl_context* context);
 
 static dx_object* read(dx_adl_semantical_image_operations_color_fill_reader* self, dx_ddl_node* node, dx_adl_context* context);
 
@@ -24,7 +24,11 @@ DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.image_operations_color_fill_reader",
                       dx_adl_semantical_image_operations_color_fill_reader,
                       dx_adl_semantical_reader)
 
-static int complete(dx_adl_semantical_image_operations_color_fill_reader* self, dx_adl_symbol* symbol, dx_adl_context* context) {
+static int resolve(dx_adl_semantical_image_operations_color_fill_reader* self, dx_adl_symbol* symbol, dx_adl_context* context) {
+  if (symbol->resolved) {
+    return 0;
+  }
+  symbol->resolved = true;
   return 0;
 }
 
@@ -66,7 +70,7 @@ int dx_adl_semantical_image_operations_color_fill_reader_construct(dx_adl_semant
   if (dx_adl_semantical_reader_construct(DX_ADL_SEMANTICAL_READER(self))) {
     return 1;
   }
-  DX_ADL_SEMANTICAL_READER(self)->complete = (int(*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*)) & complete;
+  DX_ADL_SEMANTICAL_READER(self)->resolve = (int(*)(dx_adl_semantical_reader*, dx_adl_symbol*, dx_adl_context*)) & resolve;
   DX_ADL_SEMANTICAL_READER(self)->read = (dx_object * (*)(dx_adl_semantical_reader*, dx_ddl_node*, dx_adl_context*)) & read;
   DX_OBJECT(self)->type = _type;
   return 0;

@@ -33,6 +33,7 @@ int dx_adl_symbol_construct(dx_adl_symbol* self, dx_string* type, dx_string* nam
   DX_REFERENCE(self->name);
   self->asset = NULL;
   self->node = NULL;
+  self->resolved = false;
   return 0;
 }
 

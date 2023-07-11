@@ -17,14 +17,13 @@ static inline dx_adl_resolve* DX_ADL_RESOLVE(void* p) {
 struct dx_adl_resolve {
   dx_object _parent;
   dx_adl_context* context;
+  dx_pointer_array queue;
 };
 
 int dx_adl_resolve_construct(dx_adl_resolve* self, dx_adl_context* context);
 
 dx_adl_resolve* dx_adl_resolve_create(dx_adl_context* context);
 
-int dx_adl_resolve_do_symbol(dx_adl_resolve* self, dx_adl_symbol* symbol);
-
-int dx_adl_resolve_do(dx_adl_resolve* self);
+int dx_adl_resolve_run(dx_adl_resolve* self);
 
 #endif // DX_ADL_RESOLVE_H_INCLUDED

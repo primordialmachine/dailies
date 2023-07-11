@@ -9,7 +9,7 @@ int dx_adl_semantical_reader_construct(dx_adl_semantical_reader* self) {
   if (!_type) {
     return 1;
   }
-  self->complete = NULL;
+  self->resolve = NULL;
   self->read = NULL;
   DX_OBJECT(self)->type = _type;
   return 0;
@@ -18,13 +18,13 @@ int dx_adl_semantical_reader_construct(dx_adl_semantical_reader* self) {
 static void dx_adl_semantical_reader_destruct(dx_adl_semantical_reader* self)
 {/*Intentionally empty.*/}
 
-int dx_adl_semantical_reader_complete(dx_adl_semantical_reader* self,
-                                      dx_adl_symbol* symbol,
-                                      dx_adl_context* context)
+int dx_adl_semantical_reader_resolve(dx_adl_semantical_reader* self,
+                                     dx_adl_symbol* symbol,
+                                     dx_adl_context* context)
 {
   assert(NULL != self);
-  assert(NULL != self->complete);
-  return self->complete(self, symbol, context);
+  assert(NULL != self->resolve);
+  return self->resolve(self, symbol, context);
 }
 
 dx_object* dx_adl_semantical_reader_read(dx_adl_semantical_reader* self,

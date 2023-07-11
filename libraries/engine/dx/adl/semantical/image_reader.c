@@ -59,6 +59,8 @@ static int _read_image_operation(dx_ddl_node* node, dx_adl_symbol* symbol, dx_ad
     received_type = NULL;
     return 1;
   }
+  reader_symbol->node = node;
+  DX_REFERENCE(reader_symbol->node);
   if (dx_asset_definitions_set(context->definitions, reader_symbol->name, reader_symbol)) {
     DX_UNREFERENCE(reader_symbol);
     reader_symbol = NULL;

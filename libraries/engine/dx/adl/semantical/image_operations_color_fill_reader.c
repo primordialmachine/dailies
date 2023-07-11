@@ -28,6 +28,23 @@ static int resolve(dx_adl_semantical_image_operations_color_fill_reader* self, d
   if (symbol->resolved) {
     return 0;
   }
+  dx_asset_image_operations_color_fill* asset = DX_ASSET_IMAGE_OPERATIONS_COLOR_FILL(symbol->asset);
+  dx_ddl_node* node = symbol->node;
+  // color
+  {
+    dx_asset_reference* color_reference = dx_adl_semantical_read_color_instance_field(node, false, NAME(color_key), context);
+    if (!color_reference) {
+      return 1;
+    }
+    dx_adl_symbol* color_symbol = DX_ADL_SYMBOL(dx_asset_definitions_get(context->definitions, color_reference->name));
+    dx_asset_color* color_asset = DX_ASSET_COLOR(color_symbol->asset);
+    DX_UNREFERENCE(color_reference);
+    color_reference = NULL;
+    //
+    if (dx_asset_image_operations_color_fill_set_color(asset, color_asset)) {
+      return 1;
+    }
+  }
   symbol->resolved = true;
   return 0;
 }
@@ -40,24 +57,6 @@ static dx_object* read(dx_adl_semantical_image_operations_color_fill_reader* sel
   dx_asset_image_operations_color_fill* image_operation = dx_asset_image_operations_color_fill_create();
   if (!image_operation) {
     return NULL;
-  }
-  // color
-  {
-    dx_asset_color* color = dx_adl_semantical_read_color_instance_field(node, false, NAME(color_key), context);
-    if (!color) {
-      DX_UNREFERENCE(image_operation);
-      image_operation = NULL;
-      return NULL;
-    }
-    if (dx_asset_image_operations_color_fill_set_color(image_operation, &color->value)) {
-      DX_UNREFERENCE(image_operation);
-      image_operation = NULL;
-      DX_UNREFERENCE(image_operation);
-      image_operation = NULL;
-      return NULL;
-    }
-    DX_UNREFERENCE(image_operation);
-    image_operation = NULL;
   }
   return DX_OBJECT(image_operation);
 }

@@ -33,7 +33,7 @@ dx_asset_image_operations_color_fill* dx_asset_image_operations_color_fill_creat
 /// @param color A pointer to the DX_RGB_U8 color object providing the color values.
 /// @default-return
 /// @default-failure
-int dx_asset_image_operations_color_fill_set_color(dx_asset_image_operations_color_fill* self, DX_RGB_U8* color);
+int dx_asset_image_operations_color_fill_set_color(dx_asset_image_operations_color_fill* self, dx_asset_color* color);
 
 /// @brief Get the color.
 /// @param result A pointer to the DX_RGB_U8 color object receiving the color values.

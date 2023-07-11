@@ -179,9 +179,9 @@ static int on_color_fill_image_operation(dx_asset_image* self, OFFSET2 offset, E
 
 static int on_checkerboard_pattern_fill_image_operation(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, dx_asset_image_operations_checkerboard_pattern_fill* image_operation) {
   dx_asset_image_operations_color_fill* first = dx_asset_image_operations_color_fill_create();
-  dx_asset_image_operations_color_fill_set_color(first, &image_operation->first_checker_color);
+  dx_asset_image_operations_color_fill_set_color(first, image_operation->first_checker_color);
   dx_asset_image_operations_color_fill* second = dx_asset_image_operations_color_fill_create();
-  dx_asset_image_operations_color_fill_set_color(second, &image_operation->second_checker_color);
+  dx_asset_image_operations_color_fill_set_color(second, image_operation->second_checker_color);
   if (dx_get_error()) {
     if (second) {
       DX_UNREFERENCE(second);

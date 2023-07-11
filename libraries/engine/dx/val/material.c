@@ -42,7 +42,12 @@ int dx_val_material_construct(dx_val_material* self, dx_context* context, dx_ass
   self->context = context;
   self->asset_material = asset_material;
   DX_REFERENCE(asset_material);
-  self->ambient_color = asset_material->ambient_color;
+  DX_VEC4 temporary;
+  temporary.e[0] = ((dx_f32)asset_material->ambient_color.r) / 255.f;
+  temporary.e[1] = ((dx_f32)asset_material->ambient_color.g) / 255.f;
+  temporary.e[2] = ((dx_f32)asset_material->ambient_color.b) / 255.f;
+  temporary.e[3] = 1.f;
+  self->ambient_color = temporary;
   self->ambient_texture = NULL;
   if (add_to_backend(self)) {
     DX_UNREFERENCE(self->asset_material);

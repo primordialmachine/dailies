@@ -28,6 +28,50 @@ static int resolve(dx_adl_semantical_image_operations_checkerboard_pattern_fill_
   if (symbol->resolved) {
     return 0;
   }
+  dx_asset_image_operations_checkerboard_pattern_fill* asset = DX_ASSET_IMAGE_OPERATIONS_CHECKERBOARD_PATTERN_FILL(symbol->asset);
+  dx_ddl_node* node = symbol->node;
+  // checkerColors
+  {
+    dx_string* child_name = dx_string_create("checkerColors", sizeof("checkerColors") - 1);
+    if (!child_name) {
+      return 1;
+    }
+    dx_ddl_node* child_node = dx_ddl_node_map_get(node, child_name);
+    DX_UNREFERENCE(child_name);
+    child_name = NULL;
+    if (!child_node) {
+      return 1;
+    }
+    // checkerColors.first
+    {
+      dx_asset_reference* color_reference = dx_adl_semantical_read_color_instance_field(child_node, false, NAME(first_key), context);
+      if (!color_reference) {
+        return 1;
+      }
+      dx_adl_symbol* color_symbol = DX_ADL_SYMBOL(dx_asset_definitions_get(context->definitions, color_reference->name));
+      dx_asset_color* color_asset = DX_ASSET_COLOR(color_symbol->asset);
+      DX_UNREFERENCE(color_reference);
+      color_reference = NULL;
+      if (dx_asset_image_operations_checkerboard_pattern_fill_set_first_checker_color(asset, color_asset)) {
+        return 1;
+      }
+    }
+    // checkerColors.second
+    {
+      dx_asset_reference* color_reference = dx_adl_semantical_read_color_instance_field(child_node, false, NAME(second_key), context);
+      if (!color_reference) {
+        return 1;
+      }
+      dx_adl_symbol* color_symbol = DX_ADL_SYMBOL(dx_asset_definitions_get(context->definitions, color_reference->name));
+      dx_asset_color* color_asset = DX_ASSET_COLOR(color_symbol->asset);
+      DX_UNREFERENCE(color_reference);
+      color_reference = NULL;
+      if (dx_asset_image_operations_checkerboard_pattern_fill_set_second_checker_color(asset, color_asset)) {
+        return 1;
+      }
+    }
+  }
+  //
   symbol->resolved = true;
   return 0;
 }
@@ -129,59 +173,6 @@ static dx_object* read(dx_adl_semantical_image_operations_checkerboard_pattern_f
         image_operation = NULL;
         return NULL;
       }
-    }
-  }
-  // checkerColors
-  {
-    dx_string* child_name = dx_string_create("checkerColors", sizeof("checkerColors") - 1);
-    if (!child_name) {
-      DX_UNREFERENCE(image_operation);
-      image_operation = NULL;
-      return NULL;
-    }
-    dx_ddl_node* child_node = dx_ddl_node_map_get(node, child_name);
-    DX_UNREFERENCE(child_name);
-    child_name = NULL;
-    if (!child_node) {
-      DX_UNREFERENCE(image_operation);
-      image_operation = NULL;
-      return NULL;
-    }
-    // checkerColors.first
-    {
-      dx_asset_color* color = dx_adl_semantical_read_color_instance_field(child_node, false, NAME(first_key), context);
-      if (!color) {
-        DX_UNREFERENCE(image_operation);
-        image_operation = NULL;
-        return NULL;
-      }
-      if (dx_asset_image_operations_checkerboard_pattern_fill_set_first_checker_color(image_operation, &color->value)) {
-        DX_UNREFERENCE(color);
-        color = NULL;
-        DX_UNREFERENCE(image_operation);
-        image_operation = NULL;
-        return NULL;
-      }
-      DX_UNREFERENCE(color);
-      color = NULL;
-    }
-    // checkerColors.second
-    {
-      dx_asset_color* color = dx_adl_semantical_read_color_instance_field(child_node, false, NAME(second_key), context);
-      if (!color) {
-        DX_UNREFERENCE(image_operation);
-        image_operation = NULL;
-        return NULL;
-      }
-      if (dx_asset_image_operations_checkerboard_pattern_fill_set_second_checker_color(image_operation, &color->value)) {
-        DX_UNREFERENCE(color);
-        color = NULL;
-        DX_UNREFERENCE(image_operation);
-        image_operation = NULL;
-        return NULL;
-      }
-      DX_UNREFERENCE(color);
-      color = NULL;
     }
   }
   return DX_OBJECT(image_operation);

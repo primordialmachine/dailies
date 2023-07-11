@@ -17,8 +17,8 @@ struct dx_asset_material {
   /// @brief A pointer to the ADL name of this material.
   dx_string* name;
   /// @brief The ambient color of this material.
-  /// @default The color "opaque white" / "(1,1,1,1)".
-  DX_VEC4 ambient_color;
+  /// @default The color "white" / "(255, 255, 255)".
+  DX_RGB_U8 ambient_color;
   /// @brief Pointer to the ambient texture of this material or the null pointer.
   /// @default The null pointer.
   dx_asset_reference* ambient_texture_reference;
@@ -42,12 +42,12 @@ dx_asset_material* dx_asset_material_create(dx_string* name);
 
 /// @brief Set the ambient color.
 /// @param self A pointer to this dx_asset_material object.
-/// @param color A pointer to color.
+/// @param ambient_color A pointer to color.
 /// @return The zero value on success. A non-zero value on failure.
 /// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a value is a null pointer
-int dx_asset_material_set_ambient_color(dx_asset_material* self, DX_VEC4 const* value);
+int dx_asset_material_set_ambient_color(dx_asset_material* self, DX_RGB_U8 const* ambient_color);
 
 /// @brief Set the ambient texture.
 /// @param self A pointer to this dx_asset_material object.

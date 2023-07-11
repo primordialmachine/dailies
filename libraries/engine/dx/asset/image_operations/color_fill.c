@@ -36,8 +36,8 @@ dx_asset_image_operations_color_fill* dx_asset_image_operations_color_fill_creat
   return self;
 }
 
-int dx_asset_image_operations_color_fill_set_color(dx_asset_image_operations_color_fill* self, DX_RGB_U8* color) {
-  self->color = *color;
+int dx_asset_image_operations_color_fill_set_color(dx_asset_image_operations_color_fill* self, dx_asset_color* color) {
+  self->color = color->value;
   return 0;
 }
 

@@ -16,6 +16,8 @@ int dx_asset_image_operations_checkerboard_pattern_fill_construct(dx_asset_image
   if (dx_asset_image_operation_construct(DX_ASSET_IMAGE_OPERATION(self))) {
     return 1;
   }
+  self->first_checker_color = NULL;
+  self->second_checker_color = NULL;
   DX_OBJECT(self)->type = _type;
   return 0;
 }
@@ -53,24 +55,32 @@ PROPERTY(dx_asset_image_operations_checkerboard_pattern_fill, dx_size, number_of
 PROPERTY(dx_asset_image_operations_checkerboard_pattern_fill, dx_size, checker_size_horizontal)
 PROPERTY(dx_asset_image_operations_checkerboard_pattern_fill, dx_size, checker_size_vertical)
 
-int dx_asset_image_operations_checkerboard_pattern_fill_set_first_checker_color(dx_asset_image_operations_checkerboard_pattern_fill* self, DX_RGB_U8* first_checker_color) {
-  self->first_checker_color = *first_checker_color;
+int dx_asset_image_operations_checkerboard_pattern_fill_set_first_checker_color(dx_asset_image_operations_checkerboard_pattern_fill* self, dx_asset_color* first_checker_color) {
+  DX_REFERENCE(first_checker_color);
+  if (self->first_checker_color) {
+    DX_UNREFERENCE(self->first_checker_color);
+  }
+  self->first_checker_color = first_checker_color;
   return 0;
 }
 
 int dx_asset_image_operations_checkerboard_pattern_fill_get_first_checker_color(DX_RGB_U8* result, dx_asset_image_operations_checkerboard_pattern_fill* self) {
-  *result = self->first_checker_color;
+  *result = self->first_checker_color->value;
   return 0;
 }
 
 #undef PROPERTY
 
-int dx_asset_image_operations_checkerboard_pattern_fill_set_second_checker_color(dx_asset_image_operations_checkerboard_pattern_fill* self, DX_RGB_U8* second_checker_color) {
-  self->second_checker_color = *second_checker_color;
+int dx_asset_image_operations_checkerboard_pattern_fill_set_second_checker_color(dx_asset_image_operations_checkerboard_pattern_fill* self, dx_asset_color* second_checker_color) {
+  DX_REFERENCE(second_checker_color);
+  if (self->second_checker_color) {
+    DX_UNREFERENCE(self->second_checker_color);
+  }
+  self->second_checker_color = second_checker_color;
   return 0;
 }
 
 int dx_asset_image_operations_checkerboard_pattern_fill_get_second_checker_color(DX_RGB_U8* result, dx_asset_image_operations_checkerboard_pattern_fill* self) {
-  *result = self->second_checker_color;
+  *result = self->second_checker_color->value;
   return 0;
 }

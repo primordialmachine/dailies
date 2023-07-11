@@ -24,8 +24,8 @@ struct dx_asset_image_operations_checkerboard_pattern_fill {
   dx_size checker_size_horizontal;
   dx_size checker_size_vertical;
 
-  DX_RGB_U8 first_checker_color;
-  DX_RGB_U8 second_checker_color;
+  dx_asset_color* first_checker_color;
+  dx_asset_color* second_checker_color;
 };
 
 /// @brief Construct this dx_asset_image_operations_checkerboard_pattern_fill object with default values.
@@ -104,7 +104,7 @@ int dx_asset_image_operations_checkerboard_pattern_fill_get_checker_size_vertica
 /// @param first_checker_color A pointer to the DX_RGB_U8 color object providing the color values.
 /// @default-return
 /// @default-failure
-int dx_asset_image_operations_checkerboard_pattern_fill_set_first_checker_color(dx_asset_image_operations_checkerboard_pattern_fill* self, DX_RGB_U8* first_checker_color);
+int dx_asset_image_operations_checkerboard_pattern_fill_set_first_checker_color(dx_asset_image_operations_checkerboard_pattern_fill* self, dx_asset_color* first_checker_color);
 
 /// @brief Get the first checker color.
 /// @param result A pointer to the DX_RGB_U8 color object receiving the color values.
@@ -121,7 +121,7 @@ int dx_asset_image_operations_checkerboard_pattern_fill_get_first_checker_color(
 /// @param second_checker_color A pointer to the DX_RGB_U8 color object providing the color values.
 /// @default-return
 /// @default-failure
-int dx_asset_image_operations_checkerboard_pattern_fill_set_second_checker_color(dx_asset_image_operations_checkerboard_pattern_fill* self, DX_RGB_U8* second_checker_color);
+int dx_asset_image_operations_checkerboard_pattern_fill_set_second_checker_color(dx_asset_image_operations_checkerboard_pattern_fill* self, dx_asset_color* second_checker_color);
 
 /// @brief Get the first checker color.
 /// @param result A pointer to the DX_RGB_U8 color object receiving the color values.

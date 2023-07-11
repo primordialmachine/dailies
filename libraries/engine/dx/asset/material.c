@@ -32,7 +32,7 @@ int dx_asset_material_construct(dx_asset_material* self, dx_string* name) {
   self->name = name;
   DX_REFERENCE(name);
 
-  self->ambient_color = (DX_VEC4){ 1.f, 1.f, 1.f, 1.f };
+  self->ambient_color = (DX_RGB_U8){ 255, 255, 255 };
   
   self->ambient_texture_reference = NULL;
   
@@ -53,12 +53,12 @@ dx_asset_material* dx_asset_material_create(dx_string* name) {
   return self;
 }
 
-int dx_asset_material_set_ambient_color(dx_asset_material* self, DX_VEC4 const* value) {
-  if (!self || !value) {
+int dx_asset_material_set_ambient_color(dx_asset_material* self, DX_RGB_U8 const* ambient_color) {
+  if (!self || !ambient_color) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  self->ambient_color = *value;
+  self->ambient_color = *ambient_color;
   return 0;
 }
 

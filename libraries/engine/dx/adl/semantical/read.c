@@ -189,7 +189,34 @@ dx_string* dx_adl_semantical_read_string(dx_ddl_node* node, dx_string* name, dx_
   return value;
 }
 
-dx_asset_color* dx_adl_semantical_read_color_instance(dx_ddl_node* node, dx_adl_context* context) {
+dx_asset_color* dx_adl_semantical_read_color_instance_0(dx_ddl_node* node, dx_adl_context* context) {
+  dx_asset_reference* asset_reference = dx_adl_semantical_read_color_instance(node, context);
+  // TODO: Check type of definitions. Handle cases of definitions not found and definition of the wrong type.
+  dx_adl_symbol* sym = DX_ADL_SYMBOL(dx_asset_definitions_get(context->definitions, asset_reference->name));
+  dx_asset_color* asset_color = DX_ASSET_COLOR(sym->asset);
+  DX_UNREFERENCE(asset_reference);
+  asset_reference = NULL;
+  if (!asset_color) {
+    return NULL;
+  }
+  DX_REFERENCE(asset_color);
+  return asset_color;
+}
+
+dx_asset_color* dx_adl_semantical_read_color_instance_field_0(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context) {
+  dx_ddl_node* child_node = dx_ddl_node_map_get(node, key);
+  if (!child_node) {
+    if (DX_NOT_FOUND != dx_get_error()) {
+      return NULL;
+    } else {
+      dx_set_error(optional ? DX_NO_ERROR : DX_SEMANTICAL_ERROR);
+    }
+    return NULL;
+  }
+  return dx_adl_semantical_read_color_instance_0(child_node, context);
+}
+
+dx_asset_reference* dx_adl_semantical_read_color_instance(dx_ddl_node* node, dx_adl_context* context) {
   dx_string* expected_type = NAME(color_instance_type);
   dx_string* received_type = dx_adl_semantical_read_type(node, context);
   if (!received_type) {
@@ -207,19 +234,13 @@ dx_asset_color* dx_adl_semantical_read_color_instance(dx_ddl_node* node, dx_adl_
   if (!value) {
     return NULL;
   }
-  // TODO: Check type of definitions. Handle cases of definitions not found and definition of the wrong type.
-  dx_adl_symbol* sym = DX_ADL_SYMBOL(dx_asset_definitions_get(context->definitions, value));
-  dx_asset_color* asset_color = DX_ASSET_COLOR(sym->asset);
+  dx_asset_reference* reference = dx_asset_reference_create(value);
   DX_UNREFERENCE(value);
   value = NULL;
-  if (!asset_color) {
-    return NULL;
-  }
-  DX_REFERENCE(asset_color);
-  return asset_color;
+  return reference;
 }
 
-dx_asset_color* dx_adl_semantical_read_color_instance_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context) {
+dx_asset_reference* dx_adl_semantical_read_color_instance_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context) {
   dx_ddl_node* child_node = dx_ddl_node_map_get(node, key);
   if (!child_node) {
     if (DX_NOT_FOUND != dx_get_error()) {
@@ -228,7 +249,7 @@ dx_asset_color* dx_adl_semantical_read_color_instance_field(dx_ddl_node* node, b
       dx_set_error(optional ? DX_NO_ERROR : DX_SEMANTICAL_ERROR);
     }
     return NULL;
-  }
+}
   return dx_adl_semantical_read_color_instance(child_node, context);
 }
 

@@ -103,8 +103,12 @@ int dx_adl_semantical_read_f64(dx_ddl_node* node, dx_string* key, dx_f64* target
 /// @default-failure
 dx_string* dx_adl_semantical_read_string(dx_ddl_node* node, dx_string* key, dx_adl_semantical_names* names);
 
-dx_asset_color* dx_adl_semantical_read_color_instance(dx_ddl_node* node, dx_adl_context* context);
-dx_asset_color* dx_adl_semantical_read_color_instance_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context);
+dx_asset_color* dx_adl_semantical_read_color_instance_0(dx_ddl_node* node, dx_adl_context* context);
+dx_asset_color* dx_adl_semantical_read_color_instance_field_0(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context);
+
+dx_asset_reference* dx_adl_semantical_read_color_instance(dx_ddl_node* node, dx_adl_context* context);
+dx_asset_reference* dx_adl_semantical_read_color_instance_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context);
+
 
 /// @code
 /// { ... <key> : { ... type : 'ImageInstance', reference : <name> ... } ... }

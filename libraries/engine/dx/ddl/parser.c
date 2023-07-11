@@ -297,7 +297,7 @@ static int dx_ddl_parser_next(dx_ddl_parser* self) {
   return dx_ddl_scanner_step(self->scanner);
 }
 
-int dx_ddl_parser_construct(dx_ddl_parser* self, dx_ddl_scanner* scanner, dx_adl_diagnostics* diagnostics) {
+int dx_ddl_parser_construct(dx_ddl_parser* self, dx_ddl_scanner* scanner, dx_ddl_diagnostics* diagnostics) {
   dx_rti_type* _type = dx_ddl_parser_get_type();
   if (!_type) {
     return 1;
@@ -321,8 +321,8 @@ static void dx_ddl_parser_destruct(dx_ddl_parser* self) {
   self->scanner = NULL;
 }
 
-dx_ddl_parser* dx_ddl_parser_create(dx_ddl_scanner* scanner, dx_adl_diagnostics* diagnostics) {
-  dx_ddl_parser* self = DX_ADL_PARSER(dx_object_alloc(sizeof(dx_ddl_parser)));
+dx_ddl_parser* dx_ddl_parser_create(dx_ddl_scanner* scanner, dx_ddl_diagnostics* diagnostics) {
+  dx_ddl_parser* self = DX_DDL_PARSER(dx_object_alloc(sizeof(dx_ddl_parser)));
   if (!self) {
     return NULL;
   }
@@ -381,11 +381,11 @@ dx_ddl_node* dx_ddl_parser_run(dx_ddl_parser* self) {
 #if defined(DX_DDL_PARSER_WITH_TESTS) && DX_DDL_PARSER_WITH_TESTS
 
 static dx_ddl_parser* dx_ddl_parser_test_create_parser() {
-  dx_adl_diagnostics* diagnostics = dx_adl_diagnostics_create();
+  dx_ddl_diagnostics* diagnostics = dx_ddl_diagnostics_create();
   if (!diagnostics) {
     return NULL;
   }
-  dx_ddl_scanner* scanner = dx_ddl_scanner_create();
+  dx_ddl_scanner* scanner = dx_ddl_scanner_create(diagnostics);
   if (!scanner) {
     DX_UNREFERENCE(diagnostics);
     diagnostics = NULL;

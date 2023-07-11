@@ -208,7 +208,7 @@ int dx_adl_enter_on_color(dx_adl_enter* self, dx_ddl_node* source, dx_adl_contex
       return 1;
     }
   }
-  dx_asset_definitions_dump(context->definitions);
+  //dx_asset_definitions_dump(context->definitions);
   //
   DX_UNREFERENCE(name);
   name = NULL;
@@ -244,8 +244,7 @@ int dx_adl_enter_on_scene(dx_adl_enter* self, dx_ddl_node* source, dx_adl_contex
       return 1;
     }
   }
-  //
-  dx_asset_definitions_dump(context->definitions);
+  //dx_asset_definitions_dump(context->definitions);
   //
   DX_UNREFERENCE(received_type);
   received_type = NULL;
@@ -284,8 +283,7 @@ int dx_adl_enter_on_image(dx_adl_enter* self, dx_ddl_node* source, dx_adl_contex
       return 1;
     }
   }
-  //
-  dx_asset_definitions_dump(context->definitions);
+  //dx_asset_definitions_dump(context->definitions);
   //
   DX_UNREFERENCE(name);
   name = NULL;
@@ -326,8 +324,7 @@ int dx_adl_enter_on_mesh(dx_adl_enter* self, dx_ddl_node* source, dx_adl_context
       return 1;
     }
   }
-  //
-  dx_asset_definitions_dump(context->definitions);
+  //dx_asset_definitions_dump(context->definitions);
   //
   DX_UNREFERENCE(name);
   name = NULL;
@@ -372,8 +369,7 @@ int dx_adl_enter_on_material(dx_adl_enter* self, dx_ddl_node* source, dx_adl_con
       return 1;
     }
   }
-  //
-  dx_asset_definitions_dump(context->definitions);
+  //dx_asset_definitions_dump(context->definitions);
   //
   DX_UNREFERENCE(name);
   name = NULL;

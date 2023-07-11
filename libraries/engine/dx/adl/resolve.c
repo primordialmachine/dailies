@@ -74,55 +74,29 @@ static int setup_queue(dx_adl_resolve* self, bool include_unloaded, bool include
 }
 
 int dx_adl_resolve_run(dx_adl_resolve* self) {
-  // stage 1
-  // color definitions do not have references
-  // defer all others to stage 2
-  //do {
-    if (setup_queue(self, true, false)) {
-      return 1;
-    }
-    for (dx_size i = 0, n = dx_pointer_array_get_size(&self->queue); i < n; ++i) {
-      dx_adl_symbol* symbol = DX_ADL_SYMBOL(dx_pointer_array_get_at(&self->queue, i));
-      if (!symbol->asset) {
-        if (dx_string_is_equal_to(symbol->type, NAME(color_type))) {
-          dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&self->context->readers, symbol->type);
-          if (!reader) {
-            return 1;
-          }
-          symbol->asset = dx_adl_semantical_reader_read(reader, symbol->node, self->context);
-          if (!symbol->asset) {
-            return 1;
-          } // if
-        } // if
-      } //if
-    } // for
-  //} while (dx_pointer_array_get_size(&self->queue));
-
-  // stage 2
-  // We currently cannot handle images in the first pass as images or descendant elements (e.g., image operations)
-  // do not use color references (yet).
-  do {
-    if (setup_queue(self, true, false)) {
-      return 1;
-    }
-    for (dx_size i = 0, n = dx_pointer_array_get_size(&self->queue); i < n; ++i) {
-      dx_adl_symbol* symbol = DX_ADL_SYMBOL(dx_pointer_array_get_at(&self->queue, i));
-      //
-      if (!symbol->asset) {
-        /*if (dx_string_is_equal_to(symbol->type, NAME(color_type)))*/ {
-          dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&self->context->readers, symbol->type);
-          if (!reader) {
-            return 1;
-          }
-          symbol->asset = dx_adl_semantical_reader_read(reader, symbol->node, self->context);
-          if (!symbol->asset) {
-            return 1;
-          }
+  // This reads all the top-level aka named aka referencable elements.
+  // <root>
+  //  <top-level-element>
+  if (setup_queue(self, true, false)) {
+    return 1;
+  }
+  for (dx_size i = 0, n = dx_pointer_array_get_size(&self->queue); i < n; ++i) {
+    dx_adl_symbol* symbol = DX_ADL_SYMBOL(dx_pointer_array_get_at(&self->queue, i));
+    if (!symbol->asset) {
+      /*if (dx_string_is_equal_to(symbol->type, NAME(color_type)))*/ {
+        dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&self->context->readers, symbol->type);
+        if (!reader) {
+          return 1;
         }
-      }
-    }
-  } while (dx_pointer_array_get_size(&self->queue));
+        symbol->asset = dx_adl_semantical_reader_read(reader, symbol->node, self->context);
+        if (!symbol->asset) {
+          return 1;
+        } // if
+      } // if
+    } //if
+  } // for
 
+  // resolve references/read non-top-level elements
   do {
     if (setup_queue(self, true, true)) {
       return 1;
@@ -132,6 +106,9 @@ int dx_adl_resolve_run(dx_adl_resolve* self) {
       dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&self->context->readers, symbol->type);
       if (!reader) {
         return 1;
+      }
+      if (!symbol->asset) {
+        continue;/*Proceed with speculative (the program is invalid) execution.*/
       }
       if (!symbol->asset) {
         symbol->asset = dx_adl_semantical_reader_read(reader, symbol->node, self->context);

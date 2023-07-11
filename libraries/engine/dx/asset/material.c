@@ -30,9 +30,15 @@ int dx_asset_material_construct(dx_asset_material* self, dx_string* name) {
     return 1;
   }
   self->name = name;
-  DX_REFERENCE(name);
+  DX_REFERENCE(self->name);
 
-  self->ambient_color = (DX_RGB_U8){ 255, 255, 255 };
+  DX_RGB_U8 WHITE = { .r = 255, .g = 255, .b = 255 };
+  self->ambient_color = dx_asset_color_create(&WHITE);
+  if (!self->ambient_color) {
+    DX_UNREFERENCE(self->name);
+    self->name = NULL;
+    return 1;
+  }
   
   self->ambient_texture_reference = NULL;
   
@@ -53,12 +59,14 @@ dx_asset_material* dx_asset_material_create(dx_string* name) {
   return self;
 }
 
-int dx_asset_material_set_ambient_color(dx_asset_material* self, DX_RGB_U8 const* ambient_color) {
+int dx_asset_material_set_ambient_color(dx_asset_material* self, dx_asset_color* ambient_color) {
   if (!self || !ambient_color) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
-  self->ambient_color = *ambient_color;
+  DX_REFERENCE(ambient_color);
+  DX_UNREFERENCE(self->ambient_color);
+  self->ambient_color = ambient_color;
   return 0;
 }
 

@@ -43,9 +43,9 @@ int dx_val_material_construct(dx_val_material* self, dx_context* context, dx_ass
   self->asset_material = asset_material;
   DX_REFERENCE(asset_material);
   DX_VEC4 temporary;
-  temporary.e[0] = ((dx_f32)asset_material->ambient_color.r) / 255.f;
-  temporary.e[1] = ((dx_f32)asset_material->ambient_color.g) / 255.f;
-  temporary.e[2] = ((dx_f32)asset_material->ambient_color.b) / 255.f;
+  temporary.e[0] = ((dx_f32)asset_material->ambient_color->value.r) / 255.f;
+  temporary.e[1] = ((dx_f32)asset_material->ambient_color->value.g) / 255.f;
+  temporary.e[2] = ((dx_f32)asset_material->ambient_color->value.b) / 255.f;
   temporary.e[3] = 1.f;
   self->ambient_color = temporary;
   self->ambient_texture = NULL;

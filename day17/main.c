@@ -13,6 +13,25 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+#if defined(_WIN32)
+  #include "dx/gl/wgl/wm.h"
+#else
+  #error("environment not (yet) supported")
+#endif
+
+#define DX_TRACE (0)
+
+#if !defined(DX_TRACE) || (1 != DX_TRACE && 0 != DX_TRACE)
+  #error("DX_TRACE must be defined to 1 or 0")
+#endif
+#if 1 == DX_TRACE
+  #define ENTER(FUNCTION_NAME) dx_log("enter `", sizeof("enter `") - 1); dx_log(FUNCTION_NAME, strlen(FUNCTION_NAME)); dx_log("`\n", sizeof("`\n") - 1);
+  #define LEAVE(FUNCTION_NAME) dx_log("leave `", sizeof("leave `") - 1); dx_log(FUNCTION_NAME, strlen(FUNCTION_NAME)); dx_log("`\n", sizeof("`\n") - 1);
+#else
+  #define ENTER(FUNCTION_NAME)
+  #define LEAVE(FUNCTION_NAME)
+#endif
+
 #include "dx/application.h"
 #include "dx/gl/wgl/wm.h"
 #include "dx/scenes/mesh_viewer_scene.h"
@@ -72,12 +91,6 @@ void dx_application_shutdown();
 /// @return Returns null if the application does not exist.
 /// Otherwise a pointer to the application object is returned an the reference count of the application object is incremented by @a 1.
 dx_application* dx_application_get();
-
-#if defined(_WIN32)
-  #include "dx/gl/wgl/wm.h"
-#else
-  #error("environment not (yet) supported")
-#endif
 
 int dx_application_startup(dx_msg_queue* msg_queue) {
   return dx_gl_wgl_application_startup(msg_queue);
@@ -168,20 +181,20 @@ static int on_render_scene(dx_context* context, dx_f32 delta_seconds, dx_i32 can
 }
 
 static int run() {
-  dx_log("enter: run\n", sizeof("enter: run\n"));
+  ENTER(DX_C_FUNCTION_NAME);
   {
     dx_msg* msg;
     
     // create the "emit" message.
     msg = DX_MSG(dx_emit_msg_create("Hello, World!\n", sizeof("Hello, World!\n")));
     if (!msg) {
-      dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
+      LEAVE(DX_C_FUNCTION_NAME);
       return 1;
     }
     if (dx_msg_queue_push(g_msg_queue, msg)) {
       DX_UNREFERENCE(msg);
       msg = NULL;
-      dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
+      LEAVE(DX_C_FUNCTION_NAME);
       return 1;
     }
     DX_UNREFERENCE(msg);
@@ -189,7 +202,7 @@ static int run() {
   }
   dx_context* ctx = DX_CONTEXT(dx_gl_wgl_get_context());
   if (on_startup_scene(ctx)) {
-    dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
+    LEAVE(DX_C_FUNCTION_NAME);
     return 1;
   }
   uint64_t last = GetTickCount64();
@@ -202,14 +215,14 @@ static int run() {
 
     if (dx_gl_wgl_update_wm()) {
       on_shutdown_scene(ctx);
-      dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
+      LEAVE(DX_C_FUNCTION_NAME);
       return 1;
     }
     do {
       dx_msg* msg;
       if (dx_msg_queue_pop(g_msg_queue, &msg)) {
         on_shutdown_scene(ctx);
-        dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
+        LEAVE(DX_C_FUNCTION_NAME);
         return 1;
       }
       if (msg) {
@@ -217,7 +230,7 @@ static int run() {
           DX_UNREFERENCE(msg);
           msg = NULL;
           on_shutdown_scene(ctx);
-          dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
+          LEAVE(DX_C_FUNCTION_NAME);
           return 1;
         }
         DX_UNREFERENCE(msg);
@@ -231,38 +244,38 @@ static int run() {
     if (dx_gl_wgl_get_canvas_size(&canvas_width, &canvas_height)) {
       dx_gl_wgl_leave_frame();
       on_shutdown_scene(ctx);
-      dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
+      LEAVE(DX_C_FUNCTION_NAME);
       return 1;
     }
     if (on_render_scene(ctx, ((dx_f32)delta)/1000.f, canvas_width, canvas_height)) {
       dx_gl_wgl_leave_frame();
       on_shutdown_scene(ctx);
-      dx_log("leave: run (failure)\n", sizeof("leave: run (failure)\n"));
+      LEAVE(DX_C_FUNCTION_NAME);
       return 1;
     }
     dx_gl_wgl_leave_frame();
   }
   on_shutdown_scene(ctx);
-  dx_log("leave: run (success)\n", sizeof("leave: run (success)\n"));
+  LEAVE(DX_C_FUNCTION_NAME);
   return 0;
 }
 
 static int startup() {
-  dx_log("enter: startup\n", sizeof("enter: startup\n"));
+  ENTER(DX_C_FUNCTION_NAME);
   if (dx_rti_initialize()) {
     return 1;
   }
   g_msg_queue = dx_msg_queue_create();
   if (!g_msg_queue) {
     dx_rti_unintialize();
-    dx_log("leave: startup\n", sizeof("leave: startup\n"));
+    LEAVE(DX_C_FUNCTION_NAME);
     return 1;
   }
   if (dx_application_startup(g_msg_queue)) {
     dx_msg_queue_destroy(g_msg_queue);
     g_msg_queue = NULL;
     dx_rti_unintialize();
-    dx_log("leave: startup\n", sizeof("leave: startup\n"));
+    LEAVE(DX_C_FUNCTION_NAME);
     return 1;
   }
   if (dx_gl_wgl_open_wm(g_msg_queue)) {
@@ -270,21 +283,21 @@ static int startup() {
     dx_msg_queue_destroy(g_msg_queue);
     g_msg_queue = NULL;
     dx_rti_unintialize();
-    dx_log("leave: startup\n", sizeof("leave: startup\n"));
+    LEAVE(DX_C_FUNCTION_NAME);
     return 1;
   }
-  dx_log("leave: startup\n", sizeof("leave: startup\n"));
+  LEAVE(DX_C_FUNCTION_NAME);
   return 0;
 }
 
 static int shutdown() {
-  dx_log("enter: shutdown\n", sizeof("enter: shutdown\n"));
+  ENTER(DX_C_FUNCTION_NAME);
   dx_gl_wgl_close_wm();
   dx_application_shutdown();
   dx_msg_queue_destroy(g_msg_queue);
   g_msg_queue = NULL;
   dx_rti_unintialize();
-  dx_log("leave: shutdown\n", sizeof("leave: shutdown\n"));
+  LEAVE(DX_C_FUNCTION_NAME);
   return 0;
 }
 

@@ -1,3 +1,5 @@
+/// @author Michael Heilmann (michaelheilmann@primordialmachine.com)
+/// @copyright Copyright (c) 2022-2023 Michael Heilmann. All rights reserved.
 #if !defined(DX_ADL_READER_H_INCLUDED)
 #define DX_ADL_READER_H_INCLUDED
 

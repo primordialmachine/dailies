@@ -1,11 +1,11 @@
 /// @file dx/ddl/parser.h
 /// @brief Syntactical functionality (aka "parsing") of Asset Description Language (ADL) files.
 /// @author Michael Heilmann (michaelheilmann@primordialmachine.com)
-
+/// @copyright Copyright (c) 2022-2023 Michael Heilmann. All rights reserved.
 #if !defined(DX_DDL_PARSER_H_INCLUDED)
 #define DX_DDL_PARSER_H_INCLUDED
 
-#include "dx/adl/diagnostics.h"
+#include "dx/ddl/diagnostics.h"
 
 #include "dx/ddl/word_kind.h"
 #include "dx/ddl/word.h"
@@ -18,7 +18,7 @@ DX_DECLARE_OBJECT_TYPE("dx.ddl.parser",
                        dx_ddl_parser,
                        dx_object)
 
-static inline dx_ddl_parser* DX_ADL_PARSER(void* p) {
+static inline dx_ddl_parser* DX_DDL_PARSER(void* p) {
   return (dx_ddl_parser*)p;
 }
 
@@ -27,7 +27,7 @@ struct dx_ddl_parser {
   /// @brief A pointer to the underlaying scanner.
   dx_ddl_scanner* scanner;
   /// @brief A pointer to the underlaying diagnostics.
-  dx_adl_diagnostics* diagnostics;
+  dx_ddl_diagnostics* diagnostics;
 };
 
 /// @brief Construct this parser with an empty input.
@@ -35,14 +35,14 @@ struct dx_ddl_parser {
 /// @param scanner A pointer to the underlaying scanner.
 /// @param diagnostics A pointer to the underlaying diagnostics.
 /// @success The parser was assigned the empty input and is in the start state w.r.t. the specified input.
-int dx_ddl_parser_construct(dx_ddl_parser* self, dx_ddl_scanner* scanner, dx_adl_diagnostics* diagnostics);
+int dx_ddl_parser_construct(dx_ddl_parser* self, dx_ddl_scanner* scanner, dx_ddl_diagnostics* diagnostics);
 
 /// @brief Create this parser with an empty input.
 /// @param scanner A pointer to the underlaying scanner.
 /// @param diagnostics A pointer to the underlaying diagnostics.
 /// @return A pointer to the parser on success. The null pointer on failure.
 /// @success The parser was assigned the empty input and is in the start state w.r.t. the specified input.
-dx_ddl_parser* dx_ddl_parser_create(dx_ddl_scanner* scanner, dx_adl_diagnostics* diagnostics);
+dx_ddl_parser* dx_ddl_parser_create(dx_ddl_scanner* scanner, dx_ddl_diagnostics* diagnostics);
 
 /// @brief Set the input to this parser.
 /// @param self A pointer to this parser.
@@ -60,7 +60,7 @@ bool dx_ddl_parser_is_word_kind(dx_ddl_parser const* self, dx_ddl_word_kind word
 
 /// @brief Get the word type of the current word.
 /// @param self A pointer to this parser.
-/// @return The word type. This may be #dx_adl_word_kind_error. #dx_adl_word_kind_error is also returned on failure.
+/// @return The word type. This may be #dx_ddl_word_kind_error. #dx_ddl_word_kind_error is also returned on failure.
 /// @failure This function has set the the error variable.
 dx_ddl_word_kind dx_ddl_parser_get_word_kind(dx_ddl_parser const* self);
 

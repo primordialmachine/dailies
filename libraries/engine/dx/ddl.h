@@ -5,7 +5,7 @@
 #if !defined(DX_DDL_H_INCLUDED)
 #define DX_ADL_SYNTACTICAL_H_INCLUDED
 
-#include "dx/adl/diagnostics.h"
+#include "dx/ddl/diagnostics.h"
 #include "dx/ddl/node.h"
 #include "dx/ddl/parser.h"
 

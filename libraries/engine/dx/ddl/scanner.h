@@ -1,11 +1,11 @@
 /// @file dx/ddl/scanner.h
 /// @brief Lexical analyser (aka "scanner") of Data Definition Language (DDL) programs.
 /// @author Michael Heilmann (michaelheilmann@primordialmachine.com)
-
+/// @copyright Copyright (c) 2022-2023 Michael Heilmann. All rights reserved.
 #if !defined(DX_DDL_SCANNER_H_INCLUDED)
 #define DX_DDL_SCANNER_H_INCLUDED
 
-#include "dx/adl/diagnostics.h"
+#include "dx/ddl/diagnostics.h"
 #include "dx/ddl/word_kind.h"
 #include "dX/ddl/word.h"
 
@@ -16,12 +16,16 @@ DX_DECLARE_OBJECT_TYPE("dx.ddl.scanner",
                        dx_ddl_scanner,
                        dx_object)
 
-static inline dx_ddl_scanner* DX_ADL_SCANNER(void* p) {
+static inline dx_ddl_scanner* DX_DDL_SCANNER(void* p) {
   return (dx_ddl_scanner*)p;
 }
 
 struct dx_ddl_scanner {
   dx_object _parent;
+
+  /// @brief A pointer to the diagnostics used by this scanner.
+  dx_ddl_diagnostics* diagnostics;
+
   /// @brief Pointer to the beginning of the first Byte of the input.
   char const* start;
   /// @brief Pointer to the end of the last Byte of the input.
@@ -37,15 +41,17 @@ struct dx_ddl_scanner {
 
 /// @brief Construct this scanner with an empty input.
 /// @param self A pointer to this scanner.
+/// @param diagnostics A pointer to the diagnostics used by this scanner.
 /// @success The scanner was assigned the empty input and is in the start state w.r.t. the specified input.
 /// @failure This function has set the the error variable.
-int dx_ddl_scanner_construct(dx_ddl_scanner* self);
+int dx_ddl_scanner_construct(dx_ddl_scanner* self, dx_ddl_diagnostics* diagnostics);
 
 /// @brief Create this scanner with an empty input.
+/// @param diagnostics A pointer to the diagnostics used by this scanner.
 /// @return A pointer to the scanner on success. The null pointer on failure.
 /// @success The scanner was assigned the empty input and is in the start state w.r.t. the specified input.
 /// @failure This function has set the the error variable.
-dx_ddl_scanner* dx_ddl_scanner_create();
+dx_ddl_scanner* dx_ddl_scanner_create(dx_ddl_diagnostics* diagnostics);
 
 /// @brief Set the input to this scanner.
 /// @param p A pointer to an array of @a l Bytes.

@@ -1,6 +1,7 @@
 /// @file dx/ddl/word.h
 /// @brief Output of the lexical analyses of the Data Definition Language (DDL) programs.
 /// @author Michael Heilmann (michaelheilmann@primordialmachine.com)
+/// @copyright Copyright (c) 2022-2023 Michael Heilmann. All rights reserved.
 #if !defined(DX_DDL_WORD_H_INCLUDED)
 #define DX_DDL_WORD_H_INCLUDED
 

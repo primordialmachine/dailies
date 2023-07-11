@@ -2,6 +2,7 @@
 #define DX_ASSET_MATERIAL_H_INCLUDED
 
 #include "dx/asset/texture.h"
+#include "dx/asset/color.h"
 
 /// @brief A material asset.
 DX_DECLARE_OBJECT_TYPE("dx.asset.material",
@@ -18,7 +19,7 @@ struct dx_asset_material {
   dx_string* name;
   /// @brief The ambient color of this material.
   /// @default The color "white" / "(255, 255, 255)".
-  DX_RGB_U8 ambient_color;
+  dx_asset_color* ambient_color;
   /// @brief Pointer to the ambient texture of this material or the null pointer.
   /// @default The null pointer.
   dx_asset_reference* ambient_texture_reference;
@@ -47,7 +48,7 @@ dx_asset_material* dx_asset_material_create(dx_string* name);
 /// @default-failure
 /// - #DX_INVALID_ARGUMENT @a self is a null pointer
 /// - #DX_INVALID_ARGUMENT @a value is a null pointer
-int dx_asset_material_set_ambient_color(dx_asset_material* self, DX_RGB_U8 const* ambient_color);
+int dx_asset_material_set_ambient_color(dx_asset_material* self, dx_asset_color* ambient_color);
 
 /// @brief Set the ambient texture.
 /// @param self A pointer to this dx_asset_material object.

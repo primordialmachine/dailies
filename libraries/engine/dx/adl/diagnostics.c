@@ -29,8 +29,8 @@ dx_adl_diagnostics* dx_adl_diagnostics_create() {
   return self;
 }
 
-int dx_adl_diagnostics_on_lexical(dx_adl_diagnostics* self) {
-  dx_string* format = dx_string_create("lexical error:\n", sizeof("lexical error:\n"));
+int dx_adl_diagnostics_on_unclosed_list(dx_adl_diagnostics* self) {
+  dx_string* format = dx_string_create("syntactical error: unclosed list\n", sizeof("syntactical error: unclosed list\n") - 1);
   if (!format) {
     return 1;
   }
@@ -39,18 +39,8 @@ int dx_adl_diagnostics_on_lexical(dx_adl_diagnostics* self) {
   return 0;
 }
 
-int dx_adl_diagnostics_on_syntactical(dx_adl_diagnostics* self) {
-  dx_string* format = dx_string_create("syntactical error:\n", sizeof("syntactical error:\n"));
-  if (!format) {
-    return 1;
-  }
-  DX_UNREFERENCE(format);
-  format = NULL;
-  return 0;
-}
-
-int dx_adl_diagnostics_on_semantical(dx_adl_diagnostics* self) {
-  dx_string* format = dx_string_create("semantical error:\n", sizeof("semantical error:\n"));
+int dx_adl_diagnostics_on_unclosed_map(dx_adl_diagnostics* self) {
+  dx_string* format = dx_string_create("syntactical error: unclosed map\n", sizeof("syntactical error: unclosed map\n") - 1);
   if (!format) {
     return 1;
   }

@@ -1,11 +1,11 @@
 #include "dx/ddl.h"
 
 static dx_ddl_parser* _create_parser() {
-  dx_adl_diagnostics* diagnostics = dx_adl_diagnostics_create();
+  dx_ddl_diagnostics* diagnostics = dx_ddl_diagnostics_create();
   if (!diagnostics) {
     return NULL;
   }
-  dx_ddl_scanner* scanner = dx_ddl_scanner_create();
+  dx_ddl_scanner* scanner = dx_ddl_scanner_create(diagnostics);
   if (!scanner) {
     DX_UNREFERENCE(diagnostics);
     diagnostics = NULL;

@@ -105,23 +105,23 @@ static dx_asset_material* _read_material(dx_ddl_node* node, dx_adl_context* cont
   }
   // ambientColor?
   {
-    dx_asset_color* ambient_color_u8 = dx_adl_semantical_read_color_instance_field_0(node, true, NAME(ambient_color_key), context);
-    if (!ambient_color_u8) {
+    dx_asset_color* ambient_color = dx_adl_semantical_read_color_instance_field_0(node, true, NAME(ambient_color_key), context);
+    if (!ambient_color) {
       if (dx_get_error()) {
         DX_UNREFERENCE(material_value_1);
         material_value_1 = NULL;
         goto END;
       }
     } else {
-      if (dx_asset_material_set_ambient_color(material_value_1, &ambient_color_u8->value)) {
-        DX_UNREFERENCE(ambient_color_u8);
-        ambient_color_u8 = NULL;
+      if (dx_asset_material_set_ambient_color(material_value_1, ambient_color)) {
+        DX_UNREFERENCE(ambient_color);
+        ambient_color = NULL;
         DX_UNREFERENCE(material_value_1);
         material_value_1 = NULL;
         goto END;
       }
-      DX_UNREFERENCE(ambient_color_u8);
-      ambient_color_u8 = NULL;
+      DX_UNREFERENCE(ambient_color);
+      ambient_color = NULL;
     }
   }
   // ambientTexture?

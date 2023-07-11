@@ -186,30 +186,6 @@ dx_asset_scene* dx_adl_compile(dx_ddl_node* node) {
         DX_REFERENCE(mesh_instance->mesh_reference->object);
       }
       // Not required anymore.
-    #if 0
-      dx_asset_mesh* mesh = DX_ASSET_MESH(mesh_instance->mesh_reference->object);
-      if (!mesh->material_reference) continue;
-      if (!mesh->material_reference->object) {
-        dx_adl_symbol* referenced_symbol = dx_asset_definitions_get(context->definitions, mesh->material_reference->name);
-        mesh->material_reference->object = referenced_symbol->asset;
-        DX_REFERENCE(mesh->material_reference->object);
-      }
-      dx_asset_material* material = DX_ASSET_MATERIAL(mesh->material_reference->object);
-      if (!material) continue;
-      if (!material->ambient_texture_reference) continue;
-      if (!material->ambient_texture_reference->object) {
-        dx_adl_symbol* referenced_symbol = dx_asset_definitions_get(context->definitions, material->ambient_texture_reference->name);
-        material->ambient_texture_reference->object = referenced_symbol->asset;
-        DX_REFERENCE(material->ambient_texture_reference->object);
-      }
-      dx_asset_texture* texture = DX_ASSET_TEXTURE(material->ambient_texture_reference->object);
-      if (!texture) continue;
-      if (!texture->image_reference->object) {
-        dx_adl_symbol* referenced_symbol = dx_asset_definitions_get(context->definitions, texture->image_reference->name);
-        texture->image_reference->object = referenced_symbol->asset;
-        DX_REFERENCE(texture->image_reference->object);
-      }
-    #endif
     }
   }
 

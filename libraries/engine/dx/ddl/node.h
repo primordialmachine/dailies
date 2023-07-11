@@ -1,7 +1,7 @@
 /// @file dx/ddl/node.h
 /// @brief Output of the syntactical analyses of the Data Definition Language (DDL) programs.
 /// @author Michael Heilmann (michaelheilmann@primordialmachine.com)
-
+/// @copyright Copyright (c) 2022-2023 Michael Heilmann. All rights reserved.
 #if !defined(DX_DDL_NODE_H_INCLUDED)
 #define DX_DDL_NODE_H_INCLUDED
 

@@ -72,6 +72,7 @@ static int dx_ddl_scanner_on_single_quoted_string(dx_ddl_scanner* self) {
       // Unclosed string literal error.
       // Expected string contents or closing single quote.
       // Received end of input.
+      dx_ddl_diagnostics_on_unclosed_string_literal(self->diagnostics);
       dx_set_error(DX_LEXICAL_ERROR);
       return 1;
     } else if (*self->current == '\'') {
@@ -206,7 +207,8 @@ static int dx_ddl_scanner_on_number(dx_ddl_scanner* self) {
       return 1;
     }
     if (!dx_ddl_scanner_is_digit(self)) {
-      if (!dx_get_error()) dx_set_error(DX_SYNTACTICAL_ERROR);
+      dx_ddl_diagnostics_on_invalid_number_literal(self->diagnostics);
+      if (!dx_get_error()) dx_set_error(DX_LEXICAL_ERROR);
       return 1;
     }
     do {
@@ -227,7 +229,8 @@ static int dx_ddl_scanner_on_number(dx_ddl_scanner* self) {
       return 1;
     }
     if (!dx_ddl_scanner_is_digit(self)) {
-      if (!dx_get_error()) dx_set_error(DX_SYNTACTICAL_ERROR);
+      dx_ddl_diagnostics_on_invalid_number_literal(self->diagnostics);
+      if (!dx_get_error()) dx_set_error(DX_LEXICAL_ERROR);
       return 1;
     }
     do {
@@ -235,29 +238,41 @@ static int dx_ddl_scanner_on_number(dx_ddl_scanner* self) {
         return 1;
       }
     } while (dx_ddl_scanner_is_digit(self));
-    if (dx_get_error()) return 1;
+    if (dx_get_error()) {
+      return 1;
+    }
   }
   self->kind = dx_ddl_word_kind_number;
   return 0;
 }
 
-int dx_ddl_scanner_construct(dx_ddl_scanner* self) {
-  dx_rti_type* _type = dx_ddl_scanner_get_type();
-  if (!_type) {
-    return 1;
-  }
-  static char const EMPTY[] = "";
+int dx_ddl_scanner_construct(dx_ddl_scanner* self, dx_ddl_diagnostics* diagnostics) {
   if (!self) {
     dx_set_error(DX_INVALID_ARGUMENT);
     return 1;
   }
+  dx_rti_type* _type = dx_ddl_scanner_get_type();
+  if (!_type) {
+    return 1;
+  }
+
   if (dx_byte_array_initialize(&self->text)) {
     return 1;
   }
+  
+  if (!diagnostics) {
+    dx_byte_array_uninitialize(&self->text);
+    return 1;
+  }
+  self->diagnostics = diagnostics;
+  DX_REFERENCE(self->diagnostics);
+
+  static char const EMPTY[] = "";
   self->start = &EMPTY[0];
   self->end = self->start;
   self->current = self->start;
   self->kind = dx_ddl_word_kind_start_of_input;
+
   DX_OBJECT(self)->type = _type;
   return 0;
 }
@@ -275,11 +290,13 @@ static int dx_ddl_scanner_skip_multi_line_comment(dx_ddl_scanner* self) {
   bool last_was_star = false;
   while (true) {
     if (self->current == self->end) {
+      dx_ddl_diagnostics_on_unclosed_multi_line_comment(self->diagnostics);
       dx_set_error(DX_LEXICAL_ERROR);
       return 1;
     } else if (*self->current == '*') {
       self->current++;
       if (self->current == self->end) {
+        dx_ddl_diagnostics_on_unclosed_multi_line_comment(self->diagnostics);
         dx_set_error(DX_LEXICAL_ERROR);
         return 1;
       }
@@ -289,6 +306,8 @@ static int dx_ddl_scanner_skip_multi_line_comment(dx_ddl_scanner* self) {
       } else {
         continue;
       }
+    } else {
+      self->current++;
     }
   }
   return 0;
@@ -319,15 +338,17 @@ static int dx_ddl_scanner_skip_nls_and_ws(dx_ddl_scanner* self) {
 }
 
 static void dx_ddl_scanner_destruct(dx_ddl_scanner* self) {
+  DX_UNREFERENCE(self->diagnostics);
+  self->diagnostics = NULL;
   dx_byte_array_uninitialize(&self->text);
 }
 
-dx_ddl_scanner* dx_ddl_scanner_create() {
-  dx_ddl_scanner* self = DX_ADL_SCANNER(dx_object_alloc(sizeof(dx_ddl_scanner)));
+dx_ddl_scanner* dx_ddl_scanner_create(dx_ddl_diagnostics* diagnostics) {
+  dx_ddl_scanner* self = DX_DDL_SCANNER(dx_object_alloc(sizeof(dx_ddl_scanner)));
   if (!self) {
     return NULL;
   }
-  if (dx_ddl_scanner_construct(self)) {
+  if (dx_ddl_scanner_construct(self, diagnostics)) {
     DX_UNREFERENCE(self);
     self = NULL;
     return NULL;
@@ -366,6 +387,7 @@ START:
         if (dx_get_error() == DX_NO_ERROR) {
           dx_set_error(DX_LEXICAL_ERROR);
         }
+        dx_ddl_diagnostics_on_unexpected_symbol(self->diagnostics);
         return 1;
       }
       if (*self->current == '/') {
@@ -384,6 +406,7 @@ START:
         if (dx_get_error() == DX_NO_ERROR) {
           dx_set_error(DX_LEXICAL_ERROR);
         }
+        dx_ddl_diagnostics_on_unexpected_symbol(self->diagnostics);
         return 1;
       }
     } break;

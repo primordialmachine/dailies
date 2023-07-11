@@ -42,4 +42,13 @@
 #include "dx/core/pointer_array.h"
 #include "dx/core/visuals.h"
 
+/// @brief Macro evaluating to <code>__FILE__</code>.
+#define DX_C_FILE_NAME __FILE__
+
+/// @brief Macro evaluating to <code>__LINE__</code>.
+#define DX_C_FILE_LINE __LINE__
+
+/// @brief Macro evaluating to <code>__func__</code>.
+#define DX_C_FUNCTION_NAME __func__
+
 #endif // DX_CORE_H_INCLUDED

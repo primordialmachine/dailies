@@ -88,6 +88,12 @@ list(APPEND ${name}.sources "dx/ddl/parser.c")
 list(APPEND ${name}.headers "dx/ddl/parser.h")
 list(APPEND ${name}.sources "dx/ddl.c")
 list(APPEND ${name}.headers "dx/ddl.h")
+list(APPEND ${name}.sources "dx/ddl/diagnostics.c")
+list(APPEND ${name}.headers "dx/ddl/diagnostics.h")
+list(APPEND ${name}.sources "dx/ddl/position.c")
+list(APPEND ${name}.headers "dx/ddl/position.h")
+list(APPEND ${name}.sources "dx/ddl/linemap.c")
+list(APPEND ${name}.headers "dx/ddl/linemap.h")
 
 # "adl" folder.
 list(APPEND ${name}.sources "dx/adl/diagnostics.c")

@@ -1,5 +1,5 @@
-### `Material`
-A material.
+### `Image`
+An image.
 
 __DDL Type__
 
@@ -15,7 +15,10 @@ __Key/Value Pairs__
 
   DDL type: `DDL.String`, ADL type: `ADL.Type`
 
-  Must be `Material`.
-- `texture`
+  Must be `Image`.
+- `operations`
 
-  DDL type: `DDL.Map`, ADL type: `ADL.TextureInstance`, optional
+  DDL type: `DDL.List`, ADL type: `ADL.List, optional
+
+  A list of `ADL.ImageOperation` elements.
+

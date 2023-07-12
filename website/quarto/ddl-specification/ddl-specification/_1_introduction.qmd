@@ -1,8 +1,8 @@
 # Introduction
-This document is the manual for version 1 of the *Data Definition Language* (*DDL*)
-which is a data representation language that uses human-readable text to store  and
-transmit data objects consisting of aggregate values (maps and lists) as well    as
-scalar values (boolean, number, string, void).
+This document is the manual for version 1 of the *Data Definition Language* (short: *DDL*).
+Programs of this language are descriptions of data as text for the purpose of storing and
+exchanging that data between entities (humans and machines alike).
+For the purpose of describing such data, the language offers built-in data types including scalar values (boolean, number, string, void) as well as aggregate values (maps and lists).
 
-The language is inspired by "JSON" (see [ECMA-404: The JSON data interchange syntax,2nd edition, December 2017](https://www.ecma-international.org/publications-and-standards/standards/ecma-404/)
+**Remark** The language is inspired by "JSON" (see [ECMA-404: The JSON data interchange syntax,2nd edition, December 2017](https://www.ecma-international.org/publications-and-standards/standards/ecma-404/)
 for more information), however, it is neither designed as a super- or subset of JSON.

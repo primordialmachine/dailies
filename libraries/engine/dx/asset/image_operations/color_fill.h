@@ -7,7 +7,7 @@
 /// @extends dx_asset_image_operation
 /// @brief An image operation.
 /// Fills an image with a color.
-DX_DECLARE_OBJECT_TYPE("dx.asset.color_fill",
+DX_DECLARE_OBJECT_TYPE("dx.asset.image_operations.color_fill",
                        dx_asset_image_operations_color_fill,
                        dx_asset_image_operation)
 

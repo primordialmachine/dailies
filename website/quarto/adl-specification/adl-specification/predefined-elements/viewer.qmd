@@ -1,2 +1,35 @@
 ### `Viewer`
 A viewer.
+
+**DDL Type**
+
+`DDL.Map`
+
+**Enclosing Elements**
+
+Root Level Element of type `DDL.List`
+
+**Key/Value Pairs**
+
+- `type`
+
+  DDL type: `DDL.String`, ADL type: `ADL.Type`
+
+   Must be `Viewer`.
+
+- `up`
+
+   DDL type: `DDL.Map`, ADL type: `ADL.Vector3`
+
+   The up vector of the viewer.
+- `source`
+
+  DDL type: `DDL.Map`, ADL type: `ADL.Vector3`
+
+   The position the viewer is located at.
+
+- `target`
+
+  DDL type: `DDL.Map`, ADL type: `ADL.Vector3`
+
+  The position the viewer is looking at.

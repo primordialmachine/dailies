@@ -1,11 +1,6 @@
-# The Program
-The folder, in which this `README.md` is located in, contains the source code and the build and configuration files for a C program.
-
-The program opens a window.
-
-The program displays a checker-board textured cube and rotates the camera around the geometry.
-
-To exit the program either close the window or press `Escape` when the window has keyboard focus.
+# Window Imaging Component Plugin
+The *Windows Imaging Component Plugin* (short: *wIC Plugin*) provides means to read and write images.
+The plugin is consumed by the engine if running under a *Microsoft Windows*.
 
 # Building the Program
 To compile this program, you generate your environment-specific build files using the KitWare's CMake.

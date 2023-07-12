@@ -8,7 +8,7 @@ project(dailies)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLibrary.cmake)
 
-add_subdirectory(tif-writer)
+add_subdirectory(plugins)
 add_subdirectory(libraries)
 
 add_subdirectory(day8)

@@ -1,6 +1,6 @@
 #include "dx/asset/image_operations/color_fill.h"
 
-DX_DEFINE_OBJECT_TYPE("dx.asset.image_operations_color_fill",
+DX_DEFINE_OBJECT_TYPE("dx.asset.image_operations.color_fill",
                       dx_asset_image_operations_color_fill,
                       dx_asset_image_operation)
 

@@ -2,33 +2,9 @@
 // Author: Michael Heilmann (michaelheilmann@primordialmachine.com)
 // Copyright Copyright (c) 2023 Michael Heilmann. All rights reserved.
 
-// malloc, free
-#include <malloc.h>
+#include "common.h"
 
-#define COBJMACROS (1)
-#include <wincodec.h>
-#pragma comment (lib, "Windowscodecs.lib")
-
-static wchar_t* mb_to_wc(const char* source) {
-  int result;
-  result = MultiByteToWideChar(CP_ACP, 0, source, -1, NULL, 0);
-  if (!result) {
-    return NULL;
-  }
-  wchar_t* target = malloc(sizeof(wchar_t) * result);
-  if (!target) {
-    return NULL;
-  }
-  result = MultiByteToWideChar(CP_ACP, 0, source, -1, target, result);
-  if (!result) {
-    free(target);
-    target = NULL;
-    return NULL;
-  }
-  return target;
-}
-
-static int write_image_1(wchar_t const* path, int width, int height, int format) {
+static int write_image_1(wchar_t const* path, void const *source_bytes, uint8_t source_pixel_format, uint32_t source_stride, uint32_t source_width, uint32_t source_height, uint8_t target_format) {
   int result = 0;
 
   IWICImagingFactory* piFactory = NULL;
@@ -40,7 +16,7 @@ static int write_image_1(wchar_t const* path, int width, int height, int format)
 
   BYTE* pbBuffer = NULL;
 
-  if (width < 0 || width > UINT_MAX || height < 0 || height > UINT_MAX) {
+  if (source_stride > UINT_MAX || source_width > UINT_MAX || source_height > UINT_MAX) {
     return 1;
   }
 
@@ -53,10 +29,10 @@ static int write_image_1(wchar_t const* path, int width, int height, int format)
   }
   //
   hr = CoCreateInstance(&CLSID_WICImagingFactory,
-    NULL,
-    CLSCTX_INPROC_SERVER,
-    &IID_IWICImagingFactory,
-    (LPVOID*)&piFactory);
+                        NULL,
+                        CLSCTX_INPROC_SERVER,
+                        &IID_IWICImagingFactory,
+                        (LPVOID*)&piFactory);
   if (FAILED(hr)) {
     result = 1;
     goto END;
@@ -73,7 +49,20 @@ static int write_image_1(wchar_t const* path, int width, int height, int format)
     goto END;
   }
   //
-  hr = IWICImagingFactory_CreateEncoder(piFactory, &GUID_ContainerFormatTiff, NULL, &piEncoder);
+  GUID const* pformat = NULL;
+  switch (target_format) {
+    case 1: /*TIFF*/
+      pformat = &GUID_ContainerFormatTiff;
+      break;
+    case 2: /*PNG*/
+      pformat = &GUID_ContainerFormatPng;
+      break;
+    default: {
+      result = 1;
+      goto END;
+    }
+  }
+  hr = IWICImagingFactory_CreateEncoder(piFactory, pformat, NULL, &piEncoder);
   if (FAILED(hr)) {
     result = 1;
     goto END;
@@ -91,77 +80,82 @@ static int write_image_1(wchar_t const* path, int width, int height, int format)
   }
 
   // This is how you customize the TIFF output.
-  PROPBAG2 option = { 0 };
-  option.pstrName = L"TiffCompressionMethod";
-  VARIANT varValue;
-  VariantInit(&varValue);
-  varValue.vt = VT_UI1;
-  varValue.bVal = WICTiffCompressionZIP;
-  hr = IPropertyBag2_Write(pPropertyBag, 1, &option, &varValue);
-  if (FAILED(hr)) {
-    result = 1;
-    goto END;
-  }
+  switch (target_format) {
+    // https://learn.microsoft.com/en-us/windows/win32/wic/tiff-format-overview
+    case 1: /*TIFF*/ {
+      PROPBAG2 option = { 0 };
+      option.pstrName = L"TiffCompressionMethod";
+      VARIANT varValue;
+      VariantInit(&varValue);
+      varValue.vt = VT_UI1;
+      varValue.bVal = WICTiffCompressionZIP;
+      hr = IPropertyBag2_Write(pPropertyBag, 1, &option, &varValue);
+      if (FAILED(hr)) {
+        result = 1;
+        goto END;
+      }
+    } break;
+    // https://learn.microsoft.com/en-us/windows/win32/wic/png-format-overview
+    case 2: /*PNG*/ {
+      /*Nothing to do here.*/
+    } break;
+    default: {
+      result = 1;
+      goto END;
+    }
+  };
+
   hr = IWICBitmapFrameEncode_Initialize(piBitmapFrame, pPropertyBag);
   if (FAILED(hr)) {
     result = 1;
     goto END;
   }
-  hr = IWICBitmapFrameEncode_SetSize(piBitmapFrame, (UINT)width, (UINT)height);
+  hr = IWICBitmapFrameEncode_SetSize(piBitmapFrame, (UINT)source_width, (UINT)source_height);
   if (FAILED(hr)) {
     result = 1;
     goto END;
   }
-  WICPixelFormatGUID formatGUID = GUID_WICPixelFormat24bppBGR;
+  WICPixelFormatGUID formatGUID = GUID_WICPixelFormatUndefined;
+  switch (source_pixel_format) {
+    case 1:/*RGB*/ {
+      formatGUID = GUID_WICPixelFormat24bppBGR;
+    } break;
+    default: {
+      result = 1;
+      goto END;
+    } break;
+  };
   hr = IWICBitmapFrameEncode_SetPixelFormat(piBitmapFrame, &formatGUID);
-  if (hr) {
+  if (FAILED(hr)) {
     result = 1;
     goto END;
   }
   // Fail if the encoder cannot handle that pixel format.
   hr = IsEqualGUID(&formatGUID, &GUID_WICPixelFormat24bppBGR) ? S_OK : E_FAIL;
-  if (hr) {
+  if (FAILED(hr)) {
     result = 1;
     goto END;
   }
-
-  UINT cbStride = (((UINT)width) * 24 + 7) / 8/***WICGetStride***/;
-  UINT cbBufferSize = ((UINT)height) * cbStride;
-
-  pbBuffer = malloc(sizeof(BYTE) * cbBufferSize);
-  if (!pbBuffer) {
-    result = 1;
-    goto END;
-  }
-
-  for (UINT i = 0; i < cbBufferSize; i++)
-  {
-    pbBuffer[i] = (BYTE)rand();
-  }
-
-  hr = IWICBitmapFrameEncode_WritePixels(piBitmapFrame, (UINT)height, cbStride, cbBufferSize, pbBuffer);
-  if (hr) {
+  uint32_t buffer_size = source_stride* source_height;
+  hr = IWICBitmapFrameEncode_WritePixels(piBitmapFrame, (UINT)source_height, source_stride, buffer_size, (void*)source_bytes);
+  if (FAILED(hr)) {
     result = 1;
     goto END;
   }
 
   hr = IWICBitmapFrameEncode_Commit(piBitmapFrame);
-  if (hr) {
+  if (FAILED(hr)) {
     result = 1;
     goto END;
   }
 
   hr = IWICBitmapEncoder_Commit(piEncoder);
-  if (hr) {
+  if (FAILED(hr)) {
     result = 1;
     goto END;
   }
 
 END:
-  if (pbBuffer) {
-    free(pbBuffer);
-    pbBuffer = NULL;
-  }
   //
   if (pPropertyBag) {
     IPropertyBag2_Release(pPropertyBag);
@@ -189,15 +183,15 @@ END:
   return result;
 }
 
-__declspec(dllexport) int write_image(char const* path, int width, int height, int format) {
-  if (!path || width < 0 || height < 0) {
+__declspec(dllexport) int write_image(char const* path, void const* source_bytes, uint8_t source_pixel_format, uint32_t source_stride, uint32_t source_width, uint32_t source_height, int target_format) {
+  if (!path) {
     return 1;
   }
   wchar_t* path_1 = mb_to_wc(path);
   if (!path_1) {
     return 1;
   }
-  if (write_image_1(path_1, width, height, format)) {
+  if (write_image_1(path_1, source_bytes, source_pixel_format, source_stride, source_width, source_height, target_format)) {
     free(path_1);
     path_1 = NULL;
     return 1;

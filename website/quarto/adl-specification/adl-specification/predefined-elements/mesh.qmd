@@ -1,2 +1,32 @@
 ### `Mesh`
 A mesh.
+
+**DDL Type**
+
+`DDL.Map`
+
+**Enclosing Elements**
+
+Root Level Element of type `DDL.List`
+
+**Key/Value Pairs**
+
+- `type`
+
+  DDL type: `DDL.String`, ADL type: `ADL.Type`
+
+  Must be `Mesh`.
+- `operations`
+
+  DDL type: `DDL.List`, ADL type: `ADL.List, optional
+
+  A list of `ADL.MeshOperation` elements.
+- `primitive`
+
+  DDL type: `DDL.String`
+
+  The mesh on which the specified operations are applied on.
+  Currently, the following primitives are supported:
+    - `cube`
+    - `quadriliteral`
+    - `octahedron`

@@ -40,6 +40,13 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+static char const* PATHNAMES[] = {
+  "./assets/cube.adl",
+  "./assets/octahedron.adl",
+};
+
+static dx_size const NUMBER_OF_PATHNAMES = sizeof(PATHNAMES) / sizeof(char const*);
+
 static bool g_quit = false;
 
 static dx_fps_counter* g_fps_counter = NULL;
@@ -49,6 +56,8 @@ static dx_msg_queue *g_msg_queue  = NULL;
 static dx_size g_scene_index = 0;
 
 static dx_scene* g_scenes[2] = { NULL, NULL };
+
+static dx_application* g_application = NULL;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -63,8 +72,6 @@ static int startup();
 static int shutdown();
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-static dx_application* g_application = NULL;
 
 /// @brief Create the singleton application object with an initial reference count of @a 1.
 /// For a successful invocation of this function, the caller must invoke dx_application_shutdown.
@@ -122,7 +129,7 @@ static int on_msg(dx_msg* msg) {
     if (DX_INPUT_MSG_KIND_KEYBOARD_KEY == dx_input_msg_get_kind(input_msg)) {
       dx_keyboard_key_msg* keyboard_key_msg = DX_KEYBOARD_KEY_MSG(input_msg);
       if (DX_KEYBOARD_KEY_ACTION_RELEASED == dx_keyboard_key_msg_get_action(keyboard_key_msg) && dx_keyboard_key_return == dx_keyboard_key_msg_get_key(keyboard_key_msg)) {
-        g_scene_index = (g_scene_index + 1) % 2;
+        g_scene_index = (g_scene_index + 1) % NUMBER_OF_PATHNAMES;
       }
     };
   } break;
@@ -138,50 +145,38 @@ static int on_msg(dx_msg* msg) {
 }
 
 static int on_startup_scene(dx_context* context) {
-  g_scenes[0] = DX_SCENE(dx_mesh_viewer_scene_create("./assets/cube.adl"));
-  if (!g_scenes[0]) {
-    return 1;
-  }
-  g_scenes[1] = DX_SCENE(dx_mesh_viewer_scene_create("./assets/octahedron.adl"));
-  if (!g_scenes[1]) {
-    DX_UNREFERENCE(g_scenes[0]);
-    g_scenes[0] = NULL;
-    return 1;
+  //
+  for (dx_size i = 0, n = NUMBER_OF_PATHNAMES; i < n; ++i) {
+    g_scenes[i] = DX_SCENE(dx_mesh_viewer_scene_create(PATHNAMES[i]));
+    if (!g_scenes[i]) {
+      while (i > 0) {
+        DX_UNREFERENCE(g_scenes[--i]);
+        g_scenes[i] = NULL;
+      }
+      return 1;
+    }
   }
   //
-  if (dx_scene_startup(g_scenes[0], context)) {
-    DX_UNREFERENCE(g_scenes[1]);
-    g_scenes[1] = NULL;
-    DX_UNREFERENCE(g_scenes[0]);
-    g_scenes[0] = NULL;
-    return 1;
+  for (dx_size i = 0, n = NUMBER_OF_PATHNAMES; i < n; ++i) {
+    if (dx_scene_startup(g_scenes[i], context)) {
+      while (i > 0) {
+        dx_scene_shutdown(g_scenes[--i], context);
+      }
+      for (dx_size i = NUMBER_OF_PATHNAMES; i > 0; --i) {
+        DX_UNREFERENCE(g_scenes[i - 1]);
+        g_scenes[i - 1] = NULL;
+      }
+    }
   }
-  if (dx_scene_startup(g_scenes[1], context)) {
-    dx_scene_shutdown(g_scenes[0], context);
-    DX_UNREFERENCE(g_scenes[1]);
-    g_scenes[1] = NULL;
-    DX_UNREFERENCE(g_scenes[0]);
-    g_scenes[0] = NULL;
-    return 1;
-  }
+  //
   return 0;
 }
 
 static int on_shutdown_scene(dx_context* context) {
-  if (g_scenes[1]) {
-    dx_scene_shutdown(g_scenes[1], context);
-  }
-  if (g_scenes[0]) {
-    dx_scene_shutdown(g_scenes[0], context);
-  }
-  //
-  if (g_scenes[1]) {
-    DX_UNREFERENCE(g_scenes[1]);
-    g_scenes[1] = NULL;
-  }
-  if (g_scenes[0]) {
-    DX_UNREFERENCE(g_scenes[0]);
-    g_scenes[0] = NULL;
+  for (dx_size i = NUMBER_OF_PATHNAMES; i > 0; --i) {
+    dx_scene_shutdown(g_scenes[i - 1], context);
+    DX_UNREFERENCE(g_scenes[i - 1]);
+    g_scenes[i - 1] = NULL;
   }
   return 0;
 }

@@ -1,2 +1,21 @@
 ### `Texture`
 A texture.
+
+**DDL Type**
+
+`DDL.Map`
+
+**Enclosing Elements**
+
+Root Level Element of type `DDL.List`
+
+**Key/Value Pairs**
+
+- `type`
+
+  DDL type: `DDL.String`, ADL type: `ADL.Type`
+
+  Must be `Texture`.
+- `image`
+
+  DDL type: `DDL.Map`, ADL type: `ADL.ImageInstance`, arity: 1

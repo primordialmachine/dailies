@@ -61,6 +61,8 @@ static dx_size g_scene_index = 0;
 
 static dx_scene* g_scenes[6] = { NULL, NULL, NULL, NULL, NULL, NULL, };
 
+static dx_application* g_application = NULL;
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 static int on_msg(dx_msg* msg);
@@ -74,8 +76,6 @@ static int startup();
 static int shutdown();
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-static dx_application* g_application = NULL;
 
 /// @brief Create the singleton application object with an initial reference count of @a 1.
 /// For a successful invocation of this function, the caller must invoke dx_application_shutdown.

@@ -48,10 +48,10 @@ project(${name})
 add_executable(${name} ${${name}.sources} ${${name}.headers} ${${name}.readmes} ${${name}.inlays} ${${name}.asms})
 
 # DLL plugins.
-add_dependencies(${name} tif-writer)
+add_dependencies(${name} wic-plugin)
 add_custom_command(TARGET ${name} POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                   ${CMAKE_CURRENT_BINARY_DIR}/../tif-writer/$<CONFIG>/tif-writer.dll $<TARGET_FILE_DIR:${name}>
+                   ${CMAKE_CURRENT_BINARY_DIR}/../plugins/wic-plugin/plugin/$<CONFIG>/wic-plugin.dll $<TARGET_FILE_DIR:${name}>
                    COMMAND_EXPAND_LISTS)
 
 # See ${CMAKE_SOURCE_DIR_DIR}/CMakeLibrary.cmake for more information.

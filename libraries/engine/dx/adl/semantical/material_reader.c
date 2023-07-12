@@ -15,12 +15,6 @@ static inline dx_string* _get_name(dx_adl_semantical_names* names, dx_size index
 
 #define NAME(name) _get_name(context->names, dx_semantical_name_index_##name)
 
-static dx_asset_texture* _read_texture(dx_ddl_node* node, dx_adl_context* context);
-
-static dx_asset_reference* _read_texture_reference(dx_ddl_node* node, dx_adl_context* context);
-
-static dx_asset_reference* _read_texture_reference_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context);
-
 static dx_asset_material* _read_material(dx_ddl_node* node, dx_adl_context* context);
 
 static int resolve(dx_adl_semantical_material_reader* self, dx_adl_symbol* symbol, dx_adl_context* context);
@@ -30,61 +24,6 @@ static dx_object* read(dx_adl_semantical_material_reader* self, dx_ddl_node* nod
 DX_DEFINE_OBJECT_TYPE("dx.adl.semantical.material_reader",
                       dx_adl_semantical_material_reader,
                       dx_adl_semantical_reader)
-
-static dx_asset_texture* _read_texture(dx_ddl_node* node, dx_adl_context* context) {
-  dx_asset_texture* asset = NULL;
-  dx_string* expected_type = NULL;
-  dx_string* received_type = NULL;
-
-  received_type = dx_adl_semantical_read_type(node, context);
-  if (!received_type) {
-    return NULL;
-  }
-  expected_type = NAME(texture_type);
-  if (dx_string_is_equal_to(expected_type, received_type)) {
-    DX_UNREFERENCE(received_type);
-    received_type = NULL;
-    dx_adl_semantical_reader* reader = dx_pointer_hashmap_get(&context->readers, expected_type);
-    if (!reader) {
-      return NULL;
-    }
-    asset = DX_ASSET_TEXTURE(dx_adl_semantical_reader_read(reader, node, context));
-    if (!asset) {
-      return NULL;
-    }
-  } else {
-    DX_UNREFERENCE(received_type);
-    received_type = NULL;
-    dx_set_error(DX_SEMANTICAL_ERROR);
-    goto END;
-  }
-END:
-  return asset;
-}
-
-static dx_asset_reference* _read_texture_reference(dx_ddl_node* node, dx_adl_context* context) {
-  dx_asset_texture* texture = _read_texture(node, context);
-  if (!texture) {
-    return NULL;
-  }
-  dx_asset_reference* texture_reference = dx_asset_reference_create(texture->name);
-  texture_reference->object = DX_OBJECT(texture);
-  return texture_reference;
-}
-
-static dx_asset_reference* _read_texture_reference_field(dx_ddl_node* node, bool optional, dx_string* key, dx_adl_context* context) {
-  dx_error old_error = dx_get_error();
-  dx_ddl_node* child_node = dx_ddl_node_map_get(node, key);
-  if (!child_node) {
-    if (DX_NOT_FOUND != dx_get_error()) {
-      return NULL;
-    } else {
-      dx_set_error(optional ? DX_NO_ERROR : DX_SEMANTICAL_ERROR);
-    }
-    return NULL;
-  }
-  return _read_texture_reference(child_node, context);
-}
 
 static dx_asset_material* _read_material(dx_ddl_node* node, dx_adl_context* context) {
   dx_asset_material* material_value = NULL;

@@ -1,6 +1,11 @@
 # Predefined Elements
 Predefined elements are built-in into the Asset Definition Language.
 
+{{< include adl-specification/predefined-elements/image.qmd >}}
+  {{< include adl-specification/predefined-elements/image_operations.checkerboard_pattern_fill.qmd >}}
+  {{< include adl-specification/predefined-elements/image_operations.color_fill.qmd >}}
+  {{< include adl-specification/predefined-elements/image_operations.mirror_horizontal.qmd >}}
+  {{< include adl-specification/predefined-elements/image_operations.mirror_vertical.qmd >}}
 {{< include adl-specification/predefined-elements/material.qmd >}}
 {{< include adl-specification/predefined-elements/materialInstance.qmd >}}
 {{< include adl-specification/predefined-elements/mesh.qmd >}}

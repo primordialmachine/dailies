@@ -47,8 +47,13 @@ list(APPEND ${name}.sources "dx/asset/image_operation.c")
 list(APPEND ${name}.headers "dx/asset/image_operation.h")
 list(APPEND ${name}.sources "dx/asset/image_operations/color_fill.c")
 list(APPEND ${name}.headers "dx/asset/image_operations/color_fill.h")
+
 list(APPEND ${name}.sources "dx/asset/image_operations/checkerboard_pattern_fill.c")
 list(APPEND ${name}.headers "dx/asset/image_operations/checkerboard_pattern_fill.h")
+list(APPEND ${name}.inlays "dx/asset/image_operations/checkerboard_pattern_fill_impl.i")
+
+list(APPEND ${name}.sources "dx/asset/image_operations/mirror_vertical.c")
+list(APPEND ${name}.headers "dx/asset/image_operations/mirror_horizontal.h")
 
 list(APPEND ${name}.sources "dx/asset/scene.c")
 list(APPEND ${name}.headers "dx/asset/scene.h")

@@ -168,7 +168,7 @@ static int resolve(dx_adl_semantical_image_reader* self, dx_adl_symbol* symbol, 
     return 0;
   }
   dx_asset_image* image = DX_ASSET_IMAGE(symbol->asset);
-  // operations
+  // operations?
   {
     dx_error last_error = dx_get_error();
     dx_string* name = NAME(operations_key);

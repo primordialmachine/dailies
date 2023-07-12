@@ -1,1 +1,6 @@
 # Introduction
+This document is the manual for version 1 of the *Asset Definition Language* (short: *ADL*).
+Programs of this language describe assets lf audio-visual virtual environments for the purpose
+of storing and exchanging those assets between entities (humans and machines alike).
+
+The *ADL* is a *DDL*-based language (see <https://develop.primordialmachine.com/ddl-specification> for more information).

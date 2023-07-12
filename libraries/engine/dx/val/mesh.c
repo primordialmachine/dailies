@@ -45,7 +45,7 @@ static dx_program_text* load_program(dx_string* path, dx_string* filename, uint8
   dx_program_text* vertex_program = NULL, * fragment_program = NULL;
   dx_program_text* program = NULL;
   {
-    dx_string* format = dx_string_create("%s/%s.vs", sizeof("%s/%s.vs") - 1);
+    dx_string* format = dx_string_create("${s}/${s}.vs", sizeof("${s}/${s}.vs") - 1);
     if (!format) {
       goto on_error;
     }
@@ -63,7 +63,7 @@ static dx_program_text* load_program(dx_string* path, dx_string* filename, uint8
     }
   }
   {
-    dx_string* format = dx_string_create("%s/%s.fs", sizeof("%s/%s.fs") - 1);
+    dx_string* format = dx_string_create("${s}/${s}.fs", sizeof("${s}/${s}.fs") - 1);
     if (!format) {
       goto on_error;
     }

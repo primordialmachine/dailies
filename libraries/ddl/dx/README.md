@@ -1,0 +1,1 @@
+- `ddl`: contains the sources of the *Data Definition Language* module.

@@ -12,7 +12,7 @@ int dx_program_text_construct_from_file(dx_program_text* program_text, dx_progra
   if (dx_string_contains_symbol(path, '\0')) {
     return 1;
   }
-  dx_string* format = dx_string_create("%s\0", sizeof("%s\0"));
+  dx_string* format = dx_string_create("${s}\0", sizeof("${s}\0"));
   if (!format) {
     return 1;
   }
@@ -113,7 +113,7 @@ dx_program_text* dx_program_text_create(dx_program_text *vertex_program_text, dx
 }
 
 static int add_define(dx_program_text* self, dx_string* name) {
-  dx_string* format = dx_string_create("#define %s (1)\n%s", sizeof("#define %s (1)\n%s"));
+  dx_string* format = dx_string_create("#define ${s} (1)\n${s}", sizeof("#define ${s} (1)\n${s}"));
   if (!format) {
     return 1;
   }

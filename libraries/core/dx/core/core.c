@@ -127,7 +127,7 @@ bool dx_almost_equal_f32(dx_f32 a, dx_f32 b, int method, dx_f32 epsilon) {
   }
 }
 
-bool dx_almost_equal_f64(double a, double b, int method, double epsilon) {
+bool dx_almost_equal_f64(dx_f64 a, dx_f64 b, int method, dx_f64 epsilon) {
   if (isnan(a) && isnan(b)) {
     return true;
   }

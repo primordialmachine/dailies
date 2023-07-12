@@ -11,7 +11,18 @@ static inline dx_string* DX_STRING(void* p) {
 
 /// @details
 /// The following format specifiers are currently supported:
-/// - `%s` a pointer to a dx_string object
+/// - `${s}` a pointer to a dx_string object. Prints the contents of this string.
+/// - `$$` prints `%`.
+/// - `${i8}` a dx_i8 value.
+/// - `${i16}` a dx_i16 value.
+/// - `${i32}` a dx_i32 value.
+/// - `${i64}` a dx_i64 value.
+/// - `${n8}` a dx_n8 value.
+/// - `${n16}` a dx_n16 value.
+/// - `${n32}` a dx_n32 value.
+/// - `${n64}` a dx_n8 value.
+/// - `${f32}` a dx_f32 value.
+/// - `${f64}` a dx_f64 value.
 dx_string* dx_string_printfv(dx_string* format, va_list arguments);
 
 dx_string* dx_string_printf(dx_string* format, ...);

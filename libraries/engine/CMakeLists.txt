@@ -24,6 +24,10 @@ list(APPEND ${name}.headers "dx/scene.h")
 list(APPEND ${name}.sources "dx/application.c")
 list(APPEND ${name}.headers "dx/application.h")
 
+# "dx/fps_counter.(c|h)"
+list(APPEND ${name}.sources "dx/fps_counter.c")
+list(APPEND ${name}.headers "dx/fps_counter.h")
+
 # "val" folder.
 list(APPEND ${name}.sources "dx/val/texture.c" "dx/val/material.c" "dx/val/mesh.c" "dx/val/mesh_instance.c" "dx/val/viewer.c")
 list(APPEND ${name}.headers "dx/val/texture.h" "dx/val/material.h" "dx/val/mesh.h" "dx/val/mesh_instance.h" "dx/val/viewer.h")
@@ -70,30 +74,6 @@ list(APPEND ${name}.headers "dx/asset/viewer.h" "dx/asset/viewer_instance.h")
 
 list(APPEND ${name}.sources "dx/asset/image.c" "dx/asset/color.c")
 list(APPEND ${name}.headers "dx/asset/image.h" "dx/asset/color.h")
-
-# "ddl.(c|h)" files & "ddl" folder.
-list(APPEND ${name}.sources "dx/ddl/word_kind.c")
-list(APPEND ${name}.headers "dx/ddl/word_kind.h")
-list(APPEND ${name}.inlays "dx/ddl/word_kind.i")
-list(APPEND ${name}.sources "dx/ddl/word.c")
-list(APPEND ${name}.headers "dx/ddl/word.h")
-list(APPEND ${name}.sources "dx/ddl/scanner.c")
-list(APPEND ${name}.headers "dx/ddl/scanner.h")
-list(APPEND ${name}.sources "dx/ddl/node_kind.c")
-list(APPEND ${name}.headers "dx/ddl/node_kind.h")
-list(APPEND ${name}.inlays "dx/ddl/node_kind.i")
-list(APPEND ${name}.sources "dx/ddl/node.c")
-list(APPEND ${name}.headers "dx/ddl/node.h")
-list(APPEND ${name}.sources "dx/ddl/parser.c")
-list(APPEND ${name}.headers "dx/ddl/parser.h")
-list(APPEND ${name}.sources "dx/ddl.c")
-list(APPEND ${name}.headers "dx/ddl.h")
-list(APPEND ${name}.sources "dx/ddl/diagnostics.c")
-list(APPEND ${name}.headers "dx/ddl/diagnostics.h")
-list(APPEND ${name}.sources "dx/ddl/position.c")
-list(APPEND ${name}.headers "dx/ddl/position.h")
-list(APPEND ${name}.sources "dx/ddl/linemap.c")
-list(APPEND ${name}.headers "dx/ddl/linemap.h")
 
 # "adl" folder.
 list(APPEND ${name}.sources "dx/adl/diagnostics.c")
@@ -170,7 +150,7 @@ dx_configure_warnings(${name})
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(${name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${name} "dailies.core")
+target_link_libraries(${name} "dailies.core" "dailies.ddl")
 
 find_package(Doxygen)
 

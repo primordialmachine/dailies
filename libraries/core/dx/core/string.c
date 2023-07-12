@@ -1,73 +1,25 @@
 #include "dx/core/string.h"
 
-// memcpy
+#include "dx/core/_string_format.h"
+
+// memcmp, memcpy
 #include <string.h>
 
 #include "dx/core/byte_array.h"
-#include "dx/core/memory.h"
 #include "dx/core/safe_add_nx.h"
 #include "dx/core/safe_mul_nx.h"
 
-#include <stdarg.h>
-
 dx_string* dx_string_printfv(dx_string* format, va_list arguments) {
-  char const* start = format->bytes;
-  char const* current = format->bytes;
-  char const* end = format->bytes + format->number_of_bytes;
-  dx_byte_array byte_array;
-  if (dx_byte_array_initialize(&byte_array)) {
+  dx_byte_array buffer;
+  if (dx_byte_array_initialize(&buffer)) {
     return NULL;
   }
-  while (current != end) {
-    if (*current == '%') {
-      // We encountered a format symbol. Store all the bytes up to and excluding the format symbol in the buffer.
-      if (dx_byte_array_append(&byte_array, start, current - start)) {
-        dx_byte_array_uninitialize(&byte_array);
-        return NULL;
-      }
-      // Skip the format symbol.
-      current++;
-      if (current == end) {
-        // Expected: Format symbol with format specifier. Received: End of string.
-        dx_set_error(DX_INVALID_ARGUMENT);
-        dx_byte_array_uninitialize(&byte_array);
-        return NULL;
-      }
-      switch (*current) {
-      case 's': {
-        dx_string* argument = va_arg(arguments, dx_string*);
-        if (!argument) {
-          dx_set_error(DX_INVALID_ARGUMENT);
-          dx_byte_array_uninitialize(&byte_array);
-          return NULL;
-        }
-        if (dx_byte_array_append(&byte_array, argument->bytes, argument->number_of_bytes)) {
-          dx_byte_array_uninitialize(&byte_array);
-          return NULL;
-        }
-      } break;
-      default: {
-        // Expected: Format specifier. Received: Unknown format specifier prefix.
-        dx_set_error(DX_INVALID_ARGUMENT);
-        dx_byte_array_uninitialize(&byte_array);
-        return NULL;
-      } break;
-      };
-      // Skip the format specifier.
-      current++;
-      start = current;
-    } else {
-      current++;
-    }
+  if (dx__format_v(&buffer, format->bytes, format->bytes + format->number_of_bytes, arguments)) {
+    dx_byte_array_uninitialize(&buffer);
+    return NULL;
   }
-  if (start != current) {
-    if (dx_byte_array_append(&byte_array, start, current - start)) {
-      dx_byte_array_uninitialize(&byte_array);
-      return NULL;
-    }
-  }
-  dx_string *string = dx_string_create(byte_array.elements, byte_array.size);
-  dx_byte_array_uninitialize(&byte_array);
+  dx_string *string = dx_string_create(buffer.elements, buffer.size);
+  dx_byte_array_uninitialize(&buffer);
   return string;
 }
 

@@ -25,8 +25,12 @@ list(APPEND ${name}.sources "dx/core.c")
 list(APPEND ${name}.headers "dx/core.h")
 
 # "core" folder.
-list(APPEND ${name}.sources "dx/core/core.c" "dx/core/os.c" "dx/core/string.c")
-list(APPEND ${name}.headers "dx/core/core.h" "dx/core/os.h" "dx/core/string.h")
+list(APPEND ${name}.sources "dx/core/core.c" "dx/core/os.c")
+list(APPEND ${name}.headers "dx/core/core.h" "dx/core/os.h")
+
+list(APPEND ${name}.sources "dx/core/_string_format.c" "dx/core/string.c")
+list(APPEND ${name}.headers "dx/core/_string_format.h" "dx/core/string.h")
+
 list(APPEND ${name}.sources "dx/core/math.c")
 list(APPEND ${name}.headers "dx/core/math.h")
 list(APPEND ${name}.sources "dx/core/memory.c")

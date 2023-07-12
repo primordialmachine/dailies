@@ -3,8 +3,6 @@
 
 #include "dx/core.h"
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
 /// The representation of an application.
 DX_DECLARE_OBJECT_TYPE("dx.application",
                        dx_application,
@@ -16,8 +14,11 @@ static dx_application* DX_APPLICATION(void* p) {
 
 struct dx_application {
   dx_object _parent;
+  int (*update)(dx_application* self);
 };
 
-int dx_application_construct(dx_application* application);
+int dx_application_construct(dx_application* self);
+
+int dx_application_update(dx_application* self);
 
 #endif // DX_APPLICATION_H_INCLUDED

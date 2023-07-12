@@ -42,6 +42,20 @@
 #include "dx/core/pointer_array.h"
 #include "dx/core/visuals.h"
 
+
+/// @brief The name of this library.
+#define DX_CORE_NAME "Primordial Machine's Core"
+
+/// @brief The major version of this library.
+#define DX_CORE_MAJOR_VERSION (0)
+
+/// @brief The minor version of this library.
+#define DX_CORE_MINOR_VERSION (0)
+
+/// @brief The revision version of this library.
+#define DX_CORE_REVISION_VERSION (1)
+
+
 /// @brief Macro evaluating to <code>__FILE__</code>.
 #define DX_C_FILE_NAME __FILE__
 

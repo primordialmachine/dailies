@@ -544,8 +544,8 @@ void dx_log_p(void const* p);
 /// In either method, a and b are considered equal if they are both nan
 /// @return @a true if @a a and @a b are equal.
 /// @a false if they are not equal or an error occurred.
-bool dx_almost_equal_f32(float a, float b, int method, float epsilon);
-bool dx_almost_equal_f64(double a, double b, int method, double epsilon);
+bool dx_almost_equal_f32(dx_f32 a, dx_f32 b, int method, dx_f32 epsilon);
+bool dx_almost_equal_f64(dx_f64 a, dx_f64 b, int method, dx_f64 epsilon);
 /// @}
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

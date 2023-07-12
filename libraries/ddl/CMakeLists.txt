@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 
-set(name "dailies.val.gl")
+set(name "dailies.ddl")
 
 
 set(${name}.inlays "")
@@ -16,16 +16,29 @@ set(${name}.readmes "")
 # "README.md"
 list(APPEND ${name}.readmes "README.md")
 
-# "VAL OpenGL backend"
-list(APPEND ${name}.sources "dx/gl/context.c" "dx/gl/wgl/context.c" "dx/gl/program.c" "dx/gl/buffer.c" "dx/gl/binding.c" "dx/gl/wgl/wm.c")
-list(APPEND ${name}.headers "dx/gl/context.h" "dx/gl/wgl/context.h" "dx/gl/program.h" "dx/gl/buffer.h" "dx/gl/binding.h" "dx/gl/wgl/wm.h" )
-list(APPEND ${name}.inlays "dx/gl/functions.i")
-list(APPEND ${name}.sources "dx/gl/texture.c")
-list(APPEND ${name}.headers "dx/gl/texture.h")
-list(APPEND ${name}.sources "dx/gl/application.c")
-list(APPEND ${name}.headers "dx/gl/application.h")
-list(APPEND ${name}.sources "dx/gl/wgl/application.c")
-list(APPEND ${name}.headers "dx/gl/wgl/application.h")
+# "ddl.(c|h)" files & "ddl" folder.
+list(APPEND ${name}.sources "dx/ddl/word_kind.c")
+list(APPEND ${name}.headers "dx/ddl/word_kind.h")
+list(APPEND ${name}.inlays "dx/ddl/word_kind.i")
+list(APPEND ${name}.sources "dx/ddl/word.c")
+list(APPEND ${name}.headers "dx/ddl/word.h")
+list(APPEND ${name}.sources "dx/ddl/scanner.c")
+list(APPEND ${name}.headers "dx/ddl/scanner.h")
+list(APPEND ${name}.sources "dx/ddl/node_kind.c")
+list(APPEND ${name}.headers "dx/ddl/node_kind.h")
+list(APPEND ${name}.inlays "dx/ddl/node_kind.i")
+list(APPEND ${name}.sources "dx/ddl/node.c")
+list(APPEND ${name}.headers "dx/ddl/node.h")
+list(APPEND ${name}.sources "dx/ddl/parser.c")
+list(APPEND ${name}.headers "dx/ddl/parser.h")
+list(APPEND ${name}.sources "dx/ddl.c")
+list(APPEND ${name}.headers "dx/ddl.h")
+list(APPEND ${name}.sources "dx/ddl/diagnostics.c")
+list(APPEND ${name}.headers "dx/ddl/diagnostics.h")
+list(APPEND ${name}.sources "dx/ddl/position.c")
+list(APPEND ${name}.headers "dx/ddl/position.h")
+list(APPEND ${name}.sources "dx/ddl/linemap.c")
+list(APPEND ${name}.headers "dx/ddl/linemap.h")
 
 # Small utility function to find files by expression and append them to the specified list.
 function(add_files file_list expression)
@@ -46,15 +59,10 @@ add_library(${name} ${${name}.sources} ${${name}.headers} ${${name}.readmes} ${$
 # See ${CMAKE_SOURCE_DIR_DIR}/CMakeLibrary.cmake for more information.
 dx_configure_warnings(${name})
 
-# OpenGL-specific header files.
-# TODO: Do not defined as "PUBLIC". Define as "PRIVATE.
-target_include_directories(${name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-                                           ${CMAKE_CURRENT_SOURCE_DIR}/external/opengl/includes)
-
 target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(${name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${name} "dailies.engine")
+target_link_libraries(${name} "dailies.core")
 
 find_package(Doxygen)
 

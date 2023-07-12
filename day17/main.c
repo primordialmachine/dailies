@@ -35,6 +35,8 @@
 #include "dx/application.h"
 #include "dx/gl/wgl/wm.h"
 #include "dx/scenes/mesh_viewer_scene.h"
+#include "dx/fps_counter.h"
+#include <stdio.h>
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -50,6 +52,8 @@ static char const* PATHNAMES[] = {
 static dx_size const NUMBER_OF_PATHNAMES = sizeof(PATHNAMES) / sizeof(char const*);
 
 static bool g_quit = false;
+
+static dx_fps_counter* g_fps_counter = NULL;
 
 static dx_msg_queue *g_msg_queue  = NULL;
 
@@ -70,6 +74,8 @@ static int startup();
 static int shutdown();
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static dx_application* g_application = NULL;
 
 /// @brief Create the singleton application object with an initial reference count of @a 1.
 /// For a successful invocation of this function, the caller must invoke dx_application_shutdown.
@@ -93,15 +99,21 @@ void dx_application_shutdown();
 dx_application* dx_application_get();
 
 int dx_application_startup(dx_msg_queue* msg_queue) {
-  return dx_gl_wgl_application_startup(msg_queue);
+  g_application = DX_APPLICATION(dx_gl_wgl_application_create(msg_queue));
+  if (!g_application) {
+    return 1;
+  }
+  return 0;
 }
 
 void dx_application_shutdown() {
-  dx_gl_wgl_application_shutdown();
+  DX_UNREFERENCE(g_application);
+  g_application = NULL;
 }
 
 dx_application* dx_application_get() {
-  return (dx_application*)dx_gl_wgl_application_get();
+  DX_REFERENCE(g_application);
+  return g_application;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -200,27 +212,45 @@ static int run() {
     DX_UNREFERENCE(msg);
     msg = NULL;
   }
+  
   dx_context* ctx = DX_CONTEXT(dx_gl_wgl_get_context());
+  
   if (on_startup_scene(ctx)) {
     LEAVE(DX_C_FUNCTION_NAME);
     return 1;
   }
+  
   uint64_t last = GetTickCount64();
   uint64_t now = last;
   uint64_t delta = now - last;
+  
   while (!g_quit) {
+    dx_fps_counter_on_enter_frame(g_fps_counter);
+
     now = GetTickCount64();
     delta = now - last;
     last = now;
-
-    if (dx_gl_wgl_update_wm()) {
+    dx_application* application = dx_application_get();
+    if (!application) {
+      dx_fps_counter_on_leave_frame(g_fps_counter);
       on_shutdown_scene(ctx);
       LEAVE(DX_C_FUNCTION_NAME);
       return 1;
     }
+    if (dx_application_update(application)) {
+      DX_UNREFERENCE(application);
+      application = NULL;
+      dx_fps_counter_on_leave_frame(g_fps_counter);
+      on_shutdown_scene(ctx);
+      LEAVE(DX_C_FUNCTION_NAME);
+      return 1;
+    }
+    DX_UNREFERENCE(application);
+    application = NULL;
     do {
       dx_msg* msg;
       if (dx_msg_queue_pop(g_msg_queue, &msg)) {
+        dx_fps_counter_on_leave_frame(g_fps_counter);
         on_shutdown_scene(ctx);
         LEAVE(DX_C_FUNCTION_NAME);
         return 1;
@@ -229,6 +259,7 @@ static int run() {
         if (on_msg(msg)) {
           DX_UNREFERENCE(msg);
           msg = NULL;
+          dx_fps_counter_on_leave_frame(g_fps_counter);
           on_shutdown_scene(ctx);
           LEAVE(DX_C_FUNCTION_NAME);
           return 1;
@@ -243,17 +274,39 @@ static int run() {
     int canvas_width, canvas_height;
     if (dx_gl_wgl_get_canvas_size(&canvas_width, &canvas_height)) {
       dx_gl_wgl_leave_frame();
+      dx_fps_counter_on_leave_frame(g_fps_counter);
       on_shutdown_scene(ctx);
       LEAVE(DX_C_FUNCTION_NAME);
       return 1;
     }
     if (on_render_scene(ctx, ((dx_f32)delta)/1000.f, canvas_width, canvas_height)) {
       dx_gl_wgl_leave_frame();
+      dx_fps_counter_on_leave_frame(g_fps_counter);
       on_shutdown_scene(ctx);
       LEAVE(DX_C_FUNCTION_NAME);
       return 1;
     }
     dx_gl_wgl_leave_frame();
+    dx_fps_counter_on_leave_frame(g_fps_counter);
+    //
+    dx_string* format = dx_string_create("FPS: ${f64}\n", sizeof("FPS: ${f64}\n"));
+    if (!format) {
+      on_shutdown_scene(ctx);
+      LEAVE(DX_C_FUNCTION_NAME);
+      return 1;
+    }
+    dx_f64 value = dx_fps_counter_get_fps(g_fps_counter);
+    dx_string* msg = dx_string_printf(format, value);
+    DX_UNREFERENCE(format);
+    format = NULL;
+    if (!msg) {
+      on_shutdown_scene(ctx);
+      LEAVE(DX_C_FUNCTION_NAME);
+      return 1;
+    }
+    dx_log(msg->bytes, msg->number_of_bytes);
+    DX_UNREFERENCE(msg);
+    msg = NULL;
   }
   on_shutdown_scene(ctx);
   LEAVE(DX_C_FUNCTION_NAME);
@@ -265,8 +318,16 @@ static int startup() {
   if (dx_rti_initialize()) {
     return 1;
   }
+  g_fps_counter = dx_fps_counter_create();
+  if (!g_fps_counter) {
+    dx_rti_unintialize();
+    LEAVE(DX_C_FUNCTION_NAME);
+    return 1;
+  }
   g_msg_queue = dx_msg_queue_create();
   if (!g_msg_queue) {
+    DX_UNREFERENCE(g_fps_counter);
+    g_fps_counter = NULL;
     dx_rti_unintialize();
     LEAVE(DX_C_FUNCTION_NAME);
     return 1;
@@ -274,6 +335,8 @@ static int startup() {
   if (dx_application_startup(g_msg_queue)) {
     dx_msg_queue_destroy(g_msg_queue);
     g_msg_queue = NULL;
+    DX_UNREFERENCE(g_fps_counter);
+    g_fps_counter = NULL;
     dx_rti_unintialize();
     LEAVE(DX_C_FUNCTION_NAME);
     return 1;
@@ -282,6 +345,8 @@ static int startup() {
     dx_application_shutdown();
     dx_msg_queue_destroy(g_msg_queue);
     g_msg_queue = NULL;
+    DX_UNREFERENCE(g_fps_counter);
+    g_fps_counter = NULL;
     dx_rti_unintialize();
     LEAVE(DX_C_FUNCTION_NAME);
     return 1;
@@ -296,6 +361,8 @@ static int shutdown() {
   dx_application_shutdown();
   dx_msg_queue_destroy(g_msg_queue);
   g_msg_queue = NULL;
+  DX_UNREFERENCE(g_fps_counter);
+  g_fps_counter = NULL;
   dx_rti_unintialize();
   LEAVE(DX_C_FUNCTION_NAME);
   return 0;

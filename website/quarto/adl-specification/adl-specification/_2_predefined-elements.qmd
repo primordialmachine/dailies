@@ -1,5 +1,22 @@
-# Predefined Elements
-Predefined elements are built-in into the Asset Definition Language.
+# *ADL.Assets*
+ADL programs are DDL programs that adhere to the with lexical, syntactical, and semantical requirements of the ADL.
+This manual make references to the DDL types **Boolean**, **List**, **Map**, **Number**, **String, and **Void**.
+To avoid confusion with other types, we refer to these types by **DDL.Boolean**, **DDL.List**, **DDL.Map**, **DDL.Number**, **DDL.String**, and **DDL.Void**.
+
+An ADL program consists of a single DDL value (as required by DDL programs).
+This single value is of type *DDL.Map* with a required key/value pair with the key `type` and the value `'Assets'`
+which identifies the value to be of the ADL type *ADL.Assets*.
+Value of type *ADL.Assets* is a container for the assets defined by the ADL program.
+These assets are specified as the value of the key/value pair with the key `elements`.
+The value must be a DDL list containing zero or more values of the ADL type *ADL.Asset*.
+If the key/value pair is omitted, then this is equivalent to specifying the key/value pair with an empty list.
+
+# *ADL.Asset*
+A value of type *ADL.Asset* is a value of the DDL type *DDL.Map* with a required key/value pair with value `type` and *DDL.String* value denoting the ADL type of the asset.
+The lexical, syntactical, and semantical requirements on the other key/value pairs are determined by that type.
+
+# *ADL.Asset* Derived Types
+It follows a list of the ADL types derived from *ADL.Asset*.
 
 {{< include adl-specification/predefined-elements/image.qmd >}}
   {{< include adl-specification/predefined-elements/image_operations.checkerboard_pattern_fill.qmd >}}

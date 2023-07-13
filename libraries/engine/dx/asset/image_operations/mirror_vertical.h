@@ -19,7 +19,6 @@ static inline dx_asset_image_operations_mirror_vertical* DX_ASSET_IMAGE_OPERATIO
 
 struct dx_asset_image_operations_mirror_vertical {
   dx_asset_image_operation _parent;
-  DX_RGB_U8 color;
 };
 
 /// @brief Construct this dx_asset_image_operations_mirror_vertical object with default values.

@@ -53,7 +53,12 @@ list(APPEND ${name}.headers "dx/asset/image_operations/checkerboard_pattern_fill
 list(APPEND ${name}.inlays "dx/asset/image_operations/checkerboard_pattern_fill_impl.i")
 
 list(APPEND ${name}.sources "dx/asset/image_operations/mirror_vertical.c")
+list(APPEND ${name}.headers  "dx/asset/image_operations/mirror_vertical.h")
+list(APPEND ${name}.inlays  "dx/asset/image_operations/mirror_vertical_impl.i")
+
+list(APPEND ${name}.sources "dx/asset/image_operations/mirror_horizontal.c")
 list(APPEND ${name}.headers "dx/asset/image_operations/mirror_horizontal.h")
+list(APPEND ${name}.inlays  "dx/asset/image_operations/mirror_horizontal_impl.i")
 
 list(APPEND ${name}.sources "dx/asset/scene.c")
 list(APPEND ${name}.headers "dx/asset/scene.h")

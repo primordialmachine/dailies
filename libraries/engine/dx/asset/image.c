@@ -23,11 +23,29 @@ static const DX_RGB_U8 black = { 0, 0, 0 };
 
 static dx_size get_bytes_per_pixel(DX_PIXEL_FORMAT pixel_format);
 
-static void fill_rgb_u8(void* pixels, OFFSET2 fill_offset, EXTEND2 fill_extend, EXTEND2 image_extend, DX_RGB_U8 const* color);
+// primitive operation
+static int _swap_pixels_rgb_u8(dx_asset_image* self, dx_size source_x, dx_size source_y, dx_size target_x, dx_size target_y);
+
+// primitive operation
+static void _fill_rgb_u8(void* pixels, OFFSET2 fill_offset, EXTEND2 fill_extend, EXTEND2 image_extend, DX_RGB_U8 const* color);
+
+/// @brief Swap two columns.
+/// @param self A pointer to this image.
+/// @param i, j The indices of the columns.
+/// @return The zero value on success. A non-zero value on failure.
+/// @default-failure This function has set the error variable.
+/// @remark This is a non-primitive operation.
+static int _swap_columns(dx_asset_image* self, dx_size i, dx_size j);
+
+/// @brief Swap two rows.
+/// @param self A pointer to this image.
+/// @param i, j The indices of the rows.
+/// @return The zero value on success. A non-zero value on failure.
+/// @failure This function has set the error variable.
+/// @remark This is a non-primitive operation.
+static int _swap_rows(dx_asset_image* self, dx_size i, dx_size j);
 
 static int on_color_fill_image_operation(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, dx_asset_image_operations_color_fill* image_operation);
-
-static int on_checkerboard_pattern_fill_image_operation(dx_asset_image* self, OFFSET2 offset, EXTEND2 extend, dx_asset_image_operations_checkerboard_pattern_fill* image_operation);
 
 static dx_size get_bytes_per_pixel(DX_PIXEL_FORMAT pixel_format) {
   switch (pixel_format) {
@@ -41,7 +59,7 @@ static dx_size get_bytes_per_pixel(DX_PIXEL_FORMAT pixel_format) {
   };
 }
 
-static void fill_rgb_u8(void* pixels, OFFSET2 fill_offset, EXTEND2 fill_extend, EXTEND2 image_extend, DX_RGB_U8 const* color) {
+static void _fill_rgb_u8(void* pixels, OFFSET2 fill_offset, EXTEND2 fill_extend, EXTEND2 image_extend, DX_RGB_U8 const* color) {
   // fast clip
   if (fill_offset.left > image_extend.width) {
     return;
@@ -72,6 +90,88 @@ static void fill_rgb_u8(void* pixels, OFFSET2 fill_offset, EXTEND2 fill_extend, 
       *(DX_RGB_U8*)(((uint8_t*)pixels) + offset_bytes) = *color;
     }
   }
+}
+
+static int _swap_pixels_rgb_u8(dx_asset_image* self, dx_size source_x, dx_size source_y, dx_size target_x, dx_size target_y) {
+  if (!self) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  if (source_x >= self->width || source_y >= self->height) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  if (target_x >= self->width || target_y >= self->height) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  if (source_x == target_x && source_y == target_y) {
+    return 0;
+  }
+  dx_size bytes_per_pixel = get_bytes_per_pixel(DX_PIXEL_FORMAT_RGB_U8);
+
+  dx_size source_offset_pixels = source_y * self->width + source_x;
+  dx_size source_offset_bytes = source_offset_pixels * bytes_per_pixel;
+  
+  dx_size target_offset_pixels = target_y * self->height + target_x;
+  dx_size target_offset_bytes = target_offset_pixels * bytes_per_pixel;
+
+  DX_RGB_U8* source = (DX_RGB_U8*)((uint8_t*)self->pixels + source_offset_bytes);
+  DX_RGB_U8* target = (DX_RGB_U8*)((uint8_t*)self->pixels + target_offset_bytes);
+
+  DX_RGB_U8 temporary = *source;
+  *source = *target;
+  *target = temporary;
+
+  return 0;
+}
+
+static int _swap_columns(dx_asset_image* self, dx_size i, dx_size j) {
+  if (!self) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  if (i >= self->width || j >= self->width) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  switch (self->pixel_format) {
+    case DX_PIXEL_FORMAT_RGB_U8: {
+      // iterate over the y-axis
+      for (dx_size y = 0; y < self->height; ++y) {
+        _swap_pixels_rgb_u8(self, i, y, j, y);
+      }
+    } break;
+    default: {
+      dx_set_error(DX_NOT_IMPLEMENTED);
+      return 1;
+    } break;
+  } 
+  return dx_get_error();
+}
+
+static int _swap_rows(dx_asset_image* self, dx_size i, dx_size j) {
+  if (!self) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  if (i >= self->height || j >= self->height) {
+    dx_set_error(DX_INVALID_ARGUMENT);
+    return 1;
+  }
+  switch (self->pixel_format) {
+    case DX_PIXEL_FORMAT_RGB_U8: {
+      // iterate over the x-axis
+      for (dx_size x = 0; x < self->width; ++x) {
+        _swap_pixels_rgb_u8(self, x, i, x, j);
+      }
+    } break;
+    default: {
+      dx_set_error(DX_NOT_IMPLEMENTED);
+      return 1;
+    } break;
+  }
+  return dx_get_error();
 }
 
 static void dx_asset_image_destruct(dx_asset_image* self) {
@@ -118,7 +218,7 @@ int dx_asset_image_construct(dx_asset_image* self,
     OFFSET2 fill_offset = { .left = 0, .top = 0 };
     EXTEND2 fill_size = { .width = self->width, .height = self->height };
     EXTEND2 image_size = { .width = self->width, .height = self->height };
-    fill_rgb_u8(self->pixels, fill_offset, fill_size, image_size, color);
+    _fill_rgb_u8(self->pixels, fill_offset, fill_size, image_size, color);
   } break;
   default: {
     dx_memory_deallocate(self->pixels);
@@ -167,7 +267,7 @@ static int on_color_fill_image_operation(dx_asset_image* self, OFFSET2 offset, E
   switch (self->pixel_format) {
   case DX_PIXEL_FORMAT_RGB_U8: {
     EXTEND2 image_size = { .width = self->width, .height = self->height };
-    fill_rgb_u8(self->pixels, offset, extend, image_size, &(image_operation->color));
+    _fill_rgb_u8(self->pixels, offset, extend, image_size, &(image_operation->color));
   } break;
   default: {
     dx_set_error(DX_INVALID_ARGUMENT);
@@ -178,6 +278,8 @@ static int on_color_fill_image_operation(dx_asset_image* self, OFFSET2 offset, E
 }
 
 #include "dx/asset/image_operations/checkerboard_pattern_fill_impl.i"
+#include "dx/asset/image_operations/mirror_horizontal_impl.i"
+#include "dx/asset/image_operations/mirror_vertical_impl.i"
 
 int dx_asset_image_apply(dx_asset_image* self,
                          dx_size left,

@@ -3,8 +3,21 @@
 // Copyright Copyright (c) 2023 Michael Heilmann. All rights reserved.
 
 #include "common.h"
+#include "wic-plugin.h"
 
-static int write_image_1(wchar_t const* path, void const *source_bytes, uint8_t source_pixel_format, uint32_t source_stride, uint32_t source_width, uint32_t source_height, uint8_t target_format) {
+
+static int
+write_image_1
+  (
+    wchar_t const* path,
+    void const *source_bytes,
+    DX_WIC_PLUGIN_PIXEL_FORMAT source_pixel_format,
+    uint32_t source_stride,
+    uint32_t source_width,
+    uint32_t source_height,
+    DX_WIC_PLUGIN_IMAGE_FORMAT target_format
+  )
+{
   int result = 0;
 
   IWICImagingFactory* piFactory = NULL;
@@ -51,10 +64,10 @@ static int write_image_1(wchar_t const* path, void const *source_bytes, uint8_t 
   //
   GUID const* pformat = NULL;
   switch (target_format) {
-    case 1: /*TIFF*/
+    case DX_WIC_PLUGIN_IMAGE_FORMAT_TIFF:
       pformat = &GUID_ContainerFormatTiff;
       break;
-    case 2: /*PNG*/
+    case DX_WIC_PLUGIN_IMAGE_FORMAT_PNG:
       pformat = &GUID_ContainerFormatPng;
       break;
     default: {
@@ -82,7 +95,7 @@ static int write_image_1(wchar_t const* path, void const *source_bytes, uint8_t 
   // This is how you customize the TIFF output.
   switch (target_format) {
     // https://learn.microsoft.com/en-us/windows/win32/wic/tiff-format-overview
-    case 1: /*TIFF*/ {
+    case DX_WIC_PLUGIN_IMAGE_FORMAT_TIFF: {
       PROPBAG2 option = { 0 };
       option.pstrName = L"TiffCompressionMethod";
       VARIANT varValue;
@@ -96,7 +109,7 @@ static int write_image_1(wchar_t const* path, void const *source_bytes, uint8_t 
       }
     } break;
     // https://learn.microsoft.com/en-us/windows/win32/wic/png-format-overview
-    case 2: /*PNG*/ {
+    case DX_WIC_PLUGIN_IMAGE_FORMAT_PNG: {
       /*Nothing to do here.*/
     } break;
     default: {
@@ -117,7 +130,7 @@ static int write_image_1(wchar_t const* path, void const *source_bytes, uint8_t 
   }
   WICPixelFormatGUID formatGUID = GUID_WICPixelFormatUndefined;
   switch (source_pixel_format) {
-    case 1:/*RGB*/ {
+    case DX_WIC_PLUGIN_PIXEL_FORMAT_RGB: {
       formatGUID = GUID_WICPixelFormat24bppBGR;
     } break;
     default: {
@@ -183,7 +196,18 @@ END:
   return result;
 }
 
-__declspec(dllexport) int write_image(char const* path, void const* source_bytes, uint8_t source_pixel_format, uint32_t source_stride, uint32_t source_width, uint32_t source_height, int target_format) {
+__declspec(dllexport) int
+write_image
+  (
+    char const* path,
+    void const* source_bytes,
+    DX_WIC_PLUGIN_PIXEL_FORMAT source_pixel_format,
+    uint32_t source_stride,
+    uint32_t source_width,
+    uint32_t source_height,
+    DX_WIC_PLUGIN_IMAGE_FORMAT target_format
+  )
+{
   if (!path) {
     return 1;
   }
@@ -191,7 +215,13 @@ __declspec(dllexport) int write_image(char const* path, void const* source_bytes
   if (!path_1) {
     return 1;
   }
-  if (write_image_1(path_1, source_bytes, source_pixel_format, source_stride, source_width, source_height, target_format)) {
+  if (write_image_1(path_1,
+                    source_bytes,
+                    source_pixel_format,
+                    source_stride,
+                    source_width,
+                    source_height,
+                    target_format)) {
     free(path_1);
     path_1 = NULL;
     return 1;

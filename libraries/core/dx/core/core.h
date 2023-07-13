@@ -462,6 +462,10 @@ typedef int dx_error;
 #define DX_OVERFLOW (12)
 
 /// @ingroup core
+/// @brief Symbolic constant for a dx_error value indicating a failure because an operation was not (yet) implemented.
+#define DX_NOT_IMPLEMENTED (13)
+
+/// @ingroup core
 /// @brief Get the value of the error variable.
 /// @return The value.
 dx_error dx_get_error();
